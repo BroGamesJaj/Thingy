@@ -7,7 +7,7 @@
 	int main(int argc, char** argv) {
 
 		Thingy::Application app{};
-		
+		T_TRACE()
 		app.Run();	
 
 	}

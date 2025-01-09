@@ -42,7 +42,7 @@ project "Thingy"
 
     includedirs
     {
-        --"Thingy/vendor/spdlog/include",
+        "Thingy/vendor/spdlog/include",
         "src/",
         --"%{IncludeDir.SDL}",
         --"%{IncludeDir.VulkanSDK}",

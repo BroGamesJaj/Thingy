@@ -13,7 +13,6 @@ namespace Thingy {
 	void Application::Run() {
 
 		while (Running) {
-			std::cout << "hi" << std::endl;
 		}
 	}
 }
