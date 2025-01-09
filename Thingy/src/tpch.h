@@ -35,6 +35,3 @@
 #ifdef T_PLATFORM_WINDOWS
 #include <Windows.h>
 #endif
-
-//Engine
-#include "SpaceEngine/Core.h"

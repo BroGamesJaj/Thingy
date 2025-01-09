@@ -13,14 +13,15 @@ Outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 --VULKAN_SDK = os.getenv("VULKAN_SDK")
 
 IncludeDir = {}
---IncludeDir["SDL"] = "SpaceEngine/vendor/SDL/include"
+IncludeDir["SDL"] = "SpaceEngine/vendor/SDL/include"
 --IncludeDir["VulkanSDK"] = "%{VULKAN_SDK}/Include"
 --IncludeDir["imGui"] = "Thingy/vendor/imgui"
 
 IncludeLib = {}
+--IncludeLib["SDL"] = ""
 --IncludeLib["VulkanSDK"] = "%{VULKAN_SDK}/Lib"
 
---include "Thingy/vendor/SDL"
+include "Thingy/vendor/SDL"
 --include "Thingy/vendor/imGui"
 
 project "Thingy"
@@ -42,9 +43,9 @@ project "Thingy"
 
     includedirs
     {
-        "Thingy/vendor/spdlog/include",
-        "src/",
-        --"%{IncludeDir.SDL}",
+        "%{prj.name}/src",
+        "%{prj.name}/vendor/spdlog/include",
+        "%{IncludeDir.SDL}",
         --"%{IncludeDir.VulkanSDK}",
         --"%{IncludeDir.imGui}"
     }

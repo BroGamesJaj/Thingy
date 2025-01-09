@@ -1,12 +1,11 @@
 #pragma once
-
 #include "tpch.h"
 
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "spdlog/fmt/ostr.h"
 
-namespace SpaceEngine {
+namespace Thingy {
 
 	class Log
 	{
@@ -18,9 +17,9 @@ namespace SpaceEngine {
 		inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
 	};
 }
-//Client log macros
-#define T_TRACE(...) ::SpaceEngine::Log::GetClientLogger()->trace(__VA_ARGS__)
-#define T_INFO(...)  ::SpaceEngine::Log::GetClientLogger()->info(__VA_ARGS__)
-#define T_WARN(...)  ::SpaceEngine::Log::GetClientLogger()->warn(__VA_ARGS__)
-#define T_ERROR(...) ::SpaceEngine::Log::GetClientLogger()->error(__VA_ARGS__)
-#define T_FATAL(...) ::SpaceEngine::Log::GetClientLogger()->fatal(__VA_ARGS__)
+//log macros
+#define T_TRACE(...) ::Thingy::Log::GetClientLogger()->trace(__VA_ARGS__)
+#define T_INFO(...)  ::Thingy::Log::GetClientLogger()->info(__VA_ARGS__)
+#define T_WARN(...)  ::Thingy::Log::GetClientLogger()->warn(__VA_ARGS__)
+#define T_ERROR(...) ::Thingy::Log::GetClientLogger()->error(__VA_ARGS__)
+#define T_FATAL(...) ::Thingy::Log::GetClientLogger()->fatal(__VA_ARGS__)
