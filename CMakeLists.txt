@@ -4,8 +4,8 @@ project(Thingy LANGUAGES CXX)
 
 # Define configurations, including custom 'Dist'
 set(CMAKE_CONFIGURATION_TYPES Debug Release Dist CACHE STRING "Available build configurations" FORCE)
-set(CMAKE_CXX_FLAGS_DIST "")
-set(CMAKE_EXE_LINKER_FLAGS_DIST "")
+set(CMAKE_CXX_FLAGS "")
+set(CMAKE_EXE_LINKER_FLAGS "/SUBSYSTEM:CONSOLE")
 
 set(OUTPUT_DIR "${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
 set(OBJ_DIR "${CMAKE_BINARY_DIR}/bin-int/${CMAKE_BUILD_TYPE}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
@@ -42,6 +42,27 @@ if (WIN32)
     target_compile_options(Thingy PRIVATE "/utf-8")
 endif()
 
+add_subdirectory(Thingy/vendor/spdlog)
+target_link_libraries(Thingy PRIVATE spdlog::spdlog)
+
+target_include_directories(Thingy PRIVATE "Thingy/vendor/SDL/include")
+find_library(SDL3_LIB SDL3
+    PATHS "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL/sdl_build/Debug/"
+    NO_DEFAULT_PATH
+)
+target_compile_definitions(Thingy PRIVATE SDL_MAIN_HANDLED)
+if (SDL3_LIB)
+    target_link_libraries(Thingy PRIVATE ${SDL3_LIB})
+else()
+    message(FATAL_ERROR "SDL3 library not found!")
+endif()
+
+add_custom_command(TARGET Thingy POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL/sdl_build/Debug/SDL3.dll"
+    $<TARGET_FILE_DIR:Thingy>
+)
+
 # Handle configurations
 target_compile_definitions(Thingy PRIVATE
     $<$<CONFIG:Debug>:SE_DEBUG>
@@ -54,6 +75,3 @@ target_compile_options(Thingy PRIVATE
     $<$<CONFIG:Release>:-O2>
     $<$<CONFIG:Dist>:-O2>
 )
-
-add_subdirectory(Thingy/vendor/spdlog)
-target_link_libraries(Thingy PRIVATE spdlog::spdlog)

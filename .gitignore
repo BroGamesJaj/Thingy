@@ -1,8 +1,5 @@
 # Visual Studio
 .vs
- 
-
-
 x64/
 bin-int/
 bin/
@@ -14,6 +11,7 @@ bin/
 *.lo
 *.o
 *.obj
+build
 
 # Precompiled Headers
 *.gch
