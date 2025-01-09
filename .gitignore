@@ -4,6 +4,10 @@
 *.vcxproj.filters
 *.vcxproj.user
 *.sln
+
+x64/
+bin-int/
+bin/
 # Prerequisites
 *.d
 
