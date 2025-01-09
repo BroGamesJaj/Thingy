@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL", "Thingy\vendor\SDL\SDL.vcxproj", "{081D880B-7426-887C-FDA1-9E7C69AA937C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Thingy", "Thingy\Thingy.vcxproj", "{78C365D3-6465-90A9-4D20-A4FD396117FA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Dist|x64 = Dist|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{081D880B-7426-887C-FDA1-9E7C69AA937C}.Debug|x64.ActiveCfg = Debug|x64
+		{081D880B-7426-887C-FDA1-9E7C69AA937C}.Debug|x64.Build.0 = Debug|x64
+		{081D880B-7426-887C-FDA1-9E7C69AA937C}.Dist|x64.ActiveCfg = Dist|x64
+		{081D880B-7426-887C-FDA1-9E7C69AA937C}.Dist|x64.Build.0 = Dist|x64
+		{081D880B-7426-887C-FDA1-9E7C69AA937C}.Release|x64.ActiveCfg = Release|x64
+		{081D880B-7426-887C-FDA1-9E7C69AA937C}.Release|x64.Build.0 = Release|x64
+		{78C365D3-6465-90A9-4D20-A4FD396117FA}.Debug|x64.ActiveCfg = Debug|x64
+		{78C365D3-6465-90A9-4D20-A4FD396117FA}.Debug|x64.Build.0 = Debug|x64
+		{78C365D3-6465-90A9-4D20-A4FD396117FA}.Dist|x64.ActiveCfg = Dist|x64
+		{78C365D3-6465-90A9-4D20-A4FD396117FA}.Dist|x64.Build.0 = Dist|x64
+		{78C365D3-6465-90A9-4D20-A4FD396117FA}.Release|x64.ActiveCfg = Release|x64
+		{78C365D3-6465-90A9-4D20-A4FD396117FA}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
