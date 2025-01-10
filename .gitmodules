@@ -1,3 +1,6 @@
 [submodule "Thingy/vendor/spdlog"]
 	path = Thingy/vendor/spdlog
 	url = https://github.com/gabime/spdlog
+[submodule "Thingy/vendor/SDL"]
+	path = Thingy/vendor/SDL
+	url = https://github.com/BroGamesJaj/SDL
