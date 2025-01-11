@@ -4,6 +4,3 @@
 [submodule "Thingy/vendor/SDL"]
 	path = Thingy/vendor/SDL
 	url = https://github.com/BroGamesJaj/SDL
-[submodule "Thingy/vendor/imgui"]
-	path = Thingy/vendor/imgui
-	url = https://github.com/BroGamesJaj/imgui
