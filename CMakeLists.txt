@@ -46,6 +46,7 @@ add_subdirectory(Thingy/vendor/spdlog)
 target_link_libraries(Thingy PRIVATE spdlog::spdlog)
 
 target_include_directories(Thingy PRIVATE "Thingy/vendor/SDL/include")
+
 find_library(SDL3_LIB SDL3
     PATHS "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL/sdl_build/Debug/"
     NO_DEFAULT_PATH
@@ -63,11 +64,34 @@ add_custom_command(TARGET Thingy POST_BUILD
     $<TARGET_FILE_DIR:Thingy>
 )
 
-# Handle configurations
+set(IMGUI_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/imgui/imgui.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/imgui/imgui_draw.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/imgui/imgui_tables.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/imgui/imgui_widgets.cpp"
+    #temp for learning
+    "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/imgui/imgui_demo.cpp"
+)
+
+set(IMGUI_BACKENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/imgui/backends/imgui_impl_sdl3.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/imgui/backends/imgui_impl_sdlrenderer3.cpp"
+)
+
+add_library(ImGui STATIC ${IMGUI_SOURCES} ${IMGUI_BACKENDS})
+
+target_include_directories(ImGui PUBLIC
+    "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/imgui"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/imgui/backends"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL/include"
+)
+
+target_link_libraries(Thingy PRIVATE ImGui)
+
 target_compile_definitions(Thingy PRIVATE
-    $<$<CONFIG:Debug>:SE_DEBUG>
-    $<$<CONFIG:Release>:SE_RELEASE>
-    $<$<CONFIG:Dist>:SE_DIST>
+    $<$<CONFIG:Debug>:T_DEBUG>
+    $<$<CONFIG:Release>:T_RELEASE>
+    $<$<CONFIG:Dist>:T_DIST>
 )
 
 target_compile_options(Thingy PRIVATE

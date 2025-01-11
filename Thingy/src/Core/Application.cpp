@@ -17,9 +17,6 @@ namespace Thingy {
 	}
 
 	void Application::Run() {
-		T_TRACE("hi");
-		int a = 5;
-		T_TRACE("{0}", a);
 		while (Running) {
 
 		}
