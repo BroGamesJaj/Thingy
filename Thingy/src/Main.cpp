@@ -8,7 +8,7 @@
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_sdlrenderer3.h"
 #include <stdio.h>
-#include <SDL3/SDL.h>
+#include <SDL3\SDL.h>
 #include <curl\curl.h>
 #include <curl\easy.h>
 
@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 	Thingy::Log::Init();
 	Thingy::Application app{};
 	// Setup SDL
-	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD))
+	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
 	{
 		printf("Error: SDL_Init(): %s\n", SDL_GetError());
 		return -1;

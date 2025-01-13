@@ -1,9 +1,6 @@
 [submodule "Thingy/vendor/spdlog"]
 	path = Thingy/vendor/spdlog
 	url = https://github.com/gabime/spdlog
-[submodule "Thingy/vendor/SDL"]
-	path = Thingy/vendor/SDL
-	url = https://github.com/BroGamesJaj/SDL
 [submodule "Thingy/vendor/imgui"]
 	path = Thingy/vendor/imgui
 	url = https://github.com/ocornut/imgui.git
@@ -11,3 +8,6 @@
 [submodule "Thingy/vendor/SDL_net"]
 	path = Thingy/vendor/SDL_net
 	url = https://github.com/libsdl-org/SDL_net
+[submodule "Thingy/vendor/SDL_mixer"]
+	path = Thingy/vendor/SDL_mixer
+	url = https://github.com/libsdl-org/SDL_mixer
