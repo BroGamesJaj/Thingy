@@ -64,6 +64,24 @@ add_custom_command(TARGET Thingy POST_BUILD
     $<TARGET_FILE_DIR:Thingy>
 )
 
+#add_subdirectory(Thingy/vendor/SDL_net)
+#target_include_directories(Thingy PRIVATE "Thingy/vendor/SDL_net/include")
+#target_link_libraries(Thingy PRIVATE SDL3::SDL3 SDL_net)
+
+add_definitions(-DHAVE_CONFIG_H)
+find_library(CURL_LIB CURL
+    PATHS "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/curl/lib/"
+    NO_DEFAULT_PATH
+)
+if (CURL_LIB)
+    target_link_libraries(Thingy PRIVATE ${CURL_LIB})
+else()
+    message(FATAL_ERROR "CURL library not found!")
+endif()
+
+link_directories("Thingy/vendor/curl/bin/libcurl-x64.dll")
+target_include_directories(Thingy PRIVATE "Thingy/vendor/curl/include")
+
 set(IMGUI_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/imgui/imgui.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/imgui/imgui_draw.cpp"

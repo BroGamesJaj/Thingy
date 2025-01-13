@@ -8,3 +8,6 @@
 	path = Thingy/vendor/imgui
 	url = https://github.com/ocornut/imgui.git
 	branch = docking
+[submodule "Thingy/vendor/SDL_net"]
+	path = Thingy/vendor/SDL_net
+	url = https://github.com/libsdl-org/SDL_net
