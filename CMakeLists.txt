@@ -84,22 +84,18 @@ add_custom_command(TARGET Thingy POST_BUILD
 
 # CURL library setup
 add_definitions(-DHAVE_CONFIG_H)
-find_library(CURL_LIB curl
-    PATHS "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/curl/builds/libcurl-vc-x86-release-dll-ipv6-sspi-schannel/lib"
-    NO_DEFAULT_PATH
-)
-message(FATAL_ERROR "CURL_LIB: ${CURL_LIB}")
+set(CURL_LIB "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/curl/builds/libcurl-vc-x64-debug-dll-ipv6-sspi-schannel/lib/libcurl_debug.lib")
+
 if (CURL_LIB)
     target_link_libraries(Thingy PRIVATE ${CURL_LIB} ws2_32 wldap32 crypt32)
-
 else()
     message(FATAL_ERROR "CURL library not found!")
 endif()
 
 # CURL include directory
-target_include_directories(Thingy PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/curl/builds/libcurl-vc-x86-release-dll-ipv6-sspi-schannel/include")
+target_include_directories(Thingy PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/curl/builds/libcurl-vc-x64-debug-dll-ipv6-sspi-schannel/include")
 
-set(CURL_DLL "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/curl/builds/libcurl-vc-x86-release-dll-ipv6-sspi-schannel/bin/libcurl.dll")
+set(CURL_DLL "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/curl/builds/libcurl-vc-x64-debug-dll-ipv6-sspi-schannel/bin/libcurl_debug.dll")
 
 # Copy the DLL to the output directory
 add_custom_command(TARGET Thingy POST_BUILD

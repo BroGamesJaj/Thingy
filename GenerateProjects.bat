@@ -16,11 +16,21 @@ cd %BUILD_DIR%
 
 REM Run CMake to configure the project
 echo Configuring the project...
-cmake -G "Visual Studio 17 2022" -A x64 ..
+cmake -G "Visual Studio 17 2022" -A x64 .. || (
+    echo CMake configuration failed!
+    cd ..
+    PAUSE
+    exit /b 1
+)
 
 REM Build the project
 echo Building the project...
-cmake --build . --config %CONFIG%
+cmake --build . --config %CONFIG% || (
+    echo Build failed!
+    cd ..
+    PAUSE
+    exit /b 1
+)
 
 
 REM Return to the original directory
