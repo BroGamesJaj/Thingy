@@ -11,6 +11,3 @@
 [submodule "Thingy/vendor/SDL_net"]
 	path = Thingy/vendor/SDL_net
 	url = https://github.com/libsdl-org/SDL_net
-[submodule "Thingy/vendor/SDL_mixer"]
-	path = Thingy/vendor/SDL_mixer
-	url = https://github.com/BroGamesJaj/SDL_mixer
