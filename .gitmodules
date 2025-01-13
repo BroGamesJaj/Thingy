@@ -11,3 +11,7 @@
 [submodule "Thingy/vendor/SDL_mixer"]
 	path = Thingy/vendor/SDL_mixer
 	url = https://github.com/libsdl-org/SDL_mixer
+[submodule "Thingy/vendor/curl"]
+	path = Thingy/vendor/curl
+	url = https://github.com/BroGamesJaj/curl.git
+	branch = curl_8_11_1_c

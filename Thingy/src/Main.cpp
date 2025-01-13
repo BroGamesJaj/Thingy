@@ -9,6 +9,8 @@
 #include "imgui_impl_sdlrenderer3.h"
 #include <stdio.h>
 #include <SDL3\SDL.h>
+#include <SDL3_mixer/SDL_mixer.h>
+#include <fstream>
 #include <curl\curl.h>
 #include <curl\easy.h>
 
@@ -16,6 +18,12 @@ const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
 #ifdef T_PLATFORM_WINDOWS
+
+size_t write_data(void* ptr, size_t size, size_t nmemb, void* data) {
+	std::ofstream* out = (std::ofstream*)data;
+	out->write((char*)ptr, size * nmemb);
+	return size * nmemb;
+}
 
 int main(int argc, char* argv[])
 {
@@ -28,6 +36,25 @@ int main(int argc, char* argv[])
 		printf("Error: SDL_Init(): %s\n", SDL_GetError());
 		return -1;
 	}
+
+	CURL* curl;
+	CURLcode res;
+
+	curl_global_init(CURL_GLOBAL_DEFAULT);
+	curl = curl_easy_init();
+
+	if (curl) {
+		curl_easy_setopt(curl, CURLOPT_URL, "https:\/\/prod-1.storage.jamendo.com\/?trackid=1532771&format=mp31&from=app-devsite");
+		res = curl_easy_perform(curl);
+
+		if (res != CURLE_OK) {
+			std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
+		}
+
+		curl_easy_cleanup(curl);
+	}
+
+	curl_global_cleanup();
 
 	// Create window with SDL_Renderer graphics context
 	Uint32 window_flags =  SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
