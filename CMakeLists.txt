@@ -6,6 +6,7 @@ project(Thingy LANGUAGES CXX)
 set(CMAKE_CONFIGURATION_TYPES Debug Release Dist CACHE STRING "Available build configurations" FORCE)
 set(CMAKE_CXX_FLAGS "")
 set(CMAKE_EXE_LINKER_FLAGS "/SUBSYSTEM:CONSOLE")
+set(CMAKE_EXE_LINKER_FLAGS_DIST "")
 
 # Output directories
 set(OUTPUT_DIR "${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
@@ -41,6 +42,8 @@ target_include_directories(Thingy PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL/include"
 )
 
+target_link_libraries(Thingy PRIVATE "${CMAKE_SOURCE_DIR}/Thingy/vendor/spdlog/build/Debug/spdlogd.lib")
+
 # Precompiled header setup for MSVC
 if (MSVC)
     target_precompile_headers(Thingy PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/src/tpch.h")
@@ -52,16 +55,8 @@ if (WIN32)
     target_compile_options(Thingy PRIVATE "/utf-8")
 endif()
 
-# Add external libraries (spdlog, SDL_mixer, ImGui, CURL)
-add_subdirectory(Thingy/vendor/spdlog)
-add_subdirectory(Thingy/vendor/SDL_mixer)
-
-# Link libraries
-target_link_libraries(Thingy PRIVATE spdlog::spdlog)
-
 # Find SDL3 and SDL_mixer
 find_package(SDL3 REQUIRED PATHS "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL_mixer/external/SDL/sdl_build" NO_DEFAULT_PATH)
-find_package(SDL3_mixer REQUIRED)
 
 # SDL3 include directories
 target_include_directories(Thingy PRIVATE 
@@ -71,7 +66,7 @@ target_include_directories(Thingy PRIVATE
 
 # SDL3 link libraries
 target_compile_definitions(Thingy PRIVATE SDL_MAIN_HANDLED)
-target_link_libraries(Thingy PRIVATE SDL3::SDL3 SDL3_mixer::SDL3_mixer)
+target_link_libraries(Thingy PRIVATE SDL3::SDL3 "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL_mixer/build/Debug/SDL3_mixer.lib")
 
 # Use target_link_directories instead of link_directories
 target_link_directories(Thingy PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL_mixer/external/SDL/sdl_build/Debug")
@@ -79,6 +74,12 @@ target_link_directories(Thingy PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendo
 add_custom_command(TARGET Thingy POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL_mixer/external/SDL/sdl_build/Debug/SDL3.dll"
+    $<TARGET_FILE_DIR:Thingy>
+)
+
+add_custom_command(TARGET Thingy POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL_mixer/build/Debug/SDL3_mixer.dll"
     $<TARGET_FILE_DIR:Thingy>
 )
 
