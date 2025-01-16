@@ -14,6 +14,8 @@
 #include <curl\curl.h>
 #include <curl\easy.h>
 
+
+
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
 static const char* windowNames[3] = { "Left Window", "Center Window", "Right Window" };
@@ -27,7 +29,7 @@ void UpdateDockingLayout() {
 
 	// Remove any existing dock nodes and create a new dockspace
 	ImGui::DockBuilderRemoveNode(dockspace_id);
-	ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_None);
+	ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoResizeY);
 	ImVec2 viewport_size = ImGui::GetMainViewport()->Size;
 	ImGui::DockBuilderSetNodeSize(dockspace_id, viewport_size);
 	// First, split the dockspace into two regions: left (30%) and right (70%)
@@ -117,28 +119,9 @@ int main(int argc, char* argv[])
 	ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
 	ImGui_ImplSDLRenderer3_Init(renderer);
 
-	// Load Fonts
-	// - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
-	// - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
-	// - If the file cannot be loaded, the function will return a nullptr. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-	// - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-	// - Use '#define IMGUI_ENABLE_FREETYPE' in your imconfig file to use Freetype for higher quality font rendering.
-	// - Read 'docs/FONTS.md' for more instructions and details.
-	// - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-	// - Our Emscripten build process allows embedding fonts to be accessible at runtime from the "fonts/" folder. See Makefile.emscripten for details.
-	//io.Fonts->AddFontDefault();
-	//io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f);
-	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
-	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-	//ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
-	//IM_ASSERT(font != nullptr);
-
 	// Our state
 	bool show_another_window = false;
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
-	
 
 
 	bool draggingWindow[3] = {false, false, false};
@@ -189,8 +172,8 @@ int main(int argc, char* argv[])
 		for (int i = 0; i < 3; i++){
 			static float f = 0.0f;
 			static int counter = 0;
-
-			ImGui::Begin(windowNames[i], nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);                          // Create a window called "Hello, world!" and append into it.
+			ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
+			ImGui::Begin(windowNames[i], nullptr, flags);                          // Create a window called "Hello, world!" and append into it.
 			
 			if (ImGui::IsMouseDragging(ImGuiMouseButton_Left) && ImGui::IsItemHovered()) {
 				draggingWindow[i] = true;
