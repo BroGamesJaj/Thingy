@@ -1,8 +1,7 @@
 @echo off
 
 set CONFIG=Debug
-for /f "delims=" %%A in ('"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -find **\VsDevCmd.bat') do set "VSCMD=%%A"
-
+for /f "delims=" %%A in ('"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -find **\vcvars64.bat') do set "VSCMD=%%A"
 
 if not defined VSCMD (
     echo Visual Studio not found!
@@ -31,7 +30,7 @@ if %CONFIG% == Debug (
 	cd sdl_build
 
 	REM Build SDL shared library
-	cmake .. -G "Visual Studio 16 2022" -DBUILD_SHARED_LIBS=ON
+	cmake .. -G "Visual Studio 17 2022" -A "x64" -DBUILD_SHARED_LIBS=ON 
 	cmake --build . --config Debug
 
 	REM Path to SDL_mixer
@@ -42,7 +41,7 @@ if %CONFIG% == Debug (
 	cd build
 
 	REM Build SDL_mixer shared library
-	cmake .. -DBUILD_SHARED_LIBS=ON
+	cmake .. -DBUILD_SHARED_LIBS=ON -DSDL3_DIR="%~dp0Thingy/vendor/SDL_mixer/external/SDL/sdl_build"
 	cmake --build . --config Debug
 
 
@@ -56,7 +55,8 @@ if %CONFIG% == Debug (
 	REM cd winbuild
 	call "%VSCMD%"
 	REM Build curl shared library in Debug mode
-	nmake /f Makefile.vc mode=dll Debug=yes clean
+	nmake /f Makefile.vc vc=17 mode=dll MACHINE=x64 Debug=yes clean
+	nmake /f Makefile.vc vc=17 mode=dll MACHINE=x64 Debug=yes
 ) else (
 	REM Build spdlog shared library
 	cd Thingy/vendor/spdlog
@@ -76,7 +76,7 @@ if %CONFIG% == Debug (
 	cd sdl_build
 
 	REM Build SDL shared library
-	cmake .. -G "Visual Studio 16 2022" -DBUILD_SHARED_LIBS=ON
+	cmake .. -G "Visual Studio 17 2022" -A "x64" -DBUILD_SHARED_LIBS=ON
 	cmake --build . --config Release
 
 	REM Path to SDL_mixer
@@ -87,7 +87,7 @@ if %CONFIG% == Debug (
 	cd build
 
 	REM Build SDL_mixer shared library
-	cmake .. -DBUILD_SHARED_LIBS=ON
+	cmake .. -DBUILD_SHARED_LIBS=ON -DSDL3_DIR="%~dp0Thingy/vendor/SDL_mixer/external/SDL/sdl_build"
 	cmake --build . --config Release
 
 
@@ -101,11 +101,10 @@ if %CONFIG% == Debug (
 	REM cd winbuild
 	call "%VSCMD%"
 	REM Build curl shared library in Debug mode
-	nmake /f Makefile.vc mode=dll Debug=no clean
+	nmake /f Makefile.vc vc=17 mode=dll MACHINE=x64  Debug=no clean
+	nmake /f Makefile.vc vc=17 mode=dll MACHINE=x64  Debug=no
 )
 
 cd "%~dp0"
 
 call GenerateProjects.bat
-
-PAUSE
