@@ -9,20 +9,23 @@ if not defined VSCMD (
     PAUSE
     exit
 )
-if / i "%CONFIG%" == "Debug"(
-	REM Build spdlog shared library
+
+if %CONFIG% == Debug (
+	REM Path to spdlog
 	cd Thingy/vendor/spdlog
-	if not exist build(
+	if not exist build (
 		mkdir build
 	)
 	cd build
+
+	REM Build spdlog shared library
 	cmake ..
 	cmake --build .
 
 	REM Path to SDL
 	cd "%~dp0"Thingy/vendor/SDL_mixer/external/SDL
 	
-	if not exist sdl_build(
+	if not exist sdl_build (
 		mkdir sdl_build
 	)
 	cd sdl_build
@@ -33,7 +36,7 @@ if / i "%CONFIG%" == "Debug"(
 
 	REM Path to SDL_mixer
 	cd "%~dp0"Thingy/vendor/SDL_mixer
-	if not exist build(
+	if not exist build (
 		mkdir build
 	)
 	cd build
@@ -49,16 +52,15 @@ if / i "%CONFIG%" == "Debug"(
 	REM run Curl prebuild config 
 	call buildconf.bat
 
+	cd winbuild
 	REM cd winbuild
 	call "%VSCMD%"
 	REM Build curl shared library in Debug mode
 	nmake /f Makefile.vc mode=dll Debug=yes clean
-
-
-)else(
+) else (
 	REM Build spdlog shared library
 	cd Thingy/vendor/spdlog
-	if not exist build(
+	if not exist build (
 		mkdir build
 	)
 	cd build
@@ -68,7 +70,7 @@ if / i "%CONFIG%" == "Debug"(
 	REM Path to SDL
 	cd "%~dp0"Thingy/vendor/SDL_mixer/external/SDL
 	
-	if not exist sdl_build(
+	if not exist sdl_build (
 		mkdir sdl_build
 	)
 	cd sdl_build
@@ -79,7 +81,7 @@ if / i "%CONFIG%" == "Debug"(
 
 	REM Path to SDL_mixer
 	cd "%~dp0"Thingy/vendor/SDL_mixer
-	if not exist build(
+	if not exist build (
 		mkdir build
 	)
 	cd build
@@ -95,9 +97,15 @@ if / i "%CONFIG%" == "Debug"(
 	REM run Curl prebuild config 
 	call buildconf.bat
 
+	cd winbuild
 	REM cd winbuild
 	call "%VSCMD%"
 	REM Build curl shared library in Debug mode
 	nmake /f Makefile.vc mode=dll Debug=no clean
 )
+
+cd "%~dp0"
+
+call GenerateProjects.bat
+
 PAUSE
