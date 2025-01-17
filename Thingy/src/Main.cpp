@@ -20,6 +20,9 @@ const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
 static const char* windowNames[3] = { "Left Window", "Center Window", "Right Window" };
 static const char* identifier[3] = { "Left Window", "Center Window", "Right Window" };
+static int audioOpen = 0;
+static Mix_Music* music = NULL;
+static int next_track = 0;
 
 #ifdef T_PLATFORM_WINDOWS
 
@@ -29,7 +32,7 @@ void UpdateDockingLayout() {
 
 	// Remove any existing dock nodes and create a new dockspace
 	ImGui::DockBuilderRemoveNode(dockspace_id);
-	ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoResizeY);
+	ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoResize);
 	ImVec2 viewport_size = ImGui::GetMainViewport()->Size;
 	ImGui::DockBuilderSetNodeSize(dockspace_id, viewport_size);
 	// First, split the dockspace into two regions: left (30%) and right (70%)
@@ -64,6 +67,41 @@ void LayoutChange(int dragged, bool drag_dir) {
 	UpdateDockingLayout();
 }
 
+size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
+	size_t totalSize = size * nmemb;
+	std::vector<char>* buffer = static_cast<std::vector<char>*>(userp);
+	buffer->insert(buffer->end(), static_cast<char*>(contents), static_cast<char*>(contents) + totalSize);
+	return totalSize;
+}
+
+bool DownloadFile(const std::string& url, std::vector<char>& buffer) {
+	CURL* curl = curl_easy_init();
+	if (!curl) return false;
+
+	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+
+	CURLcode res = curl_easy_perform(curl);
+	curl_easy_cleanup(curl);
+
+	return (res == CURLE_OK);
+}
+
+Mix_Music* LoadMusicFromMemory(const std::vector<char>& buffer) {
+	SDL_IOStream* ioStream = SDL_IOFromConstMem(buffer.data(), buffer.size());
+	if (!ioStream) {
+		SDL_Log("Failed to create RWops: %s\n", SDL_GetError());
+		return nullptr;
+	}
+
+	Mix_Music* music = Mix_LoadMUS_IO(ioStream, 1);
+	if (!music) {
+		SDL_Log("Failed to load music: %s\n", SDL_GetError());
+	}
+	return music;
+}
+
 
 int main(int argc, char* argv[])
 {
@@ -78,12 +116,46 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	// Initialize SDL_mixer
-	if (Mix_Init(MIX_INIT_MP3) == 0) {
-		std::cerr << "Mix_Init failed! SDL_mixer Error: " << SDL_GetError() << std::endl;
-		return -1;
-	}
+	int looping = 0;
+	bool interactive = false;
+	bool use_io = false;
+	int i;
+	const char* typ;
+	int loopEnd = 0;
+	int loopStart, loopLength, currentPosition;
+	int audioVolume = MIX_MAX_VOLUME;
+	SDL_AudioSpec spec;
+	spec.freq = MIX_DEFAULT_FREQUENCY;
+	spec.format = MIX_DEFAULT_FORMAT;
+	spec.channels = MIX_DEFAULT_CHANNELS;
 
+	if (!Mix_OpenAudio(0, &spec)) {
+		SDL_Log("Couldn't open audio: %s\n", SDL_GetError());
+	} else {
+		Mix_QuerySpec(&spec.freq, &spec.format, &spec.channels);
+		SDL_Log("Opened audio at %d Hz %d bit%s %s audio buffer\n", spec.freq,
+			(spec.format & 0xFF),
+			(SDL_AUDIO_ISFLOAT(spec.format) ? " (float)" : ""),
+			(spec.channels > 2) ? "surround" : (spec.channels > 1) ? "stereo" : "mono");
+	}
+	audioOpen = 1;
+	Mix_VolumeMusic(audioVolume);
+
+	std::vector<char> musicBuffer;
+	std::string musicURL = "https:\/\/prod-1.storage.jamendo.com\/?trackid=1848357&format=mp31&from=app-devsite";
+
+	if (DownloadFile(musicURL, musicBuffer)) {
+		music = LoadMusicFromMemory(musicBuffer);
+		if (music) {
+			if (Mix_PlayMusic(music, -1) == -1) {
+				SDL_Log("Failed to play music: %s\n", SDL_GetError());
+			}
+			loopEnd = Mix_MusicDuration(music);
+		}
+	}
+	else {
+		SDL_Log("Failed to download music from URL.\n");
+	}
 
 	// Create window with SDL_Renderer graphics context
 	Uint32 window_flags =  SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
@@ -113,15 +185,11 @@ int main(int argc, char* argv[])
 
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
-	//ImGui::StyleColorsLight();
 
 	// Setup Platform/Renderer backends
 	ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
 	ImGui_ImplSDLRenderer3_Init(renderer);
 
-	// Our state
-	bool show_another_window = false;
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 
 	bool draggingWindow[3] = {false, false, false};
@@ -143,7 +211,6 @@ int main(int argc, char* argv[])
 			if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED && event.window.windowID == SDL_GetWindowID(window))
 				done = true;
 			
-
 		}
 		if (SDL_GetWindowFlags(window) & SDL_WINDOW_MINIMIZED)
 		{
@@ -161,6 +228,9 @@ int main(int argc, char* argv[])
 		ImGuiID dockspace_id = ImGui::GetID("DockSpace");
 		ImGui::DockSpaceOverViewport(dockspace_id, main_viewport, dockspace_flags);
 
+		if (Mix_PlayingMusic() || Mix_PausedMusic()) {
+			currentPosition = Mix_GetMusicPosition(music);
+		}
 		// Create the docking layout only once
 		static bool dock_initialized = false;
 		if (!dock_initialized)
@@ -173,13 +243,20 @@ int main(int argc, char* argv[])
 			static float f = 0.0f;
 			static int counter = 0;
 			ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
-			ImGui::Begin(windowNames[i], nullptr, flags);                          // Create a window called "Hello, world!" and append into it.
+			ImGui::Begin(windowNames[i], nullptr, flags);
 			
 			if (ImGui::IsMouseDragging(ImGuiMouseButton_Left) && ImGui::IsItemHovered()) {
 				draggingWindow[i] = true;
 			}
 			ImGui::Text("window size: (%.1f, %.1f)", ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
-
+			ImGui::Button("Stop music", { 100.0f, 50.0f });
+			if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+				Mix_PauseMusic();
+			}
+			ImGui::Button("Resume music", { 100.0f, 50.0f });
+			if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+				Mix_ResumeMusic();
+			}
 			if (draggingWindow[i]) {
 				T_TRACE("Mouse dragging {0}, {1}",windowNames[i],i);
 				ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
@@ -197,13 +274,18 @@ int main(int argc, char* argv[])
 			if (!ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
 				draggingWindow[i] = false;
 			}
-			ImGui::Text("This is %s",identifier[i]);                // Display some text (you can use a format strings too)
-			ImGui::Checkbox("Another Window", &show_another_window);
+			ImGui::Text("This is %s",identifier[i]);
 
-			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+			ImGui::SliderInt("time", &currentPosition, 0, loopEnd);
+			if (ImGui::IsItemEdited()) {
+				Mix_SetMusicPosition(currentPosition);
+			}
+			ImGui::SliderInt("Volume slider", &audioVolume, 0, MIX_MAX_VOLUME);
+			if (ImGui::IsItemEdited()) {
+				Mix_VolumeMusic(audioVolume);
+			}
 
-			if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+			if (ImGui::Button("Button"))         
 				counter++;
 			ImGui::SameLine();
 			ImGui::Text("counter = %d", counter);
@@ -212,20 +294,10 @@ int main(int argc, char* argv[])
 			ImGui::End();
 		}
 
-		// 3. Show another simple window.
-		if (show_another_window)
-		{
-			ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-			ImGui::Text("Hello from another window!");
-			if (ImGui::Button("Close Me"))
-				show_another_window = false;
-			ImGui::End();
-		}
 
 		// Rendering
 		ImGui::Render();
-		//SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
-		SDL_SetRenderDrawColorFloat(renderer, clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+		SDL_SetRenderScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
 		SDL_RenderClear(renderer);
 		ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
 		SDL_RenderPresent(renderer);
@@ -236,6 +308,8 @@ int main(int argc, char* argv[])
 	ImGui_ImplSDL3_Shutdown();
 	ImGui::DestroyContext();
 
+	Mix_FreeMusic(music);
+	music = NULL;
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
