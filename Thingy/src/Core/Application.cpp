@@ -9,11 +9,11 @@
 
 namespace Thingy {
 	Application::Application() {
-
+		//renderer->Init();
 	}
 
 	Application::~Application() {
-
+		//renderer->CleanUp();
 	}
 
 	void Application::Run() {

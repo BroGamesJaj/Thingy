@@ -13,6 +13,7 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="src\tpch.h" />
+    <ClInclude Include="src\Renderer\SDLRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -23,5 +24,6 @@
     </ClCompile>
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\tpch.cpp" />
+    <ClCompile Include="src\Renderer\SDLRenderer.cpp" />
   </ItemGroup>
 </Project>

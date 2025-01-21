@@ -29,15 +29,14 @@ static int next_track = 0;
 void UpdateDockingLayout() {
 
 	ImGuiID dockspace_id = ImGui::GetID("DockSpace");
-
 	// Remove any existing dock nodes and create a new dockspace
 	ImGui::DockBuilderRemoveNode(dockspace_id);
-	ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoResize);
+	ImGui::DockBuilderAddNode(dockspace_id);
+	
 	ImVec2 viewport_size = ImGui::GetMainViewport()->Size;
 	ImGui::DockBuilderSetNodeSize(dockspace_id, viewport_size);
 	// First, split the dockspace into two regions: left (30%) and right (70%)
 	ImGuiID dockLeft = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.30f, nullptr, &dockspace_id);
-	ImGuiID dockRight = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.70f, nullptr, &dockspace_id);
 
 	// Now, split the remaining right part (70%) into two sections: center (40%) and right (30%)
 	ImGuiID dockCenter = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.5714f, nullptr, &dockspace_id);
@@ -55,16 +54,12 @@ void UpdateDockingLayout() {
 //drag_dir false = left, true = right
 void LayoutChange(int dragged, bool drag_dir) {
 	T_TRACE("dragged: {0}", dragged);
-	// 0 + 1 = 1
-	//
-	//
 	int target = dragged + (drag_dir ? 1 : -1);
 	T_TRACE("target: {0}", target);
 	if (target < 0 || target > 2) return;
 	T_TRACE("{0} {1} {2}", windowNames[0], windowNames[1], windowNames[2]);
 	std::swap(windowNames[dragged], windowNames[target]);
 	T_TRACE("after swap: {0} {1} {2}", windowNames[0], windowNames[1], windowNames[2]);
-	UpdateDockingLayout();
 }
 
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
@@ -115,7 +110,7 @@ int main(int argc, char* argv[])
 		printf("Error: SDL_Init(): %s\n", SDL_GetError());
 		return -1;
 	}
-
+	
 	int looping = 0;
 	bool interactive = false;
 	bool use_io = false;
@@ -189,10 +184,10 @@ int main(int argc, char* argv[])
 	// Setup Platform/Renderer backends
 	ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
 	ImGui_ImplSDLRenderer3_Init(renderer);
-
-
-
+	
+	io.ConfigDebugIniSettings = true;
 	bool draggingWindow[3] = {false, false, false};
+	bool changed = false;
 	// Main loop
 	bool done = false;
 	while (!done)
@@ -223,21 +218,17 @@ int main(int argc, char* argv[])
 		ImGui_ImplSDL3_NewFrame();
 		ImGui::NewFrame();
 		const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
-		ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-
 		ImGuiID dockspace_id = ImGui::GetID("DockSpace");
-		ImGui::DockSpaceOverViewport(dockspace_id, main_viewport, dockspace_flags);
-
+		ImGui::DockSpaceOverViewport(dockspace_id, ImGui::GetMainViewport(), ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoResize);
+		
 		if (Mix_PlayingMusic() || Mix_PausedMusic()) {
 			currentPosition = Mix_GetMusicPosition(music);
 		}
 		// Create the docking layout only once
 		static bool dock_initialized = false;
-		if (!dock_initialized)
-		{
-			UpdateDockingLayout();
-			dock_initialized = true;
-		}
+		
+		// Debug window
+		//ImGui::ShowDebugLogWindow();
 		
 		for (int i = 0; i < 3; i++){
 			static float f = 0.0f;
@@ -265,10 +256,12 @@ int main(int argc, char* argv[])
 				if (drag_delta.x > 100 && i != 2) {
 					LayoutChange(i, true);
 					draggingWindow[i] = false;
+					changed = true;
 				}
 				if (drag_delta.x < -100 && i != 0) {
 					LayoutChange(i, false);
 					draggingWindow[i] = false;
+					changed = true;
 				}
 			}
 			if (!ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
@@ -293,7 +286,11 @@ int main(int argc, char* argv[])
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 			ImGui::End();
 		}
-
+		if (!dock_initialized || changed) {
+			UpdateDockingLayout();
+			dock_initialized = true;
+			changed = false;
+		}
 
 		// Rendering
 		ImGui::Render();
