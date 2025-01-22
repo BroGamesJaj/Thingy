@@ -18,7 +18,6 @@ namespace Thingy {
 	private:
 		bool Running = true;
 		std::unique_ptr<SDLRenderer> renderer;
-		SDL_Event event;
 	};
 
 }

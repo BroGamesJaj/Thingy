@@ -10,6 +10,7 @@
 namespace Thingy {
 	Application::Application() {
 		//renderer->Init();
+		
 	}
 
 	Application::~Application() {

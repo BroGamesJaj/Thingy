@@ -14,6 +14,8 @@
     </ClInclude>
     <ClInclude Include="src\tpch.h" />
     <ClInclude Include="src\Renderer\SDLRenderer.h" />
+    <ClInclude Include="src\Core\Module.h" />
+    <ClInclude Include="src\Modules\PlayerModule.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -25,5 +27,7 @@
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\tpch.cpp" />
     <ClCompile Include="src\Renderer\SDLRenderer.cpp" />
+    <ClCompile Include="src\Core\Module.cpp" />
+    <ClCompile Include="src\Modules\PlayerModule.cpp" />
   </ItemGroup>
 </Project>

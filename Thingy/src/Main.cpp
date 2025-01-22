@@ -78,6 +78,50 @@ bool LoadTextureFromFile(const char* file_name, SDL_Renderer* renderer, SDL_Text
 	return ret;
 }
 
+SDL_Cursor* CreateCustomCursor(const char* imagePath, int newWidth = 32, int newHeight = 32) {
+	// Load BMP image
+	SDL_Surface* originalSurface = SDL_LoadBMP(imagePath);
+	if (!originalSurface) {
+		SDL_Log("Failed to load cursor image: %s", SDL_GetError());
+		return nullptr;
+	}
+
+	// Convert to RGBA32 format for compatibility
+	SDL_Surface* convertedSurface = SDL_ConvertSurface(originalSurface, SDL_PIXELFORMAT_RGBA32);
+	SDL_DestroySurface(originalSurface); // Free original surface
+	if (!convertedSurface) {
+		SDL_Log("Failed to convert surface format: %s", SDL_GetError());
+		return nullptr;
+	}
+
+	// Create resized surface with matching format
+	SDL_Surface* resizedSurface = SDL_CreateSurface(newWidth, newHeight, convertedSurface->format);
+	if (!resizedSurface) {
+		SDL_Log("Failed to create resized surface: %s", SDL_GetError());
+		SDL_DestroySurface(convertedSurface);
+		return nullptr;
+	}
+
+	// Scale image
+	SDL_Rect srcRect = { 0, 0, convertedSurface->w, convertedSurface->h };
+	SDL_Rect dstRect = { 0, 0, newWidth, newHeight };
+	if (!SDL_BlitSurfaceScaled(convertedSurface, &srcRect, resizedSurface, &dstRect, SDL_SCALEMODE_LINEAR)) {
+		SDL_Log("Failed to scale image: %s", SDL_GetError());
+		SDL_DestroySurface(convertedSurface);
+		SDL_DestroySurface(resizedSurface);
+		return nullptr;
+	}
+
+	// Create cursor from resized surface
+	SDL_Cursor* customCursor = SDL_CreateColorCursor(resizedSurface, 0, 0);
+
+	// Clean up
+	SDL_DestroySurface(convertedSurface);
+	SDL_DestroySurface(resizedSurface);
+
+	return customCursor;
+}
+
 void UpdateDockingLayout() {
 
 	ImGuiID dockspace_id = ImGui::GetID("DockSpace");
@@ -89,7 +133,7 @@ void UpdateDockingLayout() {
 	ImGui::DockBuilderSetNodeSize(dockspace_id, viewport_size);
 	// First, split the dockspace into two regions: left (30%) and right (70%)
 	ImGuiID dockLeft = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.30f, nullptr, &dockspace_id);
-
+	
 	// Now, split the remaining right part (70%) into two sections: center (40%) and right (30%)
 	ImGuiID dockCenter = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.5714f, nullptr, &dockspace_id);
 	ImGuiID dockRight2 = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.4286f, nullptr, &dockspace_id);
@@ -245,9 +289,22 @@ int main(int argc, char* argv[])
 	ImGui_ImplSDLRenderer3_Init(renderer);
 	
 	io.ConfigDebugIniSettings = true;
+	io.MouseDragThreshold = 4.0f;
 	bool draggingWindow[3] = {false, false, false};
+	ImVec2 dragStartPos;
 	bool changed = false;
+	ImGuiStyle& style = ImGui::GetStyle();	
+	style.FramePadding = {10.0f, 10.0f};
 
+	//custom cursor
+	int cursorWidth = GetSystemMetrics(SM_CXCURSOR);
+	int cursorHeight = GetSystemMetrics(SM_CYCURSOR);
+	SDL_Cursor* openHandCursor = nullptr;
+	SDL_Cursor* closedHandCursor = nullptr;
+	openHandCursor = CreateCustomCursor("../assets/images/openHand.bmp", cursorWidth/2, cursorHeight/2);
+	closedHandCursor = CreateCustomCursor("../assets/images/closedHand.bmp", cursorWidth/2, cursorHeight/2);
+	T_INFO("{0}w", cursorWidth);
+	T_INFO("{0}h", cursorHeight);
 	// Main loop
 	bool done = false;
 	while (!done)
@@ -279,7 +336,7 @@ int main(int argc, char* argv[])
 		ImGui::NewFrame();
 		const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
 		ImGuiID dockspace_id = ImGui::GetID("DockSpace");
-		ImGui::DockSpaceOverViewport(dockspace_id, ImGui::GetMainViewport(), ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoResize);
+		ImGui::DockSpaceOverViewport(dockspace_id, ImGui::GetMainViewport(), ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoResize | ImGuiDockNodeFlags_AutoHideTabBar | ImGuiDockNodeFlags_NoTabBar);
 		
 		if (Mix_PlayingMusic() || Mix_PausedMusic()) {
 			currentPosition = Mix_GetMusicPosition(music);
@@ -289,16 +346,33 @@ int main(int argc, char* argv[])
 		
 		// Debug window
 		//ImGui::ShowDebugLogWindow();
-		
+		bool isHoveringAnyBar = false;
+		bool isDraggingAnyBar = false;
 		for (int i = 0; i < 3; i++){
 			static float f = 0.0f;
 			static int counter = 0;
-			ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse;
+			ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar;
 			ImGui::Begin(windowNames[i], nullptr, flags);
-			
-			if (ImGui::IsMouseDragging(ImGuiMouseButton_Left) && ImGui::IsItemHovered()) {
-				draggingWindow[i] = true;
+			float window_width = ImGui::GetWindowWidth();
+			ImVec2 bar_size = ImVec2(window_width-20, 30);
+			if (!ImGui::IsMouseDragging(ImGuiMouseButton_Left) && !ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+				draggingWindow[i] = false;
 			}
+			ImGui::InvisibleButton("DragBar", bar_size);
+			if (ImGui::IsItemHovered() && !ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+				isHoveringAnyBar = true;
+			}
+			if (ImGui::IsItemHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left) && !ImGui::IsMouseDragging(ImGuiMouseButton_Left))
+			{
+				
+				if (!draggingWindow[i])
+				{
+					draggingWindow[i] = true;
+					dragStartPos = ImGui::GetMousePos();
+					isDraggingAnyBar = true;
+				}
+			}
+			ImGui::GetWindowDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 0, 0, 255), 0.0f, 0, 5.0f);
 			ImGui::Text("window size: (%.1f, %.1f)", ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
 			ImGui::Button("Stop music", { 100.0f, 50.0f });
 			if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
@@ -308,26 +382,38 @@ int main(int argc, char* argv[])
 			if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
 				Mix_ResumeMusic();
 			}
-			if (draggingWindow[i]) {
-				T_TRACE("Mouse dragging {0}, {1}",windowNames[i],i);
-				ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
-				ImGui::Text("mouse delta: (%.1f, %.1f)", drag_delta.x, drag_delta.y);
-
-				if (drag_delta.x > 100 && i != 2) {
+			if (draggingWindow[i] && ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+				ImVec2 currentPos = ImGui::GetMousePos();
+				ImVec2 windowPos = ImGui::GetWindowPos();
+				if (currentPos.x > windowPos.x + ImGui::GetWindowWidth() + 10 && i != 2) {
 					LayoutChange(i, true);
 					draggingWindow[i] = false;
 					changed = true;
 				}
-				if (drag_delta.x < -100 && i != 0) {
+				if (currentPos.x < windowPos.x - 10 && i != 0) {
 					LayoutChange(i, false);
 					draggingWindow[i] = false;
 					changed = true;
 				}
 			}
-			if (!ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
-				draggingWindow[i] = false;
+			if (draggingWindow[i] && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+				isDraggingAnyBar = true;
+				T_TRACE("Mouse dragging {0}, {1}",windowNames[i],i);
+				ImVec2 currentPos = ImGui::GetMousePos();
+				ImVec2 windowPos = ImGui::GetWindowPos();
+				//if (currentPos.x > windowPos.x+ImGui::GetWindowWidth()+10 && i != 2) {
+				//	LayoutChange(i, true);
+				//	draggingWindow[i] = false;
+				//	changed = true;
+				//}
+				//if (currentPos.x < windowPos.x-10 && i != 0) {
+				//	LayoutChange(i, false);
+				//	draggingWindow[i] = false;
+				//	changed = true;
+				//}
 			}
-			ImGui::Text("This is %s",identifier[i]);
+			
+			ImGui::Text("This is %s", windowNames[i]);
 
 			ImGui::SliderInt("time", &currentPosition, 0, loopEnd);
 			if (ImGui::IsItemEdited()) {
@@ -344,7 +430,7 @@ int main(int argc, char* argv[])
 			ImGui::Text("counter = %d", counter);
 			ImGui::Text("pointer = %p", my_texture);
 			ImGui::Text("size = %d x %d", my_image_width, my_image_height);
-			ImGui::Image((ImTextureID)(intptr_t)my_texture, ImVec2((float)my_image_width, (float)my_image_height));
+			//ImGui::Image((ImTextureID)(intptr_t)my_texture, ImVec2((float)my_image_width, (float)my_image_height));
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 			ImGui::End();
 		}
@@ -353,7 +439,60 @@ int main(int argc, char* argv[])
 			dock_initialized = true;
 			changed = false;
 		}
+		if(isDraggingAnyBar) {
+			if (!SDL_SetCursor(closedHandCursor)) {
+				SDL_GetError();
+			}
+		} else if(isHoveringAnyBar){
+			if (!SDL_SetCursor(openHandCursor)) {
+				SDL_GetError();
+			}
+		} else {
+			SDL_SetCursor(SDL_GetDefaultCursor());
+		}
+		for (int i = 0; i < 3; i++) {
+			if (draggingWindow[i]) {
 
+
+				static float f = 0.0f;
+				static int counter = 0;
+				ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar;
+				ImGui::Begin("floater", nullptr, flags);
+				ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.3f);
+				ImGui::SetWindowPos({ImGui::GetMousePos().x - (ImGui::FindWindowByName(windowNames[i])->Size.x/2), ImGui::GetMousePos().y+20 });
+				ImGui::SetWindowSize(ImGui::FindWindowByName(windowNames[i])->Size);
+				float window_width = ImGui::GetWindowWidth();
+				ImVec2 bar_size = ImVec2(window_width - 20, 30);
+				
+				ImGui::InvisibleButton("DragBar", bar_size);
+				
+				
+				ImGui::GetWindowDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 0, 0, 255), 0.0f, 0, 5.0f);
+				ImGui::Text("window size: (%.1f, %.1f)", ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+				ImGui::Button("Stop music", { 100.0f, 50.0f });
+				
+				ImGui::Button("Resume music", { 100.0f, 50.0f });
+				
+
+				ImGui::Text("This is %s", windowNames[i]);
+
+				ImGui::SliderInt("time", &currentPosition, 0, loopEnd);
+				
+				ImGui::SliderInt("Volume slider", &audioVolume, 0, MIX_MAX_VOLUME);
+				
+
+				if (ImGui::Button("Button"))
+					counter++;
+				ImGui::SameLine();
+				ImGui::Text("counter = %d", counter);
+				ImGui::Text("pointer = %p", my_texture);
+				ImGui::Text("size = %d x %d", my_image_width, my_image_height);
+				//ImGui::Image((ImTextureID)(intptr_t)my_texture, ImVec2((float)my_image_width, (float)my_image_height));
+				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+				ImGui::PopStyleVar();
+				ImGui::End();
+			}
+		}
 		// Rendering
 		ImGui::Render();
 		SDL_SetRenderScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
