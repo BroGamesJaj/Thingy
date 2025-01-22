@@ -13,7 +13,8 @@
 #include <fstream>
 #include <curl\curl.h>
 #include <curl\easy.h>
-
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 
 const int SCREEN_WIDTH = 1280;
@@ -25,6 +26,57 @@ static Mix_Music* music = NULL;
 static int next_track = 0;
 
 #ifdef T_PLATFORM_WINDOWS
+
+bool LoadTextureFromMemory(const void* data, size_t data_size, SDL_Renderer* renderer, SDL_Texture** out_texture, int* out_width, int* out_height)
+{
+	int image_width = 0;
+	int image_height = 0;
+	int channels = 4;
+	unsigned char* image_data = stbi_load_from_memory((const unsigned char*)data, (int)data_size, &image_width, &image_height, NULL, 4);
+	if (image_data == nullptr)
+	{
+		fprintf(stderr, "Failed to load image: %s\n", stbi_failure_reason());
+		return false;
+	}
+
+	SDL_Surface* surface = SDL_CreateSurfaceFrom(image_width, image_height, SDL_PIXELFORMAT_RGBA32, (void*)image_data, channels * image_width);
+	if (surface == nullptr)
+	{
+		fprintf(stderr, "Failed to create SDL surface: %s\n", SDL_GetError());
+		return false;
+	}
+
+	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+	if (texture == nullptr)
+		fprintf(stderr, "Failed to create SDL texture: %s\n", SDL_GetError());
+
+	*out_texture = texture;
+	*out_width = image_width;
+	*out_height = image_height;
+
+	SDL_DestroySurface(surface);
+	stbi_image_free(image_data);
+
+	return true;
+}
+
+// Open and read a file, then forward to LoadTextureFromMemory()
+bool LoadTextureFromFile(const char* file_name, SDL_Renderer* renderer, SDL_Texture** out_texture, int* out_width, int* out_height)
+{
+	FILE* f = fopen(file_name, "rb");
+	if (f == NULL)
+		return false;
+	fseek(f, 0, SEEK_END);
+	size_t file_size = (size_t)ftell(f);
+	if (file_size == -1)
+		return false;
+	fseek(f, 0, SEEK_SET);
+	void* file_data = IM_ALLOC(file_size);
+	fread(file_data, 1, file_size, f);
+	bool ret = LoadTextureFromMemory(file_data, file_size, renderer, out_texture, out_width, out_height);
+	IM_FREE(file_data);
+	return ret;
+}
 
 void UpdateDockingLayout() {
 
@@ -111,6 +163,8 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 	
+	
+
 	int looping = 0;
 	bool interactive = false;
 	bool use_io = false;
@@ -118,7 +172,7 @@ int main(int argc, char* argv[])
 	const char* typ;
 	int loopEnd = 0;
 	int loopStart, loopLength, currentPosition;
-	int audioVolume = MIX_MAX_VOLUME;
+	int audioVolume = 0;
 	SDL_AudioSpec spec;
 	spec.freq = MIX_DEFAULT_FREQUENCY;
 	spec.format = MIX_DEFAULT_FORMAT;
@@ -171,6 +225,11 @@ int main(int argc, char* argv[])
 	
 	SDL_ShowWindow(window);
 
+	SDL_Texture* my_texture;
+	int my_image_width, my_image_height;
+	bool ret = LoadTextureFromFile("../assets/images/adatmodel.jpg", renderer, &my_texture, &my_image_width, &my_image_height);
+	IM_ASSERT(ret);
+
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -188,6 +247,7 @@ int main(int argc, char* argv[])
 	io.ConfigDebugIniSettings = true;
 	bool draggingWindow[3] = {false, false, false};
 	bool changed = false;
+
 	// Main loop
 	bool done = false;
 	while (!done)
@@ -282,7 +342,9 @@ int main(int argc, char* argv[])
 				counter++;
 			ImGui::SameLine();
 			ImGui::Text("counter = %d", counter);
-
+			ImGui::Text("pointer = %p", my_texture);
+			ImGui::Text("size = %d x %d", my_image_width, my_image_height);
+			ImGui::Image((ImTextureID)(intptr_t)my_texture, ImVec2((float)my_image_width, (float)my_image_height));
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 			ImGui::End();
 		}

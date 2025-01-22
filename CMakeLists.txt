@@ -7,7 +7,6 @@ set(CMAKE_CONFIGURATION_TYPES Debug Release Dist CACHE STRING "Available build c
 set(CMAKE_CXX_FLAGS "")
 set(CMAKE_EXE_LINKER_FLAGS "/SUBSYSTEM:CONSOLE")
 set(CMAKE_EXE_LINKER_FLAGS_DIST "")
-
 # Output directories
 set(OUTPUT_DIR "${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
 set(OBJ_DIR "${CMAKE_BINARY_DIR}/bin-int/${CMAKE_BUILD_TYPE}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
@@ -38,6 +37,7 @@ set_target_properties(Thingy PROPERTIES
 # Include directories
 target_include_directories(Thingy PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/src"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/stb/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/spdlog/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL/include"
 )
@@ -145,3 +145,5 @@ target_compile_options(Thingy PRIVATE
     $<$<CONFIG:Release>:-O2>
     $<$<CONFIG:Dist>:-O2>
 )
+
+file(COPY ${CMAKE_SOURCE_DIR}/Thingy/assets DESTINATION ${OUTPUT_DIR})
