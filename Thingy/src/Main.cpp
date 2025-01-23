@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <SDL3\SDL.h>
 #include <SDL3_mixer/SDL_mixer.h>
+#include <SDL3/SDL_system.h>
 #include <fstream>
 #include <curl\curl.h>
 #include <curl\easy.h>
@@ -131,7 +132,7 @@ void UpdateDockingLayout() {
 	// Remove any existing dock nodes and create a new dockspace
 	ImGui::DockBuilderRemoveNode(dockspace_id);
 	ImGui::DockBuilderAddNode(dockspace_id);
-	
+
 	ImVec2 viewport_size = ImGui::GetMainViewport()->Size;
 	ImGui::DockBuilderSetNodeSize(dockspace_id, viewport_size);
 	// First, split the dockspace into two regions: left (30%) and right (70%)
@@ -272,7 +273,42 @@ std::string GetRequest(const std::string url)
 	return response_string;
 }
 
+void SetCustomWindowStyle(SDL_Window* window) {
+	HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
+	if (hwnd) {
+		LONG style = GetWindowLong(hwnd, GWL_STYLE);
+		style &= ~WS_OVERLAPPEDWINDOW;
+		style |= WS_POPUP | WS_THICKFRAME;
+		SetWindowLong(hwnd, GWL_STYLE, style);
 
+		SetWindowPos(hwnd, nullptr, 0, 0, 0, 0,
+			SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+	}
+}
+
+SDL_HitTestResult window_hit_test(SDL_Window* win, const SDL_Point* pos, void*) {
+	// Make top area draggable
+	int w, h;
+	SDL_GetWindowSize(win, &w, &h);
+
+	// Define edge size for resize
+	const int EDGE_SIZE = 5;
+	T_INFO("hit test");
+	// Corners
+	if (pos->x < EDGE_SIZE && pos->y < EDGE_SIZE) return SDL_HITTEST_RESIZE_TOPLEFT;
+	if (pos->x > w - EDGE_SIZE && pos->y < EDGE_SIZE) return SDL_HITTEST_RESIZE_TOPRIGHT;
+	if (pos->x < EDGE_SIZE && pos->y > h - EDGE_SIZE) return SDL_HITTEST_RESIZE_BOTTOMLEFT;
+	if (pos->x > w - EDGE_SIZE && pos->y > h - EDGE_SIZE) return SDL_HITTEST_RESIZE_BOTTOMRIGHT;
+
+	// Edges
+	if (pos->y < EDGE_SIZE) return SDL_HITTEST_RESIZE_TOP;
+	if (pos->y > h - EDGE_SIZE) return SDL_HITTEST_RESIZE_BOTTOM;
+	if (pos->x < EDGE_SIZE) return SDL_HITTEST_RESIZE_LEFT;
+	if (pos->x > w - EDGE_SIZE) return SDL_HITTEST_RESIZE_RIGHT;
+
+	if (pos->y < 50 && pos->y > EDGE_SIZE) return SDL_HITTEST_DRAGGABLE;
+	return SDL_HITTEST_NORMAL;
+}
 
 int main(int argc, char* argv[])
 {
@@ -338,6 +374,7 @@ int main(int argc, char* argv[])
 		printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
 		return -1;
 	}
+	SetCustomWindowStyle(window);
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, nullptr);
 	SDL_SetRenderVSync(renderer, 1);
 	if (renderer == nullptr)
@@ -345,10 +382,13 @@ int main(int argc, char* argv[])
 		SDL_Log("Error: SDL_CreateRenderer(): %s\n", SDL_GetError());
 		return -1;
 	}
-	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 	
+	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+	//SDL_SetWindowBordered(window, false);
 	SDL_ShowWindow(window);
-
+	if (SDL_SetWindowHitTest(window, window_hit_test, nullptr) != 0) {
+		SDL_Log("Failed to set hit test: %s", SDL_GetError());
+	}
 	SDL_Texture* my_texture;
 	int my_image_width, my_image_height;
 	bool ret = LoadTextureFromFile("../assets/images/adatmodel.jpg", renderer, &my_texture, &my_image_width, &my_image_height);
@@ -412,17 +452,31 @@ int main(int argc, char* argv[])
 		ImGui_ImplSDLRenderer3_NewFrame();
 		ImGui_ImplSDL3_NewFrame();
 		ImGui::NewFrame();
-		const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
+		int winW = 0;
+		int winH = 0;
+		SDL_GetWindowSizeInPixels(window, &winW, &winH);
+		float windowWidth = static_cast<float>(winW);
+		float windowHeight = static_cast<float>(winH);
+		ImGuiViewport* main_viewport = ImGui::GetMainViewport();
+		main_viewport->WorkPos = ImVec2(10,50);
+		main_viewport->WorkSize = ImVec2( windowWidth-20, windowHeight-55);
 		ImGuiID dockspace_id = ImGui::GetID("DockSpace");
-		ImGui::DockSpaceOverViewport(dockspace_id, ImGui::GetMainViewport(), ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoResizeY | ImGuiDockNodeFlags_AutoHideTabBar | ImGuiDockNodeFlags_NoTabBar);
-		
+		ImGuiDockNodeFlags dockSpaceFlags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoResizeY | ImGuiDockNodeFlags_AutoHideTabBar | ImGuiDockNodeFlags_NoTabBar;
+		ImGui::DockSpaceOverViewport(dockspace_id, main_viewport, dockSpaceFlags);
 		if (Mix_PlayingMusic() || Mix_PausedMusic()) {
 			currentPosition = Mix_GetMusicPosition(music);
 		}
+		
 		// Create the docking layout only once
 		static bool dock_initialized = false;
+		ImGui::SetNextWindowSize({windowWidth, windowHeight});
 
-		
+		ImGui::Begin("Custom Header", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus);
+		if (ImGui::Button("Close")) {
+			SDL_DestroyWindow(window);
+			exit(0);
+		}
+		ImGui::End();
 		Thingy::PlayerModule* module = new Thingy::PlayerModule("","","",0, currentPosition, audioVolume);
 		// Debug window
 		//ImGui::ShowDebugLogWindow();
