@@ -592,7 +592,7 @@ int main(int argc, char* argv[])
 		}
 
 		try {
-			module->OnRender();
+			//module->OnRender();
 
 		} catch (const std::exception& e) {
 			// Handle standard exceptions

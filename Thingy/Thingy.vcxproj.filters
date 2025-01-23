@@ -18,6 +18,7 @@
     <ClInclude Include="src\Modules\PlayerModule.h" />
     <ClInclude Include="src\Core\Track.h" />
     <ClInclude Include="src\Core\Artist.h" />
+    <ClInclude Include="src\Core\Scene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -31,5 +32,6 @@
     <ClCompile Include="src\Renderer\SDLRenderer.cpp" />
     <ClCompile Include="src\Core\Module.cpp" />
     <ClCompile Include="src\Modules\PlayerModule.cpp" />
+    <ClCompile Include="src\Core\Scene.cpp" />
   </ItemGroup>
 </Project>

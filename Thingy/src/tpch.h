@@ -30,6 +30,7 @@
 #include <condition_variable>
 #include <optional>
 #include <set>
+#include <map>
 
 //Windows 
 #ifdef T_PLATFORM_WINDOWS
