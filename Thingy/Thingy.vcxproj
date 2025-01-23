@@ -150,8 +150,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\Application.h" />
+    <ClInclude Include="src\Core\Artist.h" />
     <ClInclude Include="src\Core\Log.h" />
     <ClInclude Include="src\Core\Module.h" />
+    <ClInclude Include="src\Core\Track.h" />
     <ClInclude Include="src\Modules\PlayerModule.h" />
     <ClInclude Include="src\Renderer\SDLRenderer.h" />
     <ClInclude Include="src\tpch.h" />

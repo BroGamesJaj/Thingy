@@ -2,6 +2,7 @@
 
 #include "Core/Log.h"
 #include "Core/Application.h"
+#include "Core/Track.h"
 
 #include "imgui.h"
 #include "imgui_internal.h"
@@ -15,6 +16,8 @@
 #include <curl\easy.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
+#include "Modules\PlayerModule.h"
 
 
 const int SCREEN_WIDTH = 1280;
@@ -148,14 +151,23 @@ void UpdateDockingLayout() {
 }
 
 //drag_dir false = left, true = right
-void LayoutChange(int dragged, bool drag_dir) {
+void LayoutChange(int dragged, ImVec2 currentPos, bool& changed) {
 	T_TRACE("dragged: {0}", dragged);
-	int target = dragged + (drag_dir ? 1 : -1);
-	T_TRACE("target: {0}", target);
-	if (target < 0 || target > 2) return;
 	T_TRACE("{0} {1} {2}", windowNames[0], windowNames[1], windowNames[2]);
-	std::swap(windowNames[dragged], windowNames[target]);
-	T_TRACE("after swap: {0} {1} {2}", windowNames[0], windowNames[1], windowNames[2]);
+	for (size_t i = 0; i < 3; i++) {
+		
+		if (windowNames[i] != windowNames[dragged]) {
+			ImVec2 winSize = ImGui::FindWindowByName(windowNames[i])->Size;
+			ImVec2 winPos = ImGui::FindWindowByName(windowNames[i])->Pos;
+			if (currentPos.x > winPos.x && currentPos.x < winPos.x + winSize.x && currentPos.y > winPos.y && currentPos.y < winPos.y + winSize.y) {
+				std::swap(windowNames[dragged], windowNames[i]);
+				T_TRACE("after swap: {0} {1} {2}", windowNames[0], windowNames[1], windowNames[2]);
+				changed = true;
+				return;
+			}
+		}
+	}
+	changed = false;
 }
 
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
@@ -193,6 +205,74 @@ Mix_Music* LoadMusicFromMemory(const std::vector<char>& buffer) {
 	return music;
 }
 
+void AlignForWidth(float width, float alignment = 0.5f)
+{
+	ImGuiStyle& style = ImGui::GetStyle();
+	float avail = ImGui::GetContentRegionAvail().x;
+	float off = (avail - width) * alignment;
+	if (off > 0.0f)
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + off);
+}
+
+void Cleanup(CURL* curl, curl_slist* headers) {
+	if (curl)
+		curl_easy_cleanup(curl);
+	if (headers)
+		curl_slist_free_all(headers);
+	curl_global_cleanup();
+}
+
+size_t curl_callback(void* ptr, size_t size, size_t nmemb, std::string* data) {
+	data->append((char*)ptr, size * nmemb);
+	return size * nmemb;
+}
+
+std::string GetRequest(const std::string url)
+{
+	curl_global_init(CURL_GLOBAL_ALL);
+	CURL* curl = curl_easy_init();
+	std::string response_string;
+	struct curl_slist* headers = NULL;
+	if (!curl)
+	{
+		std::cout << "ERROR : Curl initialization\n" << std::endl;
+		Cleanup(curl, headers);
+		return NULL;
+	}
+
+	headers = curl_slist_append(headers, "User-Agent: libcurl-agent/1.0");
+	headers = curl_slist_append(headers, "Content-Type: application/json");
+	headers = curl_slist_append(headers, "Cache-Control: no-cache");
+
+	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+
+	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
+	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L);
+	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_callback);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
+
+
+	CURLcode status = curl_easy_perform(curl);
+	if (status != 0)
+	{
+		std::cout << "Error: Request failed on URL : " << url << std::endl;
+		std::cout << "Error Code: " << status << " Error Detail : " << curl_easy_strerror(status) << std::endl;
+		Cleanup(curl, headers);
+		return 0;
+	}
+
+	curl_easy_cleanup(curl);
+	curl_slist_free_all(headers);
+	curl_global_cleanup();
+
+	return response_string;
+}
+
+
 
 int main(int argc, char* argv[])
 {
@@ -206,8 +286,8 @@ int main(int argc, char* argv[])
 		printf("Error: SDL_Init(): %s\n", SDL_GetError());
 		return -1;
 	}
-	
-	
+	std::string jsonData = GetRequest("https://api.jamendo.com/v3.0/tracks/?client_id=8b1de417&format=jsonpretty&limit=1&fuzzytags=groove+rock&speed=high+veryhigh&include=musicinfo&groupby=artist_id");
+	std::cout << jsonData << std::endl;
 
 	int looping = 0;
 	bool interactive = false;
@@ -295,16 +375,14 @@ int main(int argc, char* argv[])
 	bool changed = false;
 	ImGuiStyle& style = ImGui::GetStyle();	
 	style.FramePadding = {10.0f, 10.0f};
-
 	//custom cursor
 	int cursorWidth = GetSystemMetrics(SM_CXCURSOR);
 	int cursorHeight = GetSystemMetrics(SM_CYCURSOR);
-	SDL_Cursor* openHandCursor = nullptr;
-	SDL_Cursor* closedHandCursor = nullptr;
-	openHandCursor = CreateCustomCursor("../assets/images/openHand.bmp", cursorWidth/2, cursorHeight/2);
-	closedHandCursor = CreateCustomCursor("../assets/images/closedHand.bmp", cursorWidth/2, cursorHeight/2);
+	std::map<std::string, SDL_Cursor*> customCursors{ {"openHand",CreateCustomCursor("../assets/cursors/openHand.bmp", cursorWidth / 2, cursorHeight / 2)}, {"closedHand", CreateCustomCursor("../assets/cursors/closedHand.bmp", cursorWidth / 2, cursorHeight / 2)}};
+	
 	T_INFO("{0}w", cursorWidth);
 	T_INFO("{0}h", cursorHeight);
+	
 	// Main loop
 	bool done = false;
 	while (!done)
@@ -329,21 +407,23 @@ int main(int argc, char* argv[])
 			SDL_Delay(10);
 			continue;
 		}
-
+		SDL_SetCursor(NULL);
 		// Start the Dear ImGui frame
 		ImGui_ImplSDLRenderer3_NewFrame();
 		ImGui_ImplSDL3_NewFrame();
 		ImGui::NewFrame();
 		const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
 		ImGuiID dockspace_id = ImGui::GetID("DockSpace");
-		ImGui::DockSpaceOverViewport(dockspace_id, ImGui::GetMainViewport(), ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoResize | ImGuiDockNodeFlags_AutoHideTabBar | ImGuiDockNodeFlags_NoTabBar);
+		ImGui::DockSpaceOverViewport(dockspace_id, ImGui::GetMainViewport(), ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoResizeY | ImGuiDockNodeFlags_AutoHideTabBar | ImGuiDockNodeFlags_NoTabBar);
 		
 		if (Mix_PlayingMusic() || Mix_PausedMusic()) {
 			currentPosition = Mix_GetMusicPosition(music);
 		}
 		// Create the docking layout only once
 		static bool dock_initialized = false;
+
 		
+		Thingy::PlayerModule* module = new Thingy::PlayerModule("","","",0, currentPosition, audioVolume);
 		// Debug window
 		//ImGui::ShowDebugLogWindow();
 		bool isHoveringAnyBar = false;
@@ -385,16 +465,10 @@ int main(int argc, char* argv[])
 			if (draggingWindow[i] && ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
 				ImVec2 currentPos = ImGui::GetMousePos();
 				ImVec2 windowPos = ImGui::GetWindowPos();
-				if (currentPos.x > windowPos.x + ImGui::GetWindowWidth() + 10 && i != 2) {
-					LayoutChange(i, true);
-					draggingWindow[i] = false;
-					changed = true;
-				}
-				if (currentPos.x < windowPos.x - 10 && i != 0) {
-					LayoutChange(i, false);
-					draggingWindow[i] = false;
-					changed = true;
-				}
+				draggingWindow[i] = false;
+				T_ERROR("changed {0}", changed);
+				LayoutChange(i, currentPos, changed);
+				T_ERROR("changed after {0}", changed);
 			}
 			if (draggingWindow[i] && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
 				isDraggingAnyBar = true;
@@ -414,6 +488,20 @@ int main(int argc, char* argv[])
 			}
 			
 			ImGui::Text("This is %s", windowNames[i]);
+			ImGuiStyle& style = ImGui::GetStyle();
+			float width = 0.0f;
+			width += ImGui::CalcTextSize("Hello").x;
+			width += style.ItemSpacing.x;
+			width += 150.0f;
+			width += style.ItemSpacing.x;
+			width += ImGui::CalcTextSize("World!").x;
+			AlignForWidth(width);
+
+			ImGui::Button("Hello");
+			ImGui::SameLine();
+			ImGui::Button("Fixed");
+			ImGui::SameLine();
+			ImGui::Button("World");
 
 			ImGui::SliderInt("time", &currentPosition, 0, loopEnd);
 			if (ImGui::IsItemEdited()) {
@@ -434,22 +522,27 @@ int main(int argc, char* argv[])
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 			ImGui::End();
 		}
+		
 		if (!dock_initialized || changed) {
 			UpdateDockingLayout();
 			dock_initialized = true;
 			changed = false;
 		}
-		if(isDraggingAnyBar) {
-			if (!SDL_SetCursor(closedHandCursor)) {
+		
+		if (isDraggingAnyBar) {
+			if (!SDL_SetCursor(customCursors["closedHand"])) {
 				SDL_GetError();
 			}
-		} else if(isHoveringAnyBar){
-			if (!SDL_SetCursor(openHandCursor)) {
+		}
+		else if (isHoveringAnyBar) {
+			if (!SDL_SetCursor(customCursors["openHand"])) {
 				SDL_GetError();
 			}
-		} else {
+		}
+		else {
 			SDL_SetCursor(SDL_GetDefaultCursor());
 		}
+		
 		for (int i = 0; i < 3; i++) {
 			if (draggingWindow[i]) {
 
@@ -457,10 +550,10 @@ int main(int argc, char* argv[])
 				static float f = 0.0f;
 				static int counter = 0;
 				ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar;
+				ImGui::BeginDisabled();
+
 				ImGui::Begin("floater", nullptr, flags);
-				ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.3f);
-				ImGui::SetWindowPos({ImGui::GetMousePos().x - (ImGui::FindWindowByName(windowNames[i])->Size.x/2), ImGui::GetMousePos().y+20 });
-				ImGui::SetWindowSize(ImGui::FindWindowByName(windowNames[i])->Size);
+				//ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.3f);
 				float window_width = ImGui::GetWindowWidth();
 				ImVec2 bar_size = ImVec2(window_width - 20, 30);
 				
@@ -489,9 +582,24 @@ int main(int argc, char* argv[])
 				ImGui::Text("size = %d x %d", my_image_width, my_image_height);
 				//ImGui::Image((ImTextureID)(intptr_t)my_texture, ImVec2((float)my_image_width, (float)my_image_height));
 				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-				ImGui::PopStyleVar();
+				//ImGui::PopStyleVar();
+
+				ImGui::SetWindowPos({ ImGui::GetMousePos().x - (ImGui::FindWindowByName(windowNames[i])->Size.x / 2), ImGui::GetMousePos().y + 5 });
+				ImGui::SetWindowSize(ImGui::FindWindowByName(windowNames[i])->Size);
 				ImGui::End();
+				ImGui::EndDisabled();
 			}
+		}
+
+		try {
+			module->OnRender();
+
+		} catch (const std::exception& e) {
+			// Handle standard exceptions
+			std::cerr << "An error occurred: " << e.what() << std::endl;
+		} catch (...) {
+			// Handle unknown exceptions
+			std::cerr << "An unknown error occurred." << std::endl;
 		}
 		// Rendering
 		ImGui::Render();
@@ -501,6 +609,9 @@ int main(int argc, char* argv[])
 		SDL_RenderPresent(renderer);
 	}
 
+	for (auto& pair : customCursors) {
+		SDL_DestroyCursor(pair.second);
+	}
 	// Cleanup
 	ImGui_ImplSDLRenderer3_Shutdown();
 	ImGui_ImplSDL3_Shutdown();
