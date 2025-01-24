@@ -152,7 +152,6 @@ void UpdateDockingLayout() {
 	ImGui::DockBuilderFinish(dockspace_id);
 }
 
-//drag_dir false = left, true = right
 void LayoutChange(int dragged, ImVec2 currentPos, bool& changed) {
 	T_TRACE("dragged: {0}", dragged);
 	T_TRACE("{0} {1} {2}", windowNames[0], windowNames[1], windowNames[2]);
@@ -274,8 +273,7 @@ SDL_HitTestResult window_hit_test(SDL_Window* win, const SDL_Point* pos, void*) 
 	return SDL_HITTEST_NORMAL;
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
 
 	Thingy::Log::Init();
 	Thingy::Application app{};
@@ -290,12 +288,6 @@ int main(int argc, char* argv[])
 	//std::string jsonData = GetRequest("https://api.jamendo.com/v3.0/tracks/?client_id=8b1de417&format=jsonpretty&limit=5&fuzzytags=groove+rock&speed=high+veryhigh&include=musicinfo&groupby=artist_id");
 	//json parsedJsonData = json::parse(jsonData);
 	SDL_SetLogPriorities(SDL_LOG_PRIORITY_VERBOSE);
-
-	int looping = 0;
-	bool interactive = false;
-	bool use_io = false;
-	int i;
-	const char* typ;
 
 	Thingy::AudioManager audioManager;
 	
@@ -318,8 +310,10 @@ int main(int argc, char* argv[])
 		SDL_Log("Error: SDL_CreateRenderer(): %s\n", SDL_GetError());
 		return -1;
 	}
-	//SDL_SetWindowBordered(window, false);
 	SDL_ShowWindow(window);
+	if (!SDL_SetWindowHitTest(window, window_hit_test, nullptr)) {
+		SDL_Log("Failed to set hit test: %s", SDL_GetError());
+	}
 	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 	
 	
@@ -422,7 +416,7 @@ int main(int argc, char* argv[])
 		}
 		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Vertical;
 		ImGui::End();
-		//Thingy::PlayerModule* module = new Thingy::PlayerModule(audioManager);
+		Thingy::PlayerModule* module = new Thingy::PlayerModule(&audioManager);
 		// Debug window
 		//ImGui::ShowDebugLogWindow();
 		bool isHoveringAnyBar = false;

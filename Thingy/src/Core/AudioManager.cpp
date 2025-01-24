@@ -117,7 +117,7 @@ namespace Thingy {
 			}
 			music = LoadMusicFromMemory(musicBuffer);
 			if (!music) {
-				SDL_Log("Mix_LoadMUS_RW failed: %s\n", SDL_GetError());
+				SDL_Log("Mix_LoadMUS_IO failed: %s\n", SDL_GetError());
 			}
 		}
 		else {

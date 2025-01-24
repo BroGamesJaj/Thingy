@@ -42,7 +42,7 @@ namespace Thingy {
 	inline Mix_Music* LoadMusicFromMemory(const std::vector<char>& buffer) {
 		SDL_IOStream* ioStream = SDL_IOFromConstMem(buffer.data(), buffer.size());
 		if (!ioStream) {
-			SDL_Log("Failed to create RWops: %s\n", SDL_GetError());
+			SDL_Log("Failed to create IOStream: %s\n", SDL_GetError());
 			return nullptr;
 		}
 
