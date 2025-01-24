@@ -4,12 +4,23 @@
 namespace Thingy {
 	class PlayerModule : Module {
 	public:
-		PlayerModule(std::string trackImageURL, std::string trackName, std::string trackArtist, int trackDuration, int& currentTime, int& volume) : m_TrackImageURL(trackImageURL), m_TrackName(trackName), m_TrackArtist(trackArtist), m_TrackDuration(trackDuration), m_CurrentTime(currentTime), m_AudioVolume(volume) {
+		PlayerModule(int& currentTime, int& volume) : m_CurrentTime(currentTime), m_AudioVolume(volume) {
+			m_TrackImageURL = "";
+			m_TrackName = "";
+			m_TrackArtist = "";
+			m_TrackDuration = 0;
 		}
 
 		void OnUpdate() override;
 
 		void OnRender() override;
+
+		void SetCurrentTrack(std::string trackImageURL, std::string trackName, std::string trackArtist, int trackDuration) {
+			m_TrackImageURL = trackImageURL;
+			m_TrackName = trackName;
+			m_TrackArtist = trackArtist;
+			m_TrackDuration = trackDuration;
+		}
 
 		MODULE_CLASS_NAME("PlayerModule")
 	private:

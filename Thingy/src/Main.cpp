@@ -278,22 +278,20 @@ void SetCustomWindowStyle(SDL_Window* window) {
 	if (hwnd) {
 		LONG style = GetWindowLong(hwnd, GWL_STYLE);
 		style &= ~WS_OVERLAPPEDWINDOW;
-		style |= WS_POPUP | WS_THICKFRAME;
+		style |= WS_POPUP | WS_EX_CLIENTEDGE;
 		SetWindowLong(hwnd, GWL_STYLE, style);
-
+	
 		SetWindowPos(hwnd, nullptr, 0, 0, 0, 0,
 			SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 	}
 }
 
 SDL_HitTestResult window_hit_test(SDL_Window* win, const SDL_Point* pos, void*) {
-	// Make top area draggable
+	
 	int w, h;
 	SDL_GetWindowSize(win, &w, &h);
 
-	// Define edge size for resize
 	const int EDGE_SIZE = 5;
-	T_INFO("hit test");
 	// Corners
 	if (pos->x < EDGE_SIZE && pos->y < EDGE_SIZE) return SDL_HITTEST_RESIZE_TOPLEFT;
 	if (pos->x > w - EDGE_SIZE && pos->y < EDGE_SIZE) return SDL_HITTEST_RESIZE_TOPRIGHT;
@@ -306,7 +304,7 @@ SDL_HitTestResult window_hit_test(SDL_Window* win, const SDL_Point* pos, void*) 
 	if (pos->x < EDGE_SIZE) return SDL_HITTEST_RESIZE_LEFT;
 	if (pos->x > w - EDGE_SIZE) return SDL_HITTEST_RESIZE_RIGHT;
 
-	if (pos->y < 50 && pos->y > EDGE_SIZE) return SDL_HITTEST_DRAGGABLE;
+	if (pos->y < 50 && pos->y >= EDGE_SIZE && pos->x < w - 145) return SDL_HITTEST_DRAGGABLE;
 	return SDL_HITTEST_NORMAL;
 }
 
@@ -382,13 +380,14 @@ int main(int argc, char* argv[])
 		SDL_Log("Error: SDL_CreateRenderer(): %s\n", SDL_GetError());
 		return -1;
 	}
-	
-	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 	//SDL_SetWindowBordered(window, false);
 	SDL_ShowWindow(window);
 	if (SDL_SetWindowHitTest(window, window_hit_test, nullptr) != 0) {
 		SDL_Log("Failed to set hit test: %s", SDL_GetError());
 	}
+	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+	
+	
 	SDL_Texture* my_texture;
 	int my_image_width, my_image_height;
 	bool ret = LoadTextureFromFile("../assets/images/adatmodel.jpg", renderer, &my_texture, &my_image_width, &my_image_height);
@@ -457,6 +456,8 @@ int main(int argc, char* argv[])
 		SDL_GetWindowSizeInPixels(window, &winW, &winH);
 		float windowWidth = static_cast<float>(winW);
 		float windowHeight = static_cast<float>(winH);
+
+		
 		ImGuiViewport* main_viewport = ImGui::GetMainViewport();
 		main_viewport->WorkPos = ImVec2(10,50);
 		main_viewport->WorkSize = ImVec2( windowWidth-20, windowHeight-55);
@@ -467,17 +468,27 @@ int main(int argc, char* argv[])
 			currentPosition = Mix_GetMusicPosition(music);
 		}
 		
-		// Create the docking layout only once
 		static bool dock_initialized = false;
+
 		ImGui::SetNextWindowSize({windowWidth, windowHeight});
+		ImGui::SetNextWindowPos({ 0.0f, 0.0f });
 
 		ImGui::Begin("Custom Header", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus);
-		if (ImGui::Button("Close")) {
-			SDL_DestroyWindow(window);
-			exit(0);
+		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Horizontal;
+		ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 15 - 40 - 5 - 40 - 5 - 40);
+		ImGui::Button("_", { 40.0f, 30.0f });
+		
+		//ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 10 - 40 - 5 - 40); // 10 padding right, width of X button, padding between buttons, width of button
+		ImGui::Button("M", { 40.0f, 30.0f });
+		
+		//ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 10 - 40); // 10 padding right, width of button
+		ImGui::Button("X", { 40.0f, 30.0f });
+		if(ImGui::IsItemClicked(ImGuiMouseButton_Left)){
+			done = true;
 		}
+		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Vertical;
 		ImGui::End();
-		Thingy::PlayerModule* module = new Thingy::PlayerModule("","","",0, currentPosition, audioVolume);
+		Thingy::PlayerModule* module = new Thingy::PlayerModule(currentPosition, audioVolume);
 		// Debug window
 		//ImGui::ShowDebugLogWindow();
 		bool isHoveringAnyBar = false;
@@ -658,6 +669,7 @@ int main(int argc, char* argv[])
 		// Rendering
 		ImGui::Render();
 		SDL_SetRenderScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
+		SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
 		SDL_RenderClear(renderer);
 		ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
 		SDL_RenderPresent(renderer);
