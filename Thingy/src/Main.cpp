@@ -2,7 +2,6 @@
 
 #include "Core/Log.h"
 #include "Core/Application.h"
-#include "Core/Track.h"
 #include "Core/AudioManager.h"
 
 #include <imgui.h>
@@ -12,13 +11,13 @@
 #include <stdio.h>
 #include <SDL3\SDL.h>
 #include <SDL3_mixer/SDL_mixer.h>
+#define SDL_MIXER_HINT_DEBUG_MUSIC_INTERFACES
 #include <SDL3/SDL_system.h>
 #include <fstream>
 #include <curl\curl.h>
 #include <curl\easy.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb\stb_image.h>
-
 #include <nlohmann\json.hpp>
 using json = nlohmann::json;
 
@@ -28,8 +27,10 @@ const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
 static const char* windowNames[3] = { "Left Window", "Center Window", "Right Window" };
 static const char* identifier[3] = { "Left Window", "Center Window", "Right Window" };
-
+//static Mix_Music* music = NULL;
 #ifdef T_PLATFORM_WINDOWS
+
+
 
 bool LoadTextureFromMemory(const void* data, size_t data_size, SDL_Renderer* renderer, SDL_Texture** out_texture, int* out_width, int* out_height)
 {
@@ -273,24 +274,6 @@ SDL_HitTestResult window_hit_test(SDL_Window* win, const SDL_Point* pos, void*) 
 	return SDL_HITTEST_NORMAL;
 }
 
-namespace ns {
-	struct person {
-		std::string name;
-		std::string address;
-		int age;
-	};
-
-	void to_json(json& j, const person& p) {
-		j = json{ {"name", p.name}, {"address", p.address}, {"age", p.age} };
-	}
-
-	void from_json(const json& j, person& p) {
-		j.at("name").get_to(p.name);
-		j.at("address").get_to(p.address);
-		j.at("age").get_to(p.age);
-	}
-}
-
 int main(int argc, char* argv[])
 {
 
@@ -306,7 +289,7 @@ int main(int argc, char* argv[])
 	}
 	//std::string jsonData = GetRequest("https://api.jamendo.com/v3.0/tracks/?client_id=8b1de417&format=jsonpretty&limit=5&fuzzytags=groove+rock&speed=high+veryhigh&include=musicinfo&groupby=artist_id");
 	//json parsedJsonData = json::parse(jsonData);
-
+	SDL_SetLogPriorities(SDL_LOG_PRIORITY_VERBOSE);
 
 	int looping = 0;
 	bool interactive = false;
@@ -314,9 +297,10 @@ int main(int argc, char* argv[])
 	int i;
 	const char* typ;
 
-	Thingy::AudioManager* audioManager = new Thingy::AudioManager;
-
-	//audioManager->LoadMusic();
+	Thingy::AudioManager audioManager;
+	
+	audioManager.ChangeMusic();
+	audioManager.ResumeMusic();
 
 	// Create window with SDL_Renderer graphics context
 	Uint32 window_flags =  SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
@@ -336,9 +320,6 @@ int main(int argc, char* argv[])
 	}
 	//SDL_SetWindowBordered(window, false);
 	SDL_ShowWindow(window);
-	if (SDL_SetWindowHitTest(window, window_hit_test, nullptr) != 0) {
-		SDL_Log("Failed to set hit test: %s", SDL_GetError());
-	}
 	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 	
 	
@@ -400,6 +381,7 @@ int main(int argc, char* argv[])
 			SDL_Delay(10);
 			continue;
 		}
+		audioManager.UpdateTrackPos();
 		SDL_SetCursor(NULL);
 		// Start the Dear ImGui frame
 		ImGui_ImplSDLRenderer3_NewFrame();
@@ -440,7 +422,7 @@ int main(int argc, char* argv[])
 		}
 		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Vertical;
 		ImGui::End();
-		Thingy::PlayerModule* module = new Thingy::PlayerModule(audioManager);
+		//Thingy::PlayerModule* module = new Thingy::PlayerModule(audioManager);
 		// Debug window
 		//ImGui::ShowDebugLogWindow();
 		bool isHoveringAnyBar = false;
@@ -520,13 +502,13 @@ int main(int argc, char* argv[])
 			ImGui::SameLine();
 			ImGui::Button("World");
 
-			ImGui::SliderInt("time", &audioManager->GetCurrentTrackPos(), 0, audioManager->GetCurrentTrack().duration);
+			ImGui::SliderInt("time", &audioManager.GetCurrentTrackPos(), 0, audioManager.GetCurrentTrack().duration);
 			if (ImGui::IsItemEdited()) {
-				audioManager->ChangeMusicPos();
+				audioManager.ChangeMusicPos();
 			}
-			ImGui::SliderInt("Volume slider", &audioManager->GetVolume(), 0, MIX_MAX_VOLUME);
+			ImGui::SliderInt("Volume slider", &audioManager.GetVolume(), 0, MIX_MAX_VOLUME);
 			if (ImGui::IsItemEdited()) {
-				audioManager->ChangeVolume();
+				audioManager.ChangeVolume();
 			}
 
 			if (ImGui::Button("Button"))         
@@ -586,9 +568,9 @@ int main(int argc, char* argv[])
 
 				ImGui::Text("This is %s", windowNames[i]);
 
-				ImGui::SliderInt("time", &audioManager->GetCurrentTrackPos(), 0, audioManager->GetCurrentTrack().duration);
+				ImGui::SliderInt("time", &audioManager.GetCurrentTrackPos(), 0, audioManager.GetCurrentTrack().duration);
 				
-				ImGui::SliderInt("Volume slider", &audioManager->GetVolume(), 0, MIX_MAX_VOLUME);
+				ImGui::SliderInt("Volume slider", &audioManager.GetVolume(), 0, MIX_MAX_VOLUME);
 				
 
 				if (ImGui::Button("Button"))

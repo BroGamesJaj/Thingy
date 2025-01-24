@@ -1,29 +1,9 @@
 #include "tpch.h"
 #include "AudioManager.h"
-#include <curl\curl.h>
-#include <curl\easy.h>
 
 namespace Thingy {
-	size_t AudioManager::WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
-		size_t totalSize = size * nmemb;
-		std::vector<char>* buffer = static_cast<std::vector<char>*>(userp);
-		buffer->insert(buffer->end(), static_cast<char*>(contents), static_cast<char*>(contents) + totalSize);
-		return totalSize;
-	}
 
-	bool AudioManager::DownloadFile(const std::string& url, std::vector<char>& buffer) {
-		CURL* curl = curl_easy_init();
-		if (!curl) return false;
-
-		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &AudioManager::WriteCallback);
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
-
-		CURLcode res = curl_easy_perform(curl);
-		curl_easy_cleanup(curl);
-
-		return (res == CURLE_OK);
-	}
+	
 
 	AudioManager::AudioManager() {
 		SDL_Log("Audio Manager Constructor");
@@ -36,12 +16,17 @@ namespace Thingy {
 			Mix_CloseAudio();
 		}	
 		SDL_QuitSubSystem(SDL_INIT_AUDIO);
+		
 	}
 
 	void AudioManager::Init() {
+		volume = 0;
+		currentTrackNum = 0;
+		currentTrackPos = 0;
 		spec.freq = MIX_DEFAULT_FREQUENCY;
 		spec.format = MIX_DEFAULT_FORMAT;
 		spec.channels = MIX_DEFAULT_CHANNELS;
+
 		if (!Mix_OpenAudio(0, &spec)) {
 			SDL_Log("Couldn't open audio: %s\n", SDL_GetError());
 		}
@@ -53,8 +38,9 @@ namespace Thingy {
 				(spec.channels > 2) ? "surround" : (spec.channels > 1) ? "stereo" : "mono");
 		}
 		audioOpen = 1;
+		
 		Mix_VolumeMusic(volume);
-		//Mix_HookMusicFinished(OnMusicFinished());
+		Mix_HookMusicFinished(OnMusicFinished());
 	}
 
 	Mix_MusicFinishedCallback AudioManager::OnMusicFinished() {
@@ -76,15 +62,16 @@ namespace Thingy {
 	}
 
 	void AudioManager::ChangeMusic() {
-		
-
+		LoadMusic();
+		Mix_PlayMusic(music, 0);
+		Mix_PauseMusic();
 	}
 
 	void AudioManager::PauseMusic() {
 		Mix_PauseMusic();
 	}
 
-	void AudioManager::StartMusic() {
+	void AudioManager::ResumeMusic() {
 		Mix_ResumeMusic();
 	}
 		
@@ -102,42 +89,42 @@ namespace Thingy {
 	}
 
 	void AudioManager::PrevTrack() {
-		if (currentTrackNum > 0) {
-			currentTrackNum--;
-			ChangeMusic();
-		} else if (currentTrackNum == 0) {
+		if (currentTrackPos < 5) {
+			if (currentTrackNum > 0) {
+				currentTrackNum--;
+				ChangeMusic();
+			} else if (currentTrackNum == 0) {
+				Mix_RewindMusic();
+			}
+		} else {
 			Mix_RewindMusic();
 		}
 	}
 	void AudioManager::LoadMusic() {
-		std::vector<char> musicBuffer;
+		musicBuffer.clear();
 		std::string musicURL = "https:\/\/prod-1.storage.jamendo.com\/?trackid=1848357&format=mp31&from=app-devsite";
 
+		
 		if (DownloadFile(musicURL, musicBuffer)) {
-			music = LoadMusicFromMemory(musicBuffer);
+			if (musicBuffer.empty()) {
+				SDL_Log("Buffer is empty, cannot load music.");
+				return;
+			}
+			SDL_Log("Downloaded music file, size: %zu bytes", musicBuffer.size());
 			if (music) {
-				if (Mix_PlayMusic(music, -1) == -1) {
-					SDL_Log("Failed to play music: %s\n", SDL_GetError());
-				}
+				Mix_FreeMusic(music);
+				music = nullptr;
+			}
+			music = LoadMusicFromMemory(musicBuffer);
+			if (!music) {
+				SDL_Log("Mix_LoadMUS_RW failed: %s\n", SDL_GetError());
 			}
 		}
 		else {
 			SDL_Log("Failed to download music from URL.\n");
 		}
+		
 	}
 
-	Mix_Music* AudioManager::LoadMusicFromMemory(const std::vector<char>& buffer) {
-		SDL_IOStream* ioStream = SDL_IOFromConstMem(buffer.data(), buffer.size());
-		if (!ioStream) {
-			SDL_Log("Failed to create RWops: %s\n", SDL_GetError());
-			return nullptr;
-		}
-
-		Mix_Music* music = Mix_LoadMUS_IO(ioStream, 1);
-		if (!music) {
-			SDL_Log("Failed to load music: %s\n", SDL_GetError());
-		}
-		return music;
-
-	}
+	
 }
