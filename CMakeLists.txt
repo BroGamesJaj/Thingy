@@ -37,7 +37,7 @@ set_target_properties(Thingy PROPERTIES
 # Include directories
 target_include_directories(Thingy PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/src"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/stb/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/libs"
     "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/spdlog/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL/include"
 )

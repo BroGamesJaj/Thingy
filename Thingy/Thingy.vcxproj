@@ -86,7 +86,7 @@
       <PrecompiledHeaderFile>tpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>T_PLATFORM_WINDOWS;HAVE_CONFIG_H;SE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\SDL_image\include;vendor\stb\include;vendor\SDL_mixer\include;vendor\imgui;vendor\imgui\backends;vendor\spdlog\include;vendor\curl\include;vendor\SDL_net\include;vendor\SDL_mixer\external\SDL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\libs;vendor\SDL_mixer\include;vendor\imgui;vendor\imgui\backends;vendor\spdlog\include;vendor\curl\include;vendor\SDL_net\include;vendor\SDL_mixer\external\SDL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>

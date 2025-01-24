@@ -4,10 +4,10 @@
 #include "Core/Application.h"
 #include "Core/Track.h"
 
-#include "imgui.h"
-#include "imgui_internal.h"
-#include "imgui_impl_sdl3.h"
-#include "imgui_impl_sdlrenderer3.h"
+#include <imgui.h>
+#include <imgui_internal.h>
+#include <imgui_impl_sdl3.h>
+#include <imgui_impl_sdlrenderer3.h>
 #include <stdio.h>
 #include <SDL3\SDL.h>
 #include <SDL3_mixer/SDL_mixer.h>
@@ -16,10 +16,12 @@
 #include <curl\curl.h>
 #include <curl\easy.h>
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include <stb\stb_image.h>
+
+#include <nlohmann\json.hpp>
+using json = nlohmann::json;
 
 #include "Modules\PlayerModule.h"
-
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
@@ -308,20 +310,40 @@ SDL_HitTestResult window_hit_test(SDL_Window* win, const SDL_Point* pos, void*) 
 	return SDL_HITTEST_NORMAL;
 }
 
+namespace ns {
+	struct person {
+		std::string name;
+		std::string address;
+		int age;
+	};
+
+	void to_json(json& j, const person& p) {
+		j = json{ {"name", p.name}, {"address", p.address}, {"age", p.age} };
+	}
+
+	void from_json(const json& j, person& p) {
+		j.at("name").get_to(p.name);
+		j.at("address").get_to(p.address);
+		j.at("age").get_to(p.age);
+	}
+}
+
 int main(int argc, char* argv[])
 {
 
 	Thingy::Log::Init();
 	Thingy::Application app{};
 	T_INFO("Thingy started");
+
 	// Setup SDL
 	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
 	{
 		printf("Error: SDL_Init(): %s\n", SDL_GetError());
 		return -1;
 	}
-	std::string jsonData = GetRequest("https://api.jamendo.com/v3.0/tracks/?client_id=8b1de417&format=jsonpretty&limit=1&fuzzytags=groove+rock&speed=high+veryhigh&include=musicinfo&groupby=artist_id");
-	std::cout << jsonData << std::endl;
+	//std::string jsonData = GetRequest("https://api.jamendo.com/v3.0/tracks/?client_id=8b1de417&format=jsonpretty&limit=5&fuzzytags=groove+rock&speed=high+veryhigh&include=musicinfo&groupby=artist_id");
+	//json parsedJsonData = json::parse(jsonData);
+
 
 	int looping = 0;
 	bool interactive = false;

@@ -2,14 +2,7 @@
 #include "tpch.h"
 
 namespace Thingy {
-	class Artist {
-	public:
-		Artist(int id, std::string name, std::string website, std::string joinDate, std::string imageURL) 
-			: artistID(id), artistName(name), artistWebsite(website), artistJoinDate(joinDate), artistImageURL(imageURL)
-		{}
-
-
-	private:
+	struct Artist {
 		int artistID;
 		std::string artistName;
 		std::string artistWebsite;
@@ -17,6 +10,5 @@ namespace Thingy {
 		std::string artistImageURL;
 
 	};
-
 	
 }

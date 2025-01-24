@@ -1,6 +1,5 @@
 #pragma once
 #include "Core/Module.h"
-#include "Core/Track.h"
 namespace Thingy {
 	class PlayerModule : Module {
 	public:
