@@ -19,10 +19,14 @@ namespace Thingy {
 		ImGui::Button("Forward", { 30.0f, 30.0f });
 		ImGui::Text("Current");
 		ImGui::SameLine();
-		ImGui::SliderInt("time", &m_CurrentTime, 0, 200);
-		
-		ImGui::SliderInt("Volume", &m_AudioVolume, 0, 128);
-		
+		ImGui::SliderInt("time", &m_CurrentTime, 0, m_AudioManager->GetCurrentTrack().duration);
+		if (ImGui::IsItemEdited()) {
+			m_AudioManager->ChangeMusicPos();
+		}
+		ImGui::SliderInt("Volume", &m_AudioVolume, 0, MIX_MAX_VOLUME);
+		if (ImGui::IsItemEdited()) {
+			m_AudioManager->ChangeVolume();
+		}
 
 		ImGui::End();
 	}

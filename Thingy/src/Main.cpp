@@ -3,6 +3,7 @@
 #include "Core/Log.h"
 #include "Core/Application.h"
 #include "Core/Track.h"
+#include "Core/AudioManager.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -27,9 +28,6 @@ const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
 static const char* windowNames[3] = { "Left Window", "Center Window", "Right Window" };
 static const char* identifier[3] = { "Left Window", "Center Window", "Right Window" };
-static int audioOpen = 0;
-static Mix_Music* music = NULL;
-static int next_track = 0;
 
 #ifdef T_PLATFORM_WINDOWS
 
@@ -171,41 +169,6 @@ void LayoutChange(int dragged, ImVec2 currentPos, bool& changed) {
 		}
 	}
 	changed = false;
-}
-
-size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
-	size_t totalSize = size * nmemb;
-	std::vector<char>* buffer = static_cast<std::vector<char>*>(userp);
-	buffer->insert(buffer->end(), static_cast<char*>(contents), static_cast<char*>(contents) + totalSize);
-	return totalSize;
-}
-
-bool DownloadFile(const std::string& url, std::vector<char>& buffer) {
-	CURL* curl = curl_easy_init();
-	if (!curl) return false;
-
-	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
-
-	CURLcode res = curl_easy_perform(curl);
-	curl_easy_cleanup(curl);
-
-	return (res == CURLE_OK);
-}
-
-Mix_Music* LoadMusicFromMemory(const std::vector<char>& buffer) {
-	SDL_IOStream* ioStream = SDL_IOFromConstMem(buffer.data(), buffer.size());
-	if (!ioStream) {
-		SDL_Log("Failed to create RWops: %s\n", SDL_GetError());
-		return nullptr;
-	}
-
-	Mix_Music* music = Mix_LoadMUS_IO(ioStream, 1);
-	if (!music) {
-		SDL_Log("Failed to load music: %s\n", SDL_GetError());
-	}
-	return music;
 }
 
 void AlignForWidth(float width, float alignment = 0.5f)
@@ -350,41 +313,10 @@ int main(int argc, char* argv[])
 	bool use_io = false;
 	int i;
 	const char* typ;
-	int loopEnd = 0;
-	int loopStart, loopLength, currentPosition;
-	int audioVolume = 0;
-	SDL_AudioSpec spec;
-	spec.freq = MIX_DEFAULT_FREQUENCY;
-	spec.format = MIX_DEFAULT_FORMAT;
-	spec.channels = MIX_DEFAULT_CHANNELS;
 
-	if (!Mix_OpenAudio(0, &spec)) {
-		SDL_Log("Couldn't open audio: %s\n", SDL_GetError());
-	} else {
-		Mix_QuerySpec(&spec.freq, &spec.format, &spec.channels);
-		SDL_Log("Opened audio at %d Hz %d bit%s %s audio buffer\n", spec.freq,
-			(spec.format & 0xFF),
-			(SDL_AUDIO_ISFLOAT(spec.format) ? " (float)" : ""),
-			(spec.channels > 2) ? "surround" : (spec.channels > 1) ? "stereo" : "mono");
-	}
-	audioOpen = 1;
-	Mix_VolumeMusic(audioVolume);
+	Thingy::AudioManager* audioManager = new Thingy::AudioManager;
 
-	std::vector<char> musicBuffer;
-	std::string musicURL = "https:\/\/prod-1.storage.jamendo.com\/?trackid=1848357&format=mp31&from=app-devsite";
-
-	if (DownloadFile(musicURL, musicBuffer)) {
-		music = LoadMusicFromMemory(musicBuffer);
-		if (music) {
-			if (Mix_PlayMusic(music, -1) == -1) {
-				SDL_Log("Failed to play music: %s\n", SDL_GetError());
-			}
-			loopEnd = Mix_MusicDuration(music);
-		}
-	}
-	else {
-		SDL_Log("Failed to download music from URL.\n");
-	}
+	//audioManager->LoadMusic();
 
 	// Create window with SDL_Renderer graphics context
 	Uint32 window_flags =  SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
@@ -486,9 +418,7 @@ int main(int argc, char* argv[])
 		ImGuiID dockspace_id = ImGui::GetID("DockSpace");
 		ImGuiDockNodeFlags dockSpaceFlags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoResizeY | ImGuiDockNodeFlags_AutoHideTabBar | ImGuiDockNodeFlags_NoTabBar;
 		ImGui::DockSpaceOverViewport(dockspace_id, main_viewport, dockSpaceFlags);
-		if (Mix_PlayingMusic() || Mix_PausedMusic()) {
-			currentPosition = Mix_GetMusicPosition(music);
-		}
+		
 		
 		static bool dock_initialized = false;
 
@@ -510,7 +440,7 @@ int main(int argc, char* argv[])
 		}
 		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Vertical;
 		ImGui::End();
-		Thingy::PlayerModule* module = new Thingy::PlayerModule(currentPosition, audioVolume);
+		Thingy::PlayerModule* module = new Thingy::PlayerModule(audioManager);
 		// Debug window
 		//ImGui::ShowDebugLogWindow();
 		bool isHoveringAnyBar = false;
@@ -590,21 +520,21 @@ int main(int argc, char* argv[])
 			ImGui::SameLine();
 			ImGui::Button("World");
 
-			ImGui::SliderInt("time", &currentPosition, 0, loopEnd);
+			ImGui::SliderInt("time", &audioManager->GetCurrentTrackPos(), 0, audioManager->GetCurrentTrack().duration);
 			if (ImGui::IsItemEdited()) {
-				Mix_SetMusicPosition(currentPosition);
+				audioManager->ChangeMusicPos();
 			}
-			ImGui::SliderInt("Volume slider", &audioVolume, 0, MIX_MAX_VOLUME);
+			ImGui::SliderInt("Volume slider", &audioManager->GetVolume(), 0, MIX_MAX_VOLUME);
 			if (ImGui::IsItemEdited()) {
-				Mix_VolumeMusic(audioVolume);
+				audioManager->ChangeVolume();
 			}
 
 			if (ImGui::Button("Button"))         
 				counter++;
 			ImGui::SameLine();
 			ImGui::Text("counter = %d", counter);
-			ImGui::Text("pointer = %p", my_texture);
-			ImGui::Text("size = %d x %d", my_image_width, my_image_height);
+			//ImGui::Text("pointer = %p", my_texture);
+			//ImGui::Text("size = %d x %d", my_image_width, my_image_height);
 			//ImGui::Image((ImTextureID)(intptr_t)my_texture, ImVec2((float)my_image_width, (float)my_image_height));
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 			ImGui::End();
@@ -656,17 +586,17 @@ int main(int argc, char* argv[])
 
 				ImGui::Text("This is %s", windowNames[i]);
 
-				ImGui::SliderInt("time", &currentPosition, 0, loopEnd);
+				ImGui::SliderInt("time", &audioManager->GetCurrentTrackPos(), 0, audioManager->GetCurrentTrack().duration);
 				
-				ImGui::SliderInt("Volume slider", &audioVolume, 0, MIX_MAX_VOLUME);
+				ImGui::SliderInt("Volume slider", &audioManager->GetVolume(), 0, MIX_MAX_VOLUME);
 				
 
 				if (ImGui::Button("Button"))
 					counter++;
 				ImGui::SameLine();
 				ImGui::Text("counter = %d", counter);
-				ImGui::Text("pointer = %p", my_texture);
-				ImGui::Text("size = %d x %d", my_image_width, my_image_height);
+				//ImGui::Text("pointer = %p", my_texture);
+				//ImGui::Text("size = %d x %d", my_image_width, my_image_height);
 				//ImGui::Image((ImTextureID)(intptr_t)my_texture, ImVec2((float)my_image_width, (float)my_image_height));
 				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 				//ImGui::PopStyleVar();
@@ -705,8 +635,6 @@ int main(int argc, char* argv[])
 	ImGui_ImplSDL3_Shutdown();
 	ImGui::DestroyContext();
 
-	Mix_FreeMusic(music);
-	music = NULL;
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();

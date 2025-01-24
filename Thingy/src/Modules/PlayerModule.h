@@ -1,9 +1,11 @@
 #pragma once
 #include "Core/Module.h"
+#include "Core/AudioManager.h"
+
 namespace Thingy {
 	class PlayerModule : Module {
 	public:
-		PlayerModule(int& currentTime, int& volume) : m_CurrentTime(currentTime), m_AudioVolume(volume) {
+		PlayerModule(AudioManager* audioManager) : m_AudioManager(audioManager), m_CurrentTime(audioManager->GetCurrentTrackPos()), m_AudioVolume(audioManager->GetVolume()) {
 			m_TrackImageURL = "";
 			m_TrackName = "";
 			m_TrackArtist = "";
@@ -23,6 +25,8 @@ namespace Thingy {
 
 		MODULE_CLASS_NAME("PlayerModule")
 	private:
+		AudioManager* m_AudioManager;
+
 		std::string m_TrackImageURL;
 		std::string m_TrackName;
 		std::string m_TrackArtist;
