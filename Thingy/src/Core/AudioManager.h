@@ -80,8 +80,8 @@ namespace Thingy {
 		int& GetCurrentTrackPos() { return currentTrackPos; }
 		std::vector<Track> GetQueue() { return queue; }
 
-		bool IsMusicPaused() { return Mix_PausedMusic; }
-		bool IsMusicPlaying() { return Mix_PlayingMusic; }
+		bool IsMusicPaused() { return static_cast<bool>(Mix_PausedMusic()); }
+		bool IsMusicPlaying() { return static_cast<bool>(Mix_PlayingMusic()); }
 
 		void ChangeVolume();
 		void ChangeMusicPos();

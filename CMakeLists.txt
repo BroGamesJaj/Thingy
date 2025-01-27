@@ -4,7 +4,7 @@ project(Thingy LANGUAGES CXX)
 
 # Define configurations, including custom 'Dist'
 set(CMAKE_CONFIGURATION_TYPES Debug Release Dist CACHE STRING "Available build configurations" FORCE)
-set(CMAKE_CXX_FLAGS "")
+set(CMAKE_CXX_FLAGS "/EHsc -wd4129")
 set(CMAKE_EXE_LINKER_FLAGS "/SUBSYSTEM:CONSOLE")
 set(CMAKE_EXE_LINKER_FLAGS_DIST "")
 # Output directories
