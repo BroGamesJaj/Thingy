@@ -12,14 +12,26 @@ namespace Thingy {
 		ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
 		ImGui::Button("image", { 300.0f, 300.0f });
 		ImGui::Text("Thing name");
-		ImGui::Button("back", { 30.0f, 30.0f });
+		if (ImGui::Button("back", { 30.0f, 30.0f })) {
+			m_AudioManager->PrevTrack();
+		}
 		ImGui::SameLine();
-		ImGui::Button("Play", { 30.0f, 30.0f });
+		if (m_AudioManager->IsMusicPaused()) {
+			if (ImGui::Button("Play", { 30.0f, 30.0f })) {
+				m_AudioManager->ResumeMusic();
+			}
+		} else {
+			if (ImGui::Button("Pause", { 30.0f, 30.0f })) {
+				m_AudioManager->PauseMusic();
+			}
+		}
 		ImGui::SameLine();
-		ImGui::Button("Forward", { 30.0f, 30.0f });
+		if (ImGui::Button("Forward", { 30.0f, 30.0f })) {
+			m_AudioManager->NextTrack();
+		};
 		ImGui::Text("Current");
 		ImGui::SameLine();
-		ImGui::SliderInt("time", &m_CurrentTime, 0, m_AudioManager->GetCurrentTrack().duration);
+		ImGui::SliderInt("time", &m_CurrentTime, 0, m_AudioManager->GetCurrentTrackDuration());
 		if (ImGui::IsItemEdited()) {
 			m_AudioManager->ChangeMusicPos();
 		}

@@ -20,6 +20,7 @@
     <ClInclude Include="src\Core\Artist.h" />
     <ClInclude Include="src\Core\Scene.h" />
     <ClInclude Include="src\Core\AudioManager.h" />
+    <ClInclude Include="src\Core\NetworkManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -35,5 +36,6 @@
     <ClCompile Include="src\Modules\PlayerModule.cpp" />
     <ClCompile Include="src\Core\Scene.cpp" />
     <ClCompile Include="src\Core\AudioManager.cpp" />
+    <ClCompile Include="src\Core\NetworkManager.cpp" />
   </ItemGroup>
 </Project>

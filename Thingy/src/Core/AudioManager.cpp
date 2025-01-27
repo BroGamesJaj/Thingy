@@ -3,30 +3,11 @@
 
 namespace Thingy {
 
-	
-
-	AudioManager::AudioManager() {
+	AudioManager::AudioManager(std::vector<char>& buffer) : musicBuffer(buffer), volume(0), currentTrackNum(0), currentTrackPos(0), audioOpen(0) {
 		SDL_Log("Audio Manager Constructor");
-		Init();
-	}
-
-	AudioManager::~AudioManager() {
-		Mix_FreeMusic(music);
-		if (audioOpen) {
-			Mix_CloseAudio();
-		}	
-		SDL_QuitSubSystem(SDL_INIT_AUDIO);
-		
-	}
-
-	void AudioManager::Init() {
-		volume = 0;
-		currentTrackNum = 0;
-		currentTrackPos = 0;
 		spec.freq = MIX_DEFAULT_FREQUENCY;
 		spec.format = MIX_DEFAULT_FORMAT;
 		spec.channels = MIX_DEFAULT_CHANNELS;
-
 		if (!Mix_OpenAudio(0, &spec)) {
 			SDL_Log("Couldn't open audio: %s\n", SDL_GetError());
 		}
@@ -40,17 +21,22 @@ namespace Thingy {
 		audioOpen = 1;
 		
 		Mix_VolumeMusic(volume);
-		Mix_HookMusicFinished(OnMusicFinished());
 	}
 
-	Mix_MusicFinishedCallback AudioManager::OnMusicFinished() {
-		SDL_Log("Music ended");
-		//NextTrack();
-		return 0;
+	AudioManager::~AudioManager() {
+		Mix_FreeMusic(music);
+		if (audioOpen) {
+			Mix_CloseAudio();
+		}	
+		SDL_QuitSubSystem(SDL_INIT_AUDIO);
+		
 	}
 	
 	void AudioManager::UpdateTrackPos() {
 		currentTrackPos = Mix_GetMusicPosition(music);
+		if (currentTrackPos == Mix_MusicDuration(music)) {
+			NextTrack();
+		}
 	}
 
 	void AudioManager::ChangeVolume() {
@@ -76,14 +62,19 @@ namespace Thingy {
 	}
 		
 	void AudioManager::NextTrack() {
+		SDL_Log("hi");
 		if (currentTrackNum < queue.size()) {
 			currentTrackNum++;
 			ChangeMusic();
-			
+
+		}
+		else if (queue.size() == 0 || queue.size() == 1) {
+			currentTrackPos = 0;
+			Mix_PlayMusic(music, 0);
+			PauseMusic();
 		} else if (currentTrackNum == queue.size()) {
 			currentTrackNum = 0;
 			ChangeMusic();
-			PauseMusic();
 		}
 	
 	}
@@ -100,30 +91,23 @@ namespace Thingy {
 			Mix_RewindMusic();
 		}
 	}
-	void AudioManager::LoadMusic() {
-		musicBuffer.clear();
-		std::string musicURL = "https:\/\/prod-1.storage.jamendo.com\/?trackid=1848357&format=mp31&from=app-devsite";
 
+	void AudioManager::LoadMusic() {
+		SDL_Log("load hi");
 		
-		if (DownloadFile(musicURL, musicBuffer)) {
-			if (musicBuffer.empty()) {
-				SDL_Log("Buffer is empty, cannot load music.");
-				return;
-			}
-			SDL_Log("Downloaded music file, size: %zu bytes", musicBuffer.size());
-			if (music) {
-				Mix_FreeMusic(music);
-				music = nullptr;
-			}
-			music = LoadMusicFromMemory(musicBuffer);
-			if (!music) {
-				SDL_Log("Mix_LoadMUS_IO failed: %s\n", SDL_GetError());
-			}
+		if (musicBuffer.empty()) {
+			SDL_Log("Buffer is empty, cannot load music.");
+			return;
 		}
-		else {
-			SDL_Log("Failed to download music from URL.\n");
+		SDL_Log("Downloaded music file, size: %zu bytes", musicBuffer.size());
+		if (music) {
+			Mix_FreeMusic(music);
+			music = nullptr;
 		}
-		
+		music = LoadMusicFromMemory(musicBuffer);
+		if (!music) {
+			SDL_Log("Mix_LoadMUS_IO failed: %s\n", SDL_GetError());
+		}
 	}
 
 	

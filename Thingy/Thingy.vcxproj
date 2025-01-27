@@ -154,6 +154,7 @@
     <ClInclude Include="src\Core\AudioManager.h" />
     <ClInclude Include="src\Core\Log.h" />
     <ClInclude Include="src\Core\Module.h" />
+    <ClInclude Include="src\Core\NetworkManager.h" />
     <ClInclude Include="src\Core\Scene.h" />
     <ClInclude Include="src\Core\Track.h" />
     <ClInclude Include="src\Modules\PlayerModule.h" />
@@ -165,6 +166,7 @@
     <ClCompile Include="src\Core\AudioManager.cpp" />
     <ClCompile Include="src\Core\Log.cpp" />
     <ClCompile Include="src\Core\Module.cpp" />
+    <ClCompile Include="src\Core\NetworkManager.cpp" />
     <ClCompile Include="src\Core\Scene.cpp" />
     <ClCompile Include="src\Modules\PlayerModule.cpp" />
     <ClCompile Include="src\Main.cpp" />

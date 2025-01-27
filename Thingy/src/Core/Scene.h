@@ -27,6 +27,7 @@ namespace Thingy {
 		
 		void PushModule(std::shared_ptr<Module> module) {
 			modules.emplace(module->GetModuleName(), module);
+			LayoutChanged();
 		}
 
 		void PopModule(std::string moduleName) {
@@ -35,8 +36,10 @@ namespace Thingy {
 			else {
 				T_ERROR("Module {0} was not found for deletion in Scene {1}", moduleName, GetSceneName());
 			}
+			LayoutChanged();
 		}
 		
+		virtual void LayoutChanged() const = 0;
 		virtual void ChangeLayout() const = 0;
 		virtual void SaveLayout() const = 0;
  

@@ -3,6 +3,8 @@
 #include "Core/Log.h"
 #include "Core/Application.h"
 #include "Core/AudioManager.h"
+#include "Core/NetworkManager.h"
+
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -30,7 +32,7 @@ static const char* identifier[3] = { "Left Window", "Center Window", "Right Wind
 //static Mix_Music* music = NULL;
 #ifdef T_PLATFORM_WINDOWS
 
-
+std::vector<char> musicBuffer;
 
 bool LoadTextureFromMemory(const void* data, size_t data_size, SDL_Renderer* renderer, SDL_Texture** out_texture, int* out_width, int* out_height)
 {
@@ -288,11 +290,14 @@ int main(int argc, char* argv[]) {
 	//std::string jsonData = GetRequest("https://api.jamendo.com/v3.0/tracks/?client_id=8b1de417&format=jsonpretty&limit=5&fuzzytags=groove+rock&speed=high+veryhigh&include=musicinfo&groupby=artist_id");
 	//json parsedJsonData = json::parse(jsonData);
 	SDL_SetLogPriorities(SDL_LOG_PRIORITY_VERBOSE);
+	std::unique_ptr<Thingy::NetworkManager> networkManager;
 
-	Thingy::AudioManager audioManager;
+	std::unique_ptr<Thingy::AudioManager> audioManager = std::unique_ptr<Thingy::AudioManager>(new Thingy::AudioManager(musicBuffer));
 	
-	audioManager.ChangeMusic();
-	audioManager.ResumeMusic();
+	networkManager->DownloadFile("https:\/\/prod-1.storage.jamendo.com\/?trackid=1848357&format=mp31&from=app-devsite", musicBuffer);
+
+	audioManager->ChangeMusic();
+	audioManager->ResumeMusic();
 
 	// Create window with SDL_Renderer graphics context
 	Uint32 window_flags =  SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
@@ -305,8 +310,7 @@ int main(int argc, char* argv[]) {
 	SetCustomWindowStyle(window);
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, nullptr);
 	SDL_SetRenderVSync(renderer, 1);
-	if (renderer == nullptr)
-	{
+	if (renderer == nullptr) {
 		SDL_Log("Error: SDL_CreateRenderer(): %s\n", SDL_GetError());
 		return -1;
 	}
@@ -375,7 +379,7 @@ int main(int argc, char* argv[]) {
 			SDL_Delay(10);
 			continue;
 		}
-		audioManager.UpdateTrackPos();
+		audioManager->UpdateTrackPos();
 		SDL_SetCursor(NULL);
 		// Start the Dear ImGui frame
 		ImGui_ImplSDLRenderer3_NewFrame();
@@ -416,7 +420,7 @@ int main(int argc, char* argv[]) {
 		}
 		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Vertical;
 		ImGui::End();
-		Thingy::PlayerModule* module = new Thingy::PlayerModule(&audioManager);
+		std::shared_ptr<Thingy::PlayerModule> module = std::shared_ptr<Thingy::PlayerModule>(new Thingy::PlayerModule(audioManager));
 		// Debug window
 		//ImGui::ShowDebugLogWindow();
 		bool isHoveringAnyBar = false;
@@ -496,13 +500,13 @@ int main(int argc, char* argv[]) {
 			ImGui::SameLine();
 			ImGui::Button("World");
 
-			ImGui::SliderInt("time", &audioManager.GetCurrentTrackPos(), 0, audioManager.GetCurrentTrack().duration);
+			ImGui::SliderInt("time", &audioManager->GetCurrentTrackPos(), 0, audioManager->GetCurrentTrack().duration);
 			if (ImGui::IsItemEdited()) {
-				audioManager.ChangeMusicPos();
+				audioManager->ChangeMusicPos();
 			}
-			ImGui::SliderInt("Volume slider", &audioManager.GetVolume(), 0, MIX_MAX_VOLUME);
+			ImGui::SliderInt("Volume slider", &audioManager->GetVolume(), 0, MIX_MAX_VOLUME);
 			if (ImGui::IsItemEdited()) {
-				audioManager.ChangeVolume();
+				audioManager->ChangeVolume();
 			}
 
 			if (ImGui::Button("Button"))         
@@ -562,9 +566,9 @@ int main(int argc, char* argv[]) {
 
 				ImGui::Text("This is %s", windowNames[i]);
 
-				ImGui::SliderInt("time", &audioManager.GetCurrentTrackPos(), 0, audioManager.GetCurrentTrack().duration);
+				ImGui::SliderInt("time", &audioManager->GetCurrentTrackPos(), 0, audioManager->GetCurrentTrack().duration);
 				
-				ImGui::SliderInt("Volume slider", &audioManager.GetVolume(), 0, MIX_MAX_VOLUME);
+				ImGui::SliderInt("Volume slider", &audioManager->GetVolume(), 0, MIX_MAX_VOLUME);
 				
 
 				if (ImGui::Button("Button"))
@@ -585,7 +589,7 @@ int main(int argc, char* argv[]) {
 		}
 
 		try {
-			//module->OnRender();
+			module->OnRender();
 
 		} catch (const std::exception& e) {
 			// Handle standard exceptions

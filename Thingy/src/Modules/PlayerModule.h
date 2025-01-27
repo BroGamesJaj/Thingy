@@ -5,7 +5,7 @@
 namespace Thingy {
 	class PlayerModule : Module {
 	public:
-		PlayerModule(AudioManager* audioManager) : m_AudioManager(audioManager), m_CurrentTime(audioManager->GetCurrentTrackPos()), m_AudioVolume(audioManager->GetVolume()) {
+		PlayerModule(std::unique_ptr<AudioManager>& audioManager) : m_AudioManager(audioManager), m_CurrentTime(audioManager->GetCurrentTrackPos()), m_AudioVolume(audioManager->GetVolume()) {
 			m_TrackImageURL = "";
 			m_TrackName = "";
 			m_TrackArtist = "";
@@ -25,7 +25,7 @@ namespace Thingy {
 
 		MODULE_CLASS_NAME("PlayerModule")
 	private:
-		AudioManager* m_AudioManager;
+		std::unique_ptr<AudioManager>& m_AudioManager;
 
 		std::string m_TrackImageURL;
 		std::string m_TrackName;
