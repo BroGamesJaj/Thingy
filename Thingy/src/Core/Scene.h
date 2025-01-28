@@ -13,17 +13,19 @@ namespace Thingy {
 	class Scene {
 	public:
 
+		virtual ~Scene() = default;
+
 		Scene(const Scene&) = delete;
 		void operator=(const Scene&) = delete;
 
-		virtual void InitModules() const = 0;
-		virtual void CleanUpModules() const = 0;
-		virtual void OnSwitch() const = 0;
-		virtual void OnUpdate() const = 0;
-		virtual void OnRender() const = 0;
+		//virtual void InitModules() const = 0;
+		//virtual void CleanUpModules() const = 0;
+		virtual void OnSwitch() = 0;
+		virtual void OnUpdate() = 0;
+		virtual void OnRender() = 0;
 
 		virtual std::string GetSceneName() const = 0;
-		ModuleDict GetModules() { return modules; };
+		const ModuleDict& GetModules() const { return modules; };
 		
 		void PushModule(std::shared_ptr<Module> module) {
 			modules.emplace(module->GetModuleName(), module);
@@ -39,11 +41,11 @@ namespace Thingy {
 			LayoutChanged();
 		}
 		
-		virtual void LayoutChanged() const = 0;
-		virtual void ChangeLayout() const = 0;
-		virtual void SaveLayout() const = 0;
+		virtual void LayoutChanged() = 0;
+		virtual void ChangeLayout() = 0;
+		virtual void SaveLayout() = 0;
  
-	private:
+	protected:
 		ModuleDict modules;
 	};
 }

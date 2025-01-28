@@ -24,7 +24,7 @@ namespace Thingy {
 		void UpdateTrackPos();
 
 		int& GetVolume() { return volume; }
-		int GetCurrentTrackNum() { return currentTrackNum; }
+		int GetCurrentTrackNum() const { return currentTrackNum; }
 		Track GetCurrentTrack() { 
 			if (queue.size() != 0) {
 				return queue[currentTrackNum];

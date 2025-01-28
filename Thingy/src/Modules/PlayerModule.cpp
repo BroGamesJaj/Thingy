@@ -1,15 +1,12 @@
 #include "tpch.h"
 #include "PlayerModule.h"
-
-#include "imgui.h"
-#include "imgui_internal.h"
 namespace Thingy {
 	void PlayerModule::OnUpdate() {
 
 	}
 
-	void PlayerModule::OnRender() {
-		ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
+	void PlayerModule::Window(std::string title) {
+		ImGui::Begin(title.data(), nullptr, defaultWindowFlags);
 		ImGui::Button("image", { 300.0f, 300.0f });
 		ImGui::Text("Thing name");
 		if (ImGui::Button("back", { 30.0f, 30.0f })) {
@@ -20,7 +17,8 @@ namespace Thingy {
 			if (ImGui::Button("Play", { 30.0f, 30.0f })) {
 				m_AudioManager->ResumeMusic();
 			}
-		} else {
+		}
+		else {
 			if (ImGui::Button("Pause", { 30.0f, 30.0f })) {
 				m_AudioManager->PauseMusic();
 			}
@@ -41,5 +39,9 @@ namespace Thingy {
 		}
 
 		ImGui::End();
+	}
+
+	void PlayerModule::OnRender() {
+		Window(GetModuleName().data());
 	}
 }

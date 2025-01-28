@@ -1,6 +1,8 @@
 #pragma once
 #include "tpch.h"
 #include "imgui.h"
+#include "imgui_internal.h"
+
 namespace Thingy {
 	
 #define MODULE_CLASS_NAME(name) virtual std::string GetModuleName() const override { return name; }
@@ -10,6 +12,7 @@ namespace Thingy {
 		virtual ~Module() = default;
 
 		virtual void OnUpdate() = 0;
+		virtual void Window(std::string title) = 0;
 		virtual void OnRender() = 0;
 
 		virtual std::string GetModuleName() const = 0;

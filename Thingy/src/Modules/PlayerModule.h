@@ -13,6 +13,8 @@ namespace Thingy {
 		}
 
 		void OnUpdate() override;
+			
+		void Window(std::string title) override;
 
 		void OnRender() override;
 

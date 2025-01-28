@@ -1,5 +1,5 @@
 #include "tpch.h"
-#include "Scene.h"
+#include "Album.h"
 
 namespace Thingy {
 

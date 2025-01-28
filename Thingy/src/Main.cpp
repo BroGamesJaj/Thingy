@@ -24,6 +24,7 @@
 using json = nlohmann::json;
 
 #include "Modules\PlayerModule.h"
+#include "Modules\PopularsModule.h"
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
@@ -132,25 +133,21 @@ SDL_Cursor* CreateCustomCursor(const char* imagePath, int newWidth = 32, int new
 void UpdateDockingLayout() {
 
 	ImGuiID dockspace_id = ImGui::GetID("DockSpace");
-	// Remove any existing dock nodes and create a new dockspace
 	ImGui::DockBuilderRemoveNode(dockspace_id);
 	ImGui::DockBuilderAddNode(dockspace_id);
 
 	ImVec2 viewport_size = ImGui::GetMainViewport()->Size;
 	ImGui::DockBuilderSetNodeSize(dockspace_id, viewport_size);
-	// First, split the dockspace into two regions: left (30%) and right (70%)
+
 	ImGuiID dockLeft = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.30f, nullptr, &dockspace_id);
 	
-	// Now, split the remaining right part (70%) into two sections: center (40%) and right (30%)
 	ImGuiID dockCenter = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.5714f, nullptr, &dockspace_id);
 	ImGuiID dockRight2 = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.4286f, nullptr, &dockspace_id);
 
-	// Dock windows into the appropriate regions
 	ImGui::DockBuilderDockWindow(windowNames[0], dockLeft);
 	ImGui::DockBuilderDockWindow(windowNames[1], dockCenter);
 	ImGui::DockBuilderDockWindow(windowNames[2], dockRight2);
 
-	// Finalize the dock builder setup
 	ImGui::DockBuilderFinish(dockspace_id);
 }
 
@@ -354,7 +351,7 @@ int main(int argc, char* argv[]) {
 	
 	T_INFO("{0}w", cursorWidth);
 	T_INFO("{0}h", cursorHeight);
-	
+	std::shared_ptr<Thingy::PopularsModule> populars = std::shared_ptr<Thingy::PopularsModule>(new Thingy::PopularsModule);
 	// Main loop
 	bool done = false;
 	while (!done)
@@ -590,6 +587,7 @@ int main(int argc, char* argv[]) {
 
 		try {
 			module->OnRender();
+			populars->OnRender();
 
 		} catch (const std::exception& e) {
 			// Handle standard exceptions

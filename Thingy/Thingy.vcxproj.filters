@@ -21,6 +21,9 @@
     <ClInclude Include="src\Core\Scene.h" />
     <ClInclude Include="src\Core\AudioManager.h" />
     <ClInclude Include="src\Core\NetworkManager.h" />
+    <ClInclude Include="src\Scenes\FrontPage.h" />
+    <ClInclude Include="src\Modules\PopularsModule.h" />
+    <ClInclude Include="src\Core\Album.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -37,5 +40,8 @@
     <ClCompile Include="src\Core\Scene.cpp" />
     <ClCompile Include="src\Core\AudioManager.cpp" />
     <ClCompile Include="src\Core\NetworkManager.cpp" />
+    <ClCompile Include="src\Scenes\FrontPage.cpp" />
+    <ClCompile Include="src\Modules\PopularsModule.cpp" />
+    <ClCompile Include="src\Core\Album.cpp" />
   </ItemGroup>
 </Project>
