@@ -18,12 +18,17 @@ namespace Thingy {
 
 		void OnRender() override;
 
+		int MinWidth() const override { return 350; }
+		int MaxWidth() const override { return 400; }
+
 		void SetCurrentTrack(std::string trackImageURL, std::string trackName, std::string trackArtist, int trackDuration) {
 			m_TrackImageURL = trackImageURL;
 			m_TrackName = trackName;
 			m_TrackArtist = trackArtist;
 			m_TrackDuration = trackDuration;
 		}
+
+
 
 		MODULE_CLASS_NAME("PlayerModule")
 	private:

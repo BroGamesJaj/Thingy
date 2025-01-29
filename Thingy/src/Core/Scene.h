@@ -6,7 +6,31 @@
 
 namespace Thingy {
 
-	typedef std::map<std::string, std::shared_ptr<Module>> ModuleDict;
+	typedef std::vector<std::pair<std::string, std::shared_ptr<Module>>> Modules;
+	
+	inline void LayoutChangeScene(std::string dragged, ImVec2 currentPos, Modules modules, bool& changed) {
+		T_TRACE("dragged: {0}", dragged);
+
+		for (size_t i = 0; i < modules.size(); i++) {
+
+			if (modules[i].first != dragged) {
+				ImVec2 winSize = ImGui::FindWindowByName(modules[i].first.data())->Size;
+				ImVec2 winPos = ImGui::FindWindowByName(modules[i].first.data())->Pos;
+				auto draggedModule = std::find_if(modules.begin(), modules.end(),
+					[&dragged](const std::pair<std::string, std::shared_ptr<Module>>& module) {
+						return module.first == dragged;
+					});
+
+				if (draggedModule != modules.end()) {
+					std::swap(*draggedModule, modules[i]);
+					changed = true;
+					return;
+				}
+			}
+		}
+		changed = false;
+	}
+
 
 #define SCENE_CLASS_NAME(name) virtual std::string GetSceneName() const override { return name; }
 
@@ -25,27 +49,29 @@ namespace Thingy {
 		virtual void OnRender() = 0;
 
 		virtual std::string GetSceneName() const = 0;
-		const ModuleDict& GetModules() const { return modules; };
+		const Modules& GetModules() const { return modules; };
 		
 		void PushModule(std::shared_ptr<Module> module) {
-			modules.emplace(module->GetModuleName(), module);
+			modules.push_back(std::make_pair(module->GetModuleName(),module));
 			LayoutChanged();
 		}
 
-		void PopModule(std::string moduleName) {
-			if (auto search = modules.find(moduleName); search != modules.end())
-				modules.erase(moduleName);
-			else {
+		void PopModule(const std::string& moduleName) {
+			size_t beforeSize = modules.size();
+			modules.erase(std::remove_if(modules.begin(), modules.end(), [&moduleName](const std::pair<std::string,std::shared_ptr<Module>>& module) {
+				return module.first == moduleName;
+				}), modules.end());
+			if(modules.size() == beforeSize) {
 				T_ERROR("Module {0} was not found for deletion in Scene {1}", moduleName, GetSceneName());
 			}
 			LayoutChanged();
 		}
 		
 		virtual void LayoutChanged() = 0;
-		virtual void ChangeLayout() = 0;
+		virtual void UpdateLayout() = 0;
 		virtual void SaveLayout() = 0;
  
 	protected:
-		ModuleDict modules;
+		Modules modules;
 	};
 }

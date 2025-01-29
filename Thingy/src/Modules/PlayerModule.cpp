@@ -7,6 +7,9 @@ namespace Thingy {
 
 	void PlayerModule::Window(std::string title) {
 		ImGui::Begin(title.data(), nullptr, defaultWindowFlags);
+		ImVec2 bar_size = ImVec2(GetSize().x - 20, 30);
+		ImGui::InvisibleButton("DragBar", bar_size);
+		ImGui::GetWindowDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 0, 0, 255), 0.0f, 0, 5.0f);
 		ImGui::Button("image", { 300.0f, 300.0f });
 		ImGui::Text("Thing name");
 		if (ImGui::Button("back", { 30.0f, 30.0f })) {
@@ -29,7 +32,7 @@ namespace Thingy {
 		};
 		ImGui::Text("Current");
 		ImGui::SameLine();
-		ImGui::SliderInt("time", &m_CurrentTime, 0, m_AudioManager->GetCurrentTrackDuration());
+		ImGui::SliderInt("time", &m_AudioManager->GetCurrentTrackPos(), 0, m_AudioManager->GetCurrentTrackDuration());
 		if (ImGui::IsItemEdited()) {
 			m_AudioManager->ChangeMusicPos();
 		}

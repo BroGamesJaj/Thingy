@@ -157,6 +157,7 @@
     <ClInclude Include="src\Core\Module.h" />
     <ClInclude Include="src\Core\NetworkManager.h" />
     <ClInclude Include="src\Core\Scene.h" />
+    <ClInclude Include="src\Core\SceneManager.h" />
     <ClInclude Include="src\Core\Track.h" />
     <ClInclude Include="src\Modules\PlayerModule.h" />
     <ClInclude Include="src\Modules\PopularsModule.h" />
@@ -172,6 +173,7 @@
     <ClCompile Include="src\Core\Module.cpp" />
     <ClCompile Include="src\Core\NetworkManager.cpp" />
     <ClCompile Include="src\Core\Scene.cpp" />
+    <ClCompile Include="src\Core\SceneManager.cpp" />
     <ClCompile Include="src\Modules\PlayerModule.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Modules\PopularsModule.cpp" />

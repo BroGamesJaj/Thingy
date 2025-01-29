@@ -24,6 +24,7 @@
     <ClInclude Include="src\Scenes\FrontPage.h" />
     <ClInclude Include="src\Modules\PopularsModule.h" />
     <ClInclude Include="src\Core\Album.h" />
+    <ClInclude Include="src\Core\SceneManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -43,5 +44,6 @@
     <ClCompile Include="src\Scenes\FrontPage.cpp" />
     <ClCompile Include="src\Modules\PopularsModule.cpp" />
     <ClCompile Include="src\Core\Album.cpp" />
+    <ClCompile Include="src\Core\SceneManager.cpp" />
   </ItemGroup>
 </Project>

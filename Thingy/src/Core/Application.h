@@ -1,6 +1,9 @@
 #pragma once
 #include "tpch.h"
+
 #include "Renderer\SDLRenderer.h"
+#include "AudioManager.h"
+#include "NetworkManager.h"
 
 namespace Thingy {
 	class Application {
@@ -13,11 +16,13 @@ namespace Thingy {
 
 		void Run();
 
-		//helper functions
+		void EventLoop();
 
 	private:
 		bool Running = true;
-		std::unique_ptr<SDLRenderer> renderer;
+		std::unique_ptr<SDLRenderer> renderer = nullptr;
+		std::unique_ptr<AudioManager> audioManager = nullptr;
+		std::unique_ptr<NetworkManager> networkManager;
 	};
 
 }

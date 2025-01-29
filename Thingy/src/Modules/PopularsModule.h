@@ -15,7 +15,8 @@ namespace Thingy {
 
 		void OnRender() override;
 
-		
+		int MinWidth() const override { return 500; }
+		int MaxWidth() const override { return 1280; }
 
 		MODULE_CLASS_NAME("PopularsModule")
 

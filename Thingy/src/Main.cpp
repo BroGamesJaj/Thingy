@@ -5,7 +5,6 @@
 #include "Core/AudioManager.h"
 #include "Core/NetworkManager.h"
 
-
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <imgui_impl_sdl3.h>
@@ -29,11 +28,10 @@ using json = nlohmann::json;
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
 static const char* windowNames[3] = { "Left Window", "Center Window", "Right Window" };
-static const char* identifier[3] = { "Left Window", "Center Window", "Right Window" };
 //static Mix_Music* music = NULL;
 #ifdef T_PLATFORM_WINDOWS
 
-std::vector<char> musicBuffer;
+//std::vector<char> musicBuffer;
 
 bool LoadTextureFromMemory(const void* data, size_t data_size, SDL_Renderer* renderer, SDL_Texture** out_texture, int* out_width, int* out_height)
 {
@@ -272,12 +270,15 @@ SDL_HitTestResult window_hit_test(SDL_Window* win, const SDL_Point* pos, void*) 
 	return SDL_HITTEST_NORMAL;
 }
 
+
+
 int main(int argc, char* argv[]) {
 
 	Thingy::Log::Init();
 	Thingy::Application app{};
 	T_INFO("Thingy started");
-
+	/*
+	
 	// Setup SDL
 	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
 	{
@@ -399,24 +400,8 @@ int main(int argc, char* argv[]) {
 		
 		static bool dock_initialized = false;
 
-		ImGui::SetNextWindowSize({windowWidth, windowHeight});
-		ImGui::SetNextWindowPos({ 0.0f, 0.0f });
-
-		ImGui::Begin("Custom Header", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus);
-		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Horizontal;
-		ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 15 - 40 - 5 - 40 - 5 - 40);
-		ImGui::Button("_", { 40.0f, 30.0f });
+		CustomHeader(windowWidth, windowHeight, done);
 		
-		//ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 10 - 40 - 5 - 40); // 10 padding right, width of X button, padding between buttons, width of button
-		ImGui::Button("M", { 40.0f, 30.0f });
-		
-		//ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 10 - 40); // 10 padding right, width of button
-		ImGui::Button("X", { 40.0f, 30.0f });
-		if(ImGui::IsItemClicked(ImGuiMouseButton_Left)){
-			done = true;
-		}
-		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Vertical;
-		ImGui::End();
 		std::shared_ptr<Thingy::PlayerModule> module = std::shared_ptr<Thingy::PlayerModule>(new Thingy::PlayerModule(audioManager));
 		// Debug window
 		//ImGui::ShowDebugLogWindow();
@@ -587,7 +572,7 @@ int main(int argc, char* argv[]) {
 
 		try {
 			module->OnRender();
-			populars->OnRender();
+			//populars->OnRender();
 
 		} catch (const std::exception& e) {
 			// Handle standard exceptions
@@ -608,14 +593,15 @@ int main(int argc, char* argv[]) {
 	for (auto& pair : customCursors) {
 		SDL_DestroyCursor(pair.second);
 	}
+
 	// Cleanup
 	ImGui_ImplSDLRenderer3_Shutdown();
 	ImGui_ImplSDL3_Shutdown();
 	ImGui::DestroyContext();
-
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
+	*/
 
 	app.Run();
 	return 0;
