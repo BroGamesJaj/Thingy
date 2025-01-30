@@ -159,6 +159,7 @@
     <ClInclude Include="src\Core\Scene.h" />
     <ClInclude Include="src\Core\SceneManager.h" />
     <ClInclude Include="src\Core\Track.h" />
+    <ClInclude Include="src\Modules\Modules.h" />
     <ClInclude Include="src\Modules\PlayerModule.h" />
     <ClInclude Include="src\Modules\PopularsModule.h" />
     <ClInclude Include="src\Renderer\SDLRenderer.h" />

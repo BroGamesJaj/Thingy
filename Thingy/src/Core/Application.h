@@ -4,6 +4,7 @@
 #include "Renderer\SDLRenderer.h"
 #include "AudioManager.h"
 #include "NetworkManager.h"
+#include "SceneManager.h"
 
 namespace Thingy {
 	class Application {
@@ -23,6 +24,7 @@ namespace Thingy {
 		std::unique_ptr<SDLRenderer> renderer = nullptr;
 		std::unique_ptr<AudioManager> audioManager = nullptr;
 		std::unique_ptr<NetworkManager> networkManager;
+		std::unique_ptr<SceneManager> SceneManager;
 	};
 
 }

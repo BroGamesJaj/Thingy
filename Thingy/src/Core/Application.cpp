@@ -10,8 +10,7 @@
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_sdlrenderer3.h>
 
-#include "Modules\PlayerModule.h"
-#include "Modules\PopularsModule.h"
+#include "Modules\Modules.h"
 
 namespace Thingy {
 
@@ -31,10 +30,9 @@ namespace Thingy {
 		ImGui::Button("M", { 40.0f, 30.0f });
 
 		//ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 10 - 40); // 10 padding right, width of button
-		ImGui::Button("X", { 40.0f, 30.0f });
-		if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+		if(ImGui::Button("X", { 40.0f, 30.0f }))
 			done = false;
-		}
+		
 		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Vertical;
 		ImGui::End();
 	}
@@ -54,7 +52,7 @@ namespace Thingy {
 		// Setup Platform/Renderer backends
 		ImGui_ImplSDL3_InitForSDLRenderer(renderer->GetWindow(), renderer->GetRenderer());
 		ImGui_ImplSDLRenderer3_Init(renderer->GetRenderer());
-
+		
 
 		audioManager = std::unique_ptr<Thingy::AudioManager>(new Thingy::AudioManager(musicBuffer));
 
@@ -69,12 +67,13 @@ namespace Thingy {
 	}
 
 	void Application::Run() {
+		SDL_ShowWindow(renderer->GetWindow());
 		SDL_Renderer* sdlRenderer = renderer->GetRenderer();
 		SDL_Window* sdlWindow = renderer->GetWindow();
 
 
-		std::shared_ptr<Thingy::PlayerModule> playerModule = std::shared_ptr<Thingy::PlayerModule>(new Thingy::PlayerModule(audioManager));
-
+		std::shared_ptr<PlayerModule> playerModule = std::shared_ptr<PlayerModule>(new Thingy::PlayerModule(audioManager));
+		
 		while (Running) {
 			
 			EventLoop();
@@ -136,4 +135,5 @@ namespace Thingy {
 
 		}
 	}
+
 }

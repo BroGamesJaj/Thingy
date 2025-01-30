@@ -46,7 +46,7 @@ namespace Thingy {
 		SetWindowFlags();
 		CreateSDLWindow(props);
 		CreateRenderer();
-		SDL_ShowWindow(window);
+		
 		if (!SDL_SetWindowHitTest(window, WindowHitTest, nullptr)) {
 			SDL_Log("Failed to set hit test: %s", SDL_GetError());
 		}

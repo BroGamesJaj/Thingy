@@ -25,6 +25,7 @@
     <ClInclude Include="src\Modules\PopularsModule.h" />
     <ClInclude Include="src\Core\Album.h" />
     <ClInclude Include="src\Core\SceneManager.h" />
+    <ClInclude Include="src\Modules\Modules.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
