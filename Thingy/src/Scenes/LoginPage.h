@@ -2,10 +2,10 @@
 #include "Core\Scene.h"
 
 namespace Thingy {
-	class FrontPageScene : public Scene {
+	class LoginPageScene : public Scene {
 	public:
 		
-		~FrontPageScene();
+		~LoginPageScene();
 
 		void OnSwitch() override;
 		void OnUpdate() override;
@@ -16,7 +16,7 @@ namespace Thingy {
 		void UpdateLayout() override;
 		void SaveLayout() override;	
 
-		SCENE_CLASS_NAME("FrontPage");
+		SCENE_CLASS_NAME("LoginPage");
 	private:
 
 	};

@@ -26,6 +26,8 @@
     <ClInclude Include="src\Core\Album.h" />
     <ClInclude Include="src\Core\SceneManager.h" />
     <ClInclude Include="src\Modules\Modules.h" />
+    <ClInclude Include="src\Scenes\Scenes.h" />
+    <ClInclude Include="src\Scenes\LoginPage.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -46,5 +48,6 @@
     <ClCompile Include="src\Modules\PopularsModule.cpp" />
     <ClCompile Include="src\Core\Album.cpp" />
     <ClCompile Include="src\Core\SceneManager.cpp" />
+    <ClCompile Include="src\Scenes\LoginPage.cpp" />
   </ItemGroup>
 </Project>

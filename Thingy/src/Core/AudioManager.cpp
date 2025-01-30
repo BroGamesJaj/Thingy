@@ -3,7 +3,7 @@
 
 namespace Thingy {
 
-	AudioManager::AudioManager(std::vector<char>& buffer) : musicBuffer(buffer), volume(0), currentTrackNum(0), currentTrackPos(0), audioOpen(0) {
+	AudioManager::AudioManager(std::vector<uint8_t>& buffer) : musicBuffer(buffer), volume(0), currentTrackNum(0), currentTrackPos(0), audioOpen(0) {
 		SDL_Log("Audio Manager Constructor");
 		spec.freq = MIX_DEFAULT_FREQUENCY;
 		spec.format = MIX_DEFAULT_FORMAT;
@@ -24,14 +24,17 @@ namespace Thingy {
 	}
 
 	AudioManager::~AudioManager() {
+	}
+	
+	void AudioManager::CleanUp() {
+
 		Mix_FreeMusic(music);
 		if (audioOpen) {
 			Mix_CloseAudio();
-		}	
+		}
 		SDL_QuitSubSystem(SDL_INIT_AUDIO);
-		
 	}
-	
+
 	void AudioManager::UpdateTrackPos() {
 		currentTrackPos = Mix_GetMusicPosition(music);
 		if (currentTrackPos == Mix_MusicDuration(music)) {
@@ -62,7 +65,6 @@ namespace Thingy {
 	}
 		
 	void AudioManager::NextTrack() {
-		SDL_Log("hi");
 		if (currentTrackNum < queue.size()) {
 			currentTrackNum++;
 			ChangeMusic();
@@ -93,7 +95,7 @@ namespace Thingy {
 	}
 
 	void AudioManager::LoadMusic() {
-		SDL_Log("load hi");
+		SDL_Log("Music loading");
 		
 		if (musicBuffer.empty()) {
 			SDL_Log("Buffer is empty, cannot load music.");
@@ -108,6 +110,7 @@ namespace Thingy {
 		if (!music) {
 			SDL_Log("Mix_LoadMUS_IO failed: %s\n", SDL_GetError());
 		}
+		SDL_Log("Music Loaded");
 	}
 
 	

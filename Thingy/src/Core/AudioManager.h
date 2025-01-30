@@ -11,7 +11,7 @@ namespace Thingy {
 	
 	class AudioManager {
 	public:
-		AudioManager(std::vector<char>& buffer);
+		AudioManager(std::vector<uint8_t>& buffer);
 		~AudioManager();
 
 		AudioManager(const AudioManager&) = delete;
@@ -19,7 +19,7 @@ namespace Thingy {
 
 		void Init();
 		
-		
+		void CleanUp();
 
 		void UpdateTrackPos();
 
@@ -34,11 +34,12 @@ namespace Thingy {
 			
 		}
 		int& GetCurrentTrackPos() { return currentTrackPos; }
-		int GetCurrentTrackDuration() { return Mix_MusicDuration(music); }
+		int GetCurrentTrackDuration() { return music ? Mix_MusicDuration(music) : 0; }
 		std::vector<Track> GetQueue() { return queue; }
 
 		bool IsMusicPaused() { return static_cast<bool>(Mix_PausedMusic()); }
 		bool IsMusicPlaying() { return static_cast<bool>(Mix_PlayingMusic()); }
+		bool IsMusicLoaded() { return music ? true : false; }
 
 		void ChangeVolume();
 		void ChangeMusicPos();
@@ -52,7 +53,7 @@ namespace Thingy {
 
 		void LoadMusic();
 
-		Mix_Music* LoadMusicFromMemory(const std::vector<char>& buffer) {
+		Mix_Music* LoadMusicFromMemory(const std::vector<uint8_t>& buffer) {
 			SDL_IOStream* ioStream = SDL_IOFromConstMem(buffer.data(), buffer.size());
 			if (!ioStream) {
 				SDL_Log("Failed to create IOStream: %s\n", SDL_GetError());
@@ -75,6 +76,6 @@ namespace Thingy {
 		std::vector<Track> queue;
 		Mix_Music* music = nullptr;
 
-		std::vector<char>& musicBuffer;
+		std::vector<uint8_t>& musicBuffer;
 	};
 }

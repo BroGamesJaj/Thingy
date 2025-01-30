@@ -15,6 +15,9 @@ namespace Thingy {
 		Application(const Application&) = delete;
 		void operator=(const Application&) = delete;
 
+		void SetupManagers();
+		void SetupScenes();
+
 		void Run();
 
 		void EventLoop();
@@ -23,8 +26,8 @@ namespace Thingy {
 		bool Running = true;
 		std::unique_ptr<SDLRenderer> renderer = nullptr;
 		std::unique_ptr<AudioManager> audioManager = nullptr;
-		std::unique_ptr<NetworkManager> networkManager;
-		std::unique_ptr<SceneManager> SceneManager;
+		std::unique_ptr<NetworkManager> networkManager = nullptr;
+		std::unique_ptr<SceneManager> sceneManager = nullptr;
 	};
 
 }

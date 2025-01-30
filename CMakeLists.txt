@@ -111,6 +111,7 @@ set(IMGUI_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/imgui/imgui_draw.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/imgui/imgui_tables.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/imgui/imgui_widgets.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/imgui/misc/cpp/imgui_stdlib.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/imgui/imgui_demo.cpp"  # Temporarily included for learning
 )
 
@@ -126,6 +127,7 @@ add_library(ImGui STATIC ${IMGUI_SOURCES} ${IMGUI_BACKENDS})
 target_include_directories(ImGui PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/imgui"
     "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/imgui/backends"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/imgui/misc/cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL_mixer/external/SDL/include"
 )
 

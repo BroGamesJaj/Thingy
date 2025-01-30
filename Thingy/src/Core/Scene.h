@@ -39,8 +39,8 @@ namespace Thingy {
 
 		virtual ~Scene() = default;
 
-		Scene(const Scene&) = delete;
-		void operator=(const Scene&) = delete;
+		//Scene(const Scene&) = delete;
+		//void operator=(const Scene&) = delete;
 
 		//virtual void InitModules() const = 0;
 		//virtual void CleanUpModules() const = 0;
@@ -51,12 +51,12 @@ namespace Thingy {
 		virtual std::string GetSceneName() const = 0;
 		const Modules& GetModules() const { return modules; };
 		
-		void PushModule(std::shared_ptr<Module> module) {
+		virtual void PushModule(std::shared_ptr<Module> module) {
 			modules.push_back(std::make_pair(module->GetModuleName(),module));
 			LayoutChanged();
 		}
 
-		void PopModule(const std::string& moduleName) {
+		virtual void PopModule(const std::string& moduleName) {
 			size_t beforeSize = modules.size();
 			modules.erase(std::remove_if(modules.begin(), modules.end(), [&moduleName](const std::pair<std::string,std::shared_ptr<Module>>& module) {
 				return module.first == moduleName;
