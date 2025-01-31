@@ -153,6 +153,7 @@
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\Artist.h" />
     <ClInclude Include="src\Core\AudioManager.h" />
+    <ClInclude Include="src\Core\Image.h" />
     <ClInclude Include="src\Core\Log.h" />
     <ClInclude Include="src\Core\Module.h" />
     <ClInclude Include="src\Core\NetworkManager.h" />

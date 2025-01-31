@@ -45,5 +45,6 @@ namespace Thingy {
 		Uint32 windowFlags = 0;
 		SDL_Window* window = nullptr;
 		SDL_Renderer* renderer = nullptr;
+
 	};
 }

@@ -11,7 +11,6 @@ namespace Thingy {
 		void OnUpdate() override;
 		void OnRender() override;
 
-
 		void LayoutChanged() override;
 		void UpdateLayout() override;
 		void SaveLayout() override;	

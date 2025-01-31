@@ -6,6 +6,8 @@
 #include "NetworkManager.h"
 #include "SceneManager.h"
 
+#include "Image.h"
+
 namespace Thingy {
 	class Application {
 	public:

@@ -28,6 +28,7 @@
     <ClInclude Include="src\Modules\Modules.h" />
     <ClInclude Include="src\Scenes\Scenes.h" />
     <ClInclude Include="src\Scenes\LoginPage.h" />
+    <ClInclude Include="src\Core\Image.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">

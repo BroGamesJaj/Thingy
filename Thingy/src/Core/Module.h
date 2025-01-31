@@ -19,7 +19,7 @@ namespace Thingy {
 
 		virtual int MinWidth() const = 0;
 		virtual int MaxWidth() const = 0;
-		int CurrentWidth() const { return ImGui::FindWindowByName(GetModuleName().data())->Size.x; };
+		int CurrentWidth() const { return (ImGui::FindWindowByName(GetModuleName().data())) ? ImGui::FindWindowByName(GetModuleName().data())->Size.x : MaxWidth(); };
 
 		ImVec2 GetSize() const { return ImGui::FindWindowByName(GetModuleName().data())->Size; };
 		ImVec2 GetPos() const { return ImGui::FindWindowByName(GetModuleName().data())->Pos; };

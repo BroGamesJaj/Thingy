@@ -4,6 +4,7 @@
 
 namespace Thingy {
 	SceneManager::SceneManager() {
+
 	}
 	
 	SceneManager::~SceneManager() {

@@ -20,10 +20,7 @@ namespace Thingy {
 	bool fullscreen = false;
 	bool fullscreenChanged = false;
 
-	static void URLSanitizer(std::string& url) {
-		url.erase(std::remove(url.begin(), url.end(), '\\'), url.end());
-		url.erase(std::remove_if(url.begin(), url.end(), ::isspace), url.end());
-	}
+	
 
 	void CustomHeader(float& windowWidth, float& windowHeight, bool& done, SDL_Window& window) {
 
@@ -70,7 +67,6 @@ namespace Thingy {
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-
 		ImGui::StyleColorsDark();
 
 		ImGui_ImplSDL3_InitForSDLRenderer(renderer->GetWindow(), renderer->GetRenderer());
@@ -100,6 +96,15 @@ namespace Thingy {
 		sceneManager->AddScene(std::shared_ptr<FrontPageScene>(new Thingy::FrontPageScene()));
 		sceneManager->AddScene(std::shared_ptr<LoginPageScene>(new Thingy::LoginPageScene()));
 		sceneManager->GetScenes();
+		std::shared_ptr<Module> popularsModule = std::make_shared<PopularsModule>(networkManager, renderer->GetRenderer());
+		sceneManager->GetScene("FrontPage")->PushModule(popularsModule);
+		std::shared_ptr<Module> playerModule = std::make_shared<PlayerModule>(audioManager);
+		sceneManager->GetScene("FrontPage")->PushModule(playerModule);
+		for (auto& module : sceneManager->GetScene("FrontPage")->GetModules()) {
+			std::cout << module.first << std::endl;
+		}
+		sceneManager->SetActiveScene("FrontPage");
+		sceneManager->GetScenes();
 	}
 
 	void Application::Run() {
@@ -108,10 +113,18 @@ namespace Thingy {
 		SDL_Window* sdlWindow = renderer->GetWindow();
 
 		std::string link;
-
-
-		std::shared_ptr<PlayerModule> playerModule = std::shared_ptr<PlayerModule>(new Thingy::PlayerModule(audioManager));
-
+		std::string testLinkAlbum = "https://api.jamendo.com/v3.0/albums/tracks/?client_id=8b1de417&format=jsonpretty&id=5322";
+		std::string testLinkArtist = "https://api.jamendo.com/v3.0/artists/albums/?client_id=8b1de417&format=jsonpretty&id=5324";
+		
+		std::vector<Album> albums = networkManager->GetAlbum(testLinkAlbum);
+		std::vector<unsigned char> buffer;
+		networkManager->DownloadImage(albums[0].imageURL, buffer);
+		Image image(buffer);
+		SDL_Texture* texture = image.createTexture(sdlRenderer);
+		sceneManager->GetActiveScene()->OnUpdate();
+		//networkManager->GetArtist(testLinkArtist);
+		bool a = true;
+		//std::shared_ptr<PlayerModule> playerModule = std::shared_ptr<PlayerModule>(new Thingy::PlayerModule(audioManager));
 		while (Running) {
 			
 			EventLoop();
@@ -123,12 +136,10 @@ namespace Thingy {
 				SDL_SetWindowBordered(sdlWindow, false);
 				fullscreenChanged = false;
 			}
-
 			ImGui_ImplSDLRenderer3_NewFrame();
 			ImGui_ImplSDL3_NewFrame();
 			ImGui::NewFrame();
-
-
+			
 			//convenience variables
 			int winW = 0;
 			int winH = 0;
@@ -137,29 +148,40 @@ namespace Thingy {
 			float windowWidth = static_cast<float>(winW);
 			float windowHeight = static_cast<float>(winH);
 
-			//Header
-			CustomHeader(windowWidth, windowHeight, Running, *sdlWindow);
-
-
-			ImGui::Begin("Teszt", nullptr);
-			//  https:\/\/prod-1.storage.jamendo.com\/?trackid=1848357&format=mp31&from=app-devsite
-			ImGui::InputText("link", &link, 0, ResizeCallback, (void*)&link);
-			if (ImGui::Button("send")) {
-
-				T_INFO("send");
-				if (link.empty()) break;
-				URLSanitizer(link);
-				networkManager->DownloadFile(link, musicBuffer);
-
-				audioManager->ChangeMusic();
-				audioManager->ResumeMusic();
+			ImGuiViewport* main_viewport = ImGui::GetMainViewport();
+			main_viewport->WorkPos = ImVec2(10, 50);
+			main_viewport->WorkSize = ImVec2(windowWidth - 20, windowHeight - 55);
+			ImGuiID dockspace_id = ImGui::GetID("DockSpace");
+			ImGuiDockNodeFlags dockSpaceFlags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoResizeY | ImGuiDockNodeFlags_AutoHideTabBar | ImGuiDockNodeFlags_NoTabBar;
+			ImGui::DockSpaceOverViewport(dockspace_id, main_viewport, dockSpaceFlags);
+			
+			if (a) {
+				sceneManager->GetActiveScene()->UpdateLayout();
+				a = false;
 			}
 
 
-			ImGui::End();
+			//Header
+			CustomHeader(windowWidth, windowHeight, Running, *sdlWindow);
 
+			sceneManager->GetActiveScene()->OnRender();
+			
+			//ImGui::Begin("Teszt", nullptr);
+			//ImGui::InputText("link", &link, 0, ResizeCallback, (void*)&link);
+			//if (ImGui::Button("send")) {
+			//
+			//	T_INFO("send");
+			//	if (link.empty()) break;
+			//	
+			//	networkManager->GetArtist(link);
+			//
+			//}
+			//ImGui::Image((ImTextureID)(intptr_t)texture, ImVec2((float)300, (float)300));
+			//
+			//ImGui::End();
+			
 			try {
-				playerModule->OnRender();
+				//playerModule->OnRender();
 				//populars->OnRender();
 
 			}

@@ -1,6 +1,5 @@
 #pragma once
 #include "tpch.h"
-#include "Artist.h"
 #include <nlohmann\json.hpp>
 
 using json = nlohmann::json;
@@ -64,17 +63,24 @@ namespace Thingy {
 		} else {
 			j.at("duration").get_to(t.duration);
 		}
-
-		if (j.at("artist_id").is_string()) {
-			t.artistID = std::stoi(j.at("artist_id").get<std::string>());
+		if (j.contains("artist_id")) {
+			if (j.at("artist_id").is_string()) {
+				t.artistID = std::stoi(j.at("artist_id").get<std::string>());
+			} else {
+				j.at("artist_id").get_to(t.artistID);
+			}
 		} else {
-			j.at("artist_id").get_to(t.artistID);
+			t.artistID = -1;
 		}
 
-		if (j.at("album_id").is_string()) {
-			t.albumID = std::stoi(j.at("album_id").get<std::string>());
+		if (j.contains("album_id")) {
+			if (j.at("album_id").is_string()) {
+				t.albumID = std::stoi(j.at("album_id").get<std::string>());
+			} else {
+				j.at("album_id").get_to(t.albumID);
+			}
 		} else {
-			j.at("album_id").get_to(t.albumID);
+			t.albumID = -1;
 		}
 
 		if (j.at("audio").is_string()) {
@@ -84,10 +90,40 @@ namespace Thingy {
 		}
 
 		j.at("name").get_to(t.title);
-		j.at("image").get_to(t.imageURL);
-		j.at("artist_name").get_to(t.artistName);
-		j.at("album_name").get_to(t.albumName);
-		j.at("album_image").get_to(t.albumImageURL);
-		j.at("releasedate").get_to(t.releaseDate);
+
+		if (j.contains("image")) {
+			j.at("image").get_to(t.imageURL);
+		}
+		else {
+			t.imageURL = "";
+		}
+
+		if (j.contains("artist_name")) {
+			j.at("artist_name").get_to(t.artistName);
+		}
+		else {
+			t.artistName = "";
+		}
+
+		if (j.contains("album_name")) {
+			j.at("album_name").get_to(t.albumName);
+		}
+		else {
+			t.albumName = "";
+		}
+
+		if (j.contains("album_image")) {
+			j.at("album_image").get_to(t.albumImageURL);
+		}
+		else {
+			t.albumImageURL = "";
+		}
+
+		if (j.contains("releasedate")) {
+			j.at("releasedate").get_to(t.releaseDate);
+		}
+		else {
+			t.releaseDate = "";
+		}
 	}
 }

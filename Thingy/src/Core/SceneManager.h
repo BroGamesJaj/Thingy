@@ -16,8 +16,21 @@ namespace Thingy {
 
 		void ChangeScene(std::string newSceneName);
 
+		std::shared_ptr<Scene>& GetScene(std::string sceneName) {
+			T_ERROR("hello");
+			auto it = scenes.find(sceneName);
+			if (it != scenes.end()) {
+				T_ERROR("Bigger what");
+				return scenes[sceneName];
+			}
+			else {
+				T_ERROR("{0} scene was not found", sceneName);
+				throw ERROR_NOT_FOUND;
+			}
+			T_ERROR("What");
+		}
 		void GetScenes() {
-			for (auto scene : scenes) {
+			for (auto& scene : scenes) {
 				T_INFO("{0}", scene.first);
 			}
 		}
@@ -31,14 +44,16 @@ namespace Thingy {
 		void SetActiveScene(const std::string& name) {
 			auto it = scenes.find(name);
 			if (it != scenes.end()) {
-				activeScene = it->second.get();
+				activeScene = it->second;
 			}
 		}
+
+		std::shared_ptr<Scene>& GetActiveScene() { return activeScene; }
 
 	private:
 		bool layoutChanged = false;
 		std::unordered_map<std::string,std::shared_ptr<Scene>> scenes;
-		Scene* activeScene;
+		std::shared_ptr<Scene> activeScene;
 
 	};
 }

@@ -14,11 +14,11 @@
 #include <SDL3_mixer/SDL_mixer.h>
 #define SDL_MIXER_HINT_DEBUG_MUSIC_INTERFACES
 #include <SDL3/SDL_system.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb/stb_image.h"
 #include <fstream>
 #include <curl\curl.h>
 #include <curl\easy.h>
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb\stb_image.h>
 #include <nlohmann\json.hpp>
 using json = nlohmann::json;
 
@@ -177,63 +177,6 @@ void AlignForWidth(float width, float alignment = 0.5f)
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + off);
 }
 
-void Cleanup(CURL* curl, curl_slist* headers) {
-	if (curl)
-		curl_easy_cleanup(curl);
-	if (headers)
-		curl_slist_free_all(headers);
-	curl_global_cleanup();
-}
-
-size_t curl_callback(void* ptr, size_t size, size_t nmemb, std::string* data) {
-	data->append((char*)ptr, size * nmemb);
-	return size * nmemb;
-}
-
-std::string GetRequest(const std::string url)
-{
-	curl_global_init(CURL_GLOBAL_ALL);
-	CURL* curl = curl_easy_init();
-	std::string response_string;
-	struct curl_slist* headers = NULL;
-	if (!curl)
-	{
-		std::cout << "ERROR : Curl initialization\n" << std::endl;
-		Cleanup(curl, headers);
-		return NULL;
-	}
-
-	headers = curl_slist_append(headers, "User-Agent: libcurl-agent/1.0");
-	headers = curl_slist_append(headers, "Content-Type: application/json");
-	headers = curl_slist_append(headers, "Cache-Control: no-cache");
-
-	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-
-	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-
-	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
-	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L);
-	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_callback);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
-
-
-	CURLcode status = curl_easy_perform(curl);
-	if (status != 0)
-	{
-		std::cout << "Error: Request failed on URL : " << url << std::endl;
-		std::cout << "Error Code: " << status << " Error Detail : " << curl_easy_strerror(status) << std::endl;
-		Cleanup(curl, headers);
-		return 0;
-	}
-
-	curl_easy_cleanup(curl);
-	curl_slist_free_all(headers);
-	curl_global_cleanup();
-
-	return response_string;
-}
 
 void SetCustomWindowStyle(SDL_Window* window) {
 	HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);

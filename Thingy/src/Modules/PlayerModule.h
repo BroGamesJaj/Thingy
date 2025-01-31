@@ -3,7 +3,7 @@
 #include "Core/AudioManager.h"
 
 namespace Thingy {
-	class PlayerModule : Module {
+	class PlayerModule : public Module {
 	public:
 		PlayerModule(std::unique_ptr<AudioManager>& audioManager) : m_AudioManager(audioManager), m_CurrentTime(audioManager->GetCurrentTrackPos()), m_AudioVolume(audioManager->GetVolume()) {
 			m_TrackImageURL = "";
