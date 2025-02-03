@@ -11,6 +11,7 @@ namespace Thingy {
 	public:
 		virtual ~Module() = default;
 
+		virtual void OnLoad() = 0;
 		virtual void OnUpdate() = 0;
 		virtual void Window(std::string title) = 0;
 		virtual void OnRender() = 0;

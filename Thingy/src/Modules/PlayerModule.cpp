@@ -1,6 +1,11 @@
 #include "tpch.h"
 #include "PlayerModule.h"
 namespace Thingy {
+
+	void PlayerModule::OnLoad() {
+			
+	}
+
 	void PlayerModule::OnUpdate() {
 
 	}

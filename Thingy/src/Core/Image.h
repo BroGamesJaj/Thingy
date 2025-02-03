@@ -24,6 +24,8 @@ namespace Thingy {
             return texture;
         }
 
+		
+
     private:
         struct STB_Deleter { void operator()(unsigned char* p) { stbi_image_free(p); } };
 

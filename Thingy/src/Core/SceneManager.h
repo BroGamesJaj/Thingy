@@ -1,7 +1,6 @@
 #pragma once
 #include "Scene.h"
 #include "Scenes\Scenes.h"
-#include "Log.h"
 
 namespace Thingy {
 	class SceneManager {
@@ -45,6 +44,7 @@ namespace Thingy {
 			auto it = scenes.find(name);
 			if (it != scenes.end()) {
 				activeScene = it->second;
+				activeScene->OnSwitch();
 			}
 		}
 

@@ -1,6 +1,5 @@
 #pragma once
 #include "tpch.h"
-#include "Log.h"
 
 #include "Module.h"
 

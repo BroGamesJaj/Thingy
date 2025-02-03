@@ -10,6 +10,9 @@ namespace Thingy {
 	}
 	
 	void FrontPageScene::OnSwitch() {
+		for (auto& module : modules) {
+			module.second->OnLoad();
+		}
 	}
 	
 	void FrontPageScene::OnUpdate() {

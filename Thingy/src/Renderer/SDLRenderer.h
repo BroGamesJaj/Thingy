@@ -1,4 +1,5 @@
 #pragma once
+#include "tpch.h"
 
 #include <SDL3\SDL.h>
 #include <SDL3_mixer/SDL_mixer.h>

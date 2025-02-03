@@ -128,7 +128,6 @@ namespace Thingy {
 		std::vector<Track> tracks;
 		for (size_t i = 0; i < parsedJsonData["headers"]["results_count"]; i++) {
 			Track track = parsedJsonData["results"][i];
-			std::cout << track.toString() << std::endl;
 			tracks.push_back(track);
 		}
 		return tracks;
@@ -169,17 +168,15 @@ namespace Thingy {
 		}
 		json parsedJsonData = json::parse(jsonData);
 		std::vector<Artist> artists;
-		std::cout << parsedJsonData << std::endl;
 		for (size_t i = 0; i < parsedJsonData["headers"]["results_count"]; i++) {
 			Artist artist = parsedJsonData["results"][i];
 
 			for (size_t j = 0; j < parsedJsonData["results"][i]["albums"].size(); j++) {
 				Album album = parsedJsonData["results"][i]["albums"][j];
-				album.artistID = artist.artistID;
+				album.artistID = artist.id;
 				album.artistName = artist.artistName;
 				artist.albums.push_back(album);
 			}
-			std::cout << artist.toString() << std::endl;
 			artists.push_back(artist);
 		}
 		return artists;

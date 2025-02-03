@@ -14,6 +14,7 @@
 #include <functional>
 #include <mutex>
 #include <thread>
+#include <future>
 #include <limits>
 #include <stdexcept>
 #include <fstream>
@@ -31,6 +32,9 @@
 #include <optional>
 #include <set>
 #include <map>
+
+//Application
+#include "Core\Log.h"
 
 //Windows 
 #ifdef T_PLATFORM_WINDOWS

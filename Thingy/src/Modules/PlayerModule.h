@@ -12,10 +12,9 @@ namespace Thingy {
 			m_TrackDuration = 0;
 		}
 
-		void OnUpdate() override;
-			
+		void OnLoad() override;
+		void OnUpdate() override;	
 		void Window(std::string title) override;
-
 		void OnRender() override;
 
 		int MinWidth() const override { return 350; }

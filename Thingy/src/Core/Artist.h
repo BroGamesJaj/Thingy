@@ -8,7 +8,7 @@ using json = nlohmann::json;
 
 namespace Thingy {
 	struct Artist {
-		int artistID = 0;
+		int id = 0;
 		std::string artistName = "";
 		std::string artistWebsite = "";
 		std::string artistJoinDate = "";
@@ -18,7 +18,7 @@ namespace Thingy {
         inline std::string toString() const {
             std::ostringstream oss;
             oss << "Artist Details:\n"
-                << "ID: " << artistID << "\n"
+                << "ID: " << id << "\n"
                 << "Name: " << artistName << "\n"
                 << "Website: " << artistWebsite << "\n"
                 << "Join Date: " << artistJoinDate << "\n"
@@ -30,7 +30,7 @@ namespace Thingy {
 
     inline void to_json(json& j, const Artist& a) {
         j = json{
-            {"artist_id", a.artistID},
+            {"artist_id", a.id},
             {"artist_name", a.artistName},
             {"artist_website", a.artistWebsite},
             {"artist_join_date", a.artistJoinDate},
@@ -40,10 +40,10 @@ namespace Thingy {
 
     inline void from_json(const json& j, Artist& a) {
         if (j.at("id").is_string()) {
-            a.artistID = std::stoi(j.at("id").get<std::string>());
+            a.id = std::stoi(j.at("id").get<std::string>());
         }
         else {
-            j.at("id").get_to(a.artistID);
+            j.at("id").get_to(a.id);
         }
 
         j.at("name").get_to(a.artistName);

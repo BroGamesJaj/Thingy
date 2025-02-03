@@ -1,6 +1,5 @@
 #include "tpch.h"
 
-#include "Log.h"
 #include "Application.h"
 
 #include <SDL3/SDL.h>
@@ -19,7 +18,8 @@ namespace Thingy {
 	std::vector<uint8_t> musicBuffer;
 	bool fullscreen = false;
 	bool fullscreenChanged = false;
-
+	std::chrono::steady_clock::time_point begin;
+	std::chrono::steady_clock::time_point end;
 	
 
 	void CustomHeader(float& windowWidth, float& windowHeight, bool& done, SDL_Window& window) {
@@ -59,7 +59,7 @@ namespace Thingy {
 	}
 
 	Application::Application() {
-		
+		begin = std::chrono::steady_clock::now();
 		renderer = std::unique_ptr<SDLRenderer>(SDLRenderer::Create());
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -93,6 +93,7 @@ namespace Thingy {
 	}
 
 	void Application::SetupScenes() {
+		
 		sceneManager->AddScene(std::shared_ptr<FrontPageScene>(new Thingy::FrontPageScene()));
 		sceneManager->AddScene(std::shared_ptr<LoginPageScene>(new Thingy::LoginPageScene()));
 		sceneManager->GetScenes();
@@ -108,23 +109,17 @@ namespace Thingy {
 	}
 
 	void Application::Run() {
-		SDL_ShowWindow(renderer->GetWindow());
+		
 		SDL_Renderer* sdlRenderer = renderer->GetRenderer();
 		SDL_Window* sdlWindow = renderer->GetWindow();
 
-		std::string link;
-		std::string testLinkAlbum = "https://api.jamendo.com/v3.0/albums/tracks/?client_id=8b1de417&format=jsonpretty&id=5322";
-		std::string testLinkArtist = "https://api.jamendo.com/v3.0/artists/albums/?client_id=8b1de417&format=jsonpretty&id=5324";
-		
-		std::vector<Album> albums = networkManager->GetAlbum(testLinkAlbum);
-		std::vector<unsigned char> buffer;
-		networkManager->DownloadImage(albums[0].imageURL, buffer);
-		Image image(buffer);
-		SDL_Texture* texture = image.createTexture(sdlRenderer);
 		sceneManager->GetActiveScene()->OnUpdate();
+		SDL_ShowWindow(sdlWindow);
 		//networkManager->GetArtist(testLinkArtist);
 		bool a = true;
+		bool first = true;
 		//std::shared_ptr<PlayerModule> playerModule = std::shared_ptr<PlayerModule>(new Thingy::PlayerModule(audioManager));
+		
 		while (Running) {
 			
 			EventLoop();
@@ -198,7 +193,15 @@ namespace Thingy {
 			SDL_RenderClear(sdlRenderer);
 			ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), sdlRenderer);
 			SDL_RenderPresent(sdlRenderer);
+			if (first) {
+				first = false;
+				end = std::chrono::steady_clock::now();
 
+				T_INFO("to first frame time:");
+				std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << "[seconds]" << std::endl;
+				std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[milliseconds]" << std::endl;
+				std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[microseconds]" << std::endl;
+			}
 			
 		}
 		ImGui_ImplSDLRenderer3_Shutdown();

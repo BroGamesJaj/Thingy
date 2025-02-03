@@ -8,7 +8,9 @@ namespace Thingy {
 	}
 	
 	void LoginPageScene::OnSwitch() {
-
+		for (auto& module : modules) {
+			module.second->OnLoad();
+		}
 	}
 	
 	void LoginPageScene::OnUpdate() {
