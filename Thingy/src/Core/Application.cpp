@@ -99,12 +99,11 @@ namespace Thingy {
 		sceneManager->AddScene(std::shared_ptr<LoginPageScene>(new Thingy::LoginPageScene()));
 		sceneManager->GetScenes();
 		std::shared_ptr<Module> popularsModule = std::make_shared<PopularsModule>(networkManager, audioManager, imageManager, renderer->GetRenderer());
+		modules.emplace("popularsModule", popularsModule);
 		sceneManager->GetScene("FrontPage")->PushModule(popularsModule);
 		std::shared_ptr<Module> playerModule = std::make_shared<PlayerModule>(audioManager, imageManager);
+		modules.emplace("playerModule", playerModule);
 		sceneManager->GetScene("FrontPage")->PushModule(playerModule);
-		for (auto& module : sceneManager->GetScene("FrontPage")->GetModules()) {
-			std::cout << module.first << std::endl;
-		}
 		sceneManager->SetActiveScene("FrontPage");
 		sceneManager->GetScenes();
 	}

@@ -32,6 +32,7 @@ namespace Thingy {
 		std::unique_ptr<NetworkManager> networkManager = nullptr;
 		std::unique_ptr<ImageManager> imageManager = nullptr;
 		std::unique_ptr<SceneManager> sceneManager = nullptr;
+		std::unordered_map<std::string, std::shared_ptr<Module>> modules;
 	};
 
 }

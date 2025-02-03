@@ -26,7 +26,7 @@ namespace Thingy {
 
 		int& GetVolume() { return volume; }
 		int GetCurrentTrackNum() const { return currentTrackNum; }
-		Track GetCurrentTrack() { 
+		Track GetCurrentTrack() const { 
 			if (queue.size() != 0) {
 				return queue[currentTrackNum];
 			}
