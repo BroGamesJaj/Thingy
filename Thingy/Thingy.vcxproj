@@ -154,6 +154,7 @@
     <ClInclude Include="src\Core\Artist.h" />
     <ClInclude Include="src\Core\AudioManager.h" />
     <ClInclude Include="src\Core\Image.h" />
+    <ClInclude Include="src\Core\ImageManager.h" />
     <ClInclude Include="src\Core\Log.h" />
     <ClInclude Include="src\Core\Module.h" />
     <ClInclude Include="src\Core\NetworkManager.h" />
@@ -173,6 +174,7 @@
     <ClCompile Include="src\Core\Album.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />
     <ClCompile Include="src\Core\AudioManager.cpp" />
+    <ClCompile Include="src\Core\ImageManager.cpp" />
     <ClCompile Include="src\Core\Log.cpp" />
     <ClCompile Include="src\Core\Module.cpp" />
     <ClCompile Include="src\Core\NetworkManager.cpp" />

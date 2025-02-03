@@ -69,7 +69,7 @@ namespace Thingy {
 			curl_easy_cleanup(curl);
 			throw std::runtime_error("cURL request failed: " + std::string(curl_easy_strerror(res)));
 		}
-
+		
 		curl_easy_cleanup(curl);
 		imageData = std::move(chunk.data);
 	}

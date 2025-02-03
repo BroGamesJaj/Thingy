@@ -15,7 +15,11 @@ namespace Thingy {
 		ImVec2 bar_size = ImVec2(GetSize().x - 20, 30);
 		ImGui::InvisibleButton("DragBar", bar_size);
 		ImGui::GetWindowDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 0, 0, 255), 0.0f, 0, 5.0f);
-		ImGui::Button("image", { 300.0f, 300.0f });
+		if (m_AudioManager->GetQueue().size() == 0) {
+			ImGui::Button("image", { 300.0f, 300.0f });
+		} else {
+			ImGui::Image((ImTextureID)(intptr_t)m_ImageManager->GetTexture(m_AudioManager->GetCurrentTrack().imageURL), {300.0f, 300.0f});
+		}
 		ImGui::Text("Thing name");
 		if (ImGui::Button("back", { 30.0f, 30.0f })) {
 			m_AudioManager->PrevTrack();

@@ -3,7 +3,7 @@
 
 namespace Thingy {
 
-	AudioManager::AudioManager(std::vector<uint8_t>& buffer) : musicBuffer(buffer), volume(0), currentTrackNum(0), currentTrackPos(0), audioOpen(0) {
+	AudioManager::AudioManager(std::vector<uint8_t>& buffer, std::unique_ptr<NetworkManager>& networkManager) : musicBuffer(buffer), m_NetworkManager(networkManager), volume(0), currentTrackNum(0), currentTrackPos(0), audioOpen(0) {
 		SDL_Log("Audio Manager Constructor");
 		spec.freq = MIX_DEFAULT_FREQUENCY;
 		spec.format = MIX_DEFAULT_FORMAT;

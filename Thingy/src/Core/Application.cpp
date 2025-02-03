@@ -87,8 +87,9 @@ namespace Thingy {
 	}
 
 	void Application::SetupManagers() {
-		audioManager = std::unique_ptr<Thingy::AudioManager>(new Thingy::AudioManager(musicBuffer));
 		networkManager = std::unique_ptr<NetworkManager>(new NetworkManager());
+		imageManager = std::unique_ptr<ImageManager>(new ImageManager(networkManager, renderer->GetRenderer()));
+		audioManager = std::unique_ptr<AudioManager>(new AudioManager(musicBuffer, networkManager));
 		sceneManager = std::unique_ptr<SceneManager>(new SceneManager());
 	}
 
@@ -97,9 +98,9 @@ namespace Thingy {
 		sceneManager->AddScene(std::shared_ptr<FrontPageScene>(new Thingy::FrontPageScene()));
 		sceneManager->AddScene(std::shared_ptr<LoginPageScene>(new Thingy::LoginPageScene()));
 		sceneManager->GetScenes();
-		std::shared_ptr<Module> popularsModule = std::make_shared<PopularsModule>(networkManager, renderer->GetRenderer());
+		std::shared_ptr<Module> popularsModule = std::make_shared<PopularsModule>(networkManager, audioManager, imageManager, renderer->GetRenderer());
 		sceneManager->GetScene("FrontPage")->PushModule(popularsModule);
-		std::shared_ptr<Module> playerModule = std::make_shared<PlayerModule>(audioManager);
+		std::shared_ptr<Module> playerModule = std::make_shared<PlayerModule>(audioManager, imageManager);
 		sceneManager->GetScene("FrontPage")->PushModule(playerModule);
 		for (auto& module : sceneManager->GetScene("FrontPage")->GetModules()) {
 			std::cout << module.first << std::endl;
@@ -115,11 +116,8 @@ namespace Thingy {
 
 		sceneManager->GetActiveScene()->OnUpdate();
 		SDL_ShowWindow(sdlWindow);
-		//networkManager->GetArtist(testLinkArtist);
 		bool a = true;
 		bool first = true;
-		//std::shared_ptr<PlayerModule> playerModule = std::shared_ptr<PlayerModule>(new Thingy::PlayerModule(audioManager));
-		
 		while (Running) {
 			
 			EventLoop();

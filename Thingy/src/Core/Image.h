@@ -15,7 +15,7 @@ namespace Thingy {
         SDL_Texture* createTexture(SDL_Renderer* renderer) {
             SDL_Surface* surface = SDL_CreateSurfaceFrom(width, height, SDL_PIXELFORMAT_RGBA32, pixels.get(), width * 4);
             if (!surface) throw std::runtime_error("Failed to create surface: " + std::string(SDL_GetError()));
-
+            
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
             SDL_DestroySurface(surface);
 

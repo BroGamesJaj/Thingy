@@ -4,6 +4,7 @@
 #include "Renderer\SDLRenderer.h"
 #include "AudioManager.h"
 #include "NetworkManager.h"
+#include "ImageManager.h"
 #include "SceneManager.h"
 
 #include "Image.h"
@@ -29,6 +30,7 @@ namespace Thingy {
 		std::unique_ptr<SDLRenderer> renderer = nullptr;
 		std::unique_ptr<AudioManager> audioManager = nullptr;
 		std::unique_ptr<NetworkManager> networkManager = nullptr;
+		std::unique_ptr<ImageManager> imageManager = nullptr;
 		std::unique_ptr<SceneManager> sceneManager = nullptr;
 	};
 

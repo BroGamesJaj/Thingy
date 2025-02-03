@@ -16,17 +16,14 @@ namespace Thingy {
 		void ChangeScene(std::string newSceneName);
 
 		std::shared_ptr<Scene>& GetScene(std::string sceneName) {
-			T_ERROR("hello");
 			auto it = scenes.find(sceneName);
 			if (it != scenes.end()) {
-				T_ERROR("Bigger what");
 				return scenes[sceneName];
 			}
 			else {
 				T_ERROR("{0} scene was not found", sceneName);
 				throw ERROR_NOT_FOUND;
 			}
-			T_ERROR("What");
 		}
 		void GetScenes() {
 			for (auto& scene : scenes) {

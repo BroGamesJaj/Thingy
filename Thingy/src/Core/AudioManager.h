@@ -1,6 +1,7 @@
 #pragma once
 #include "tpch.h"
 #include "Track.h"
+#include "NetworkManager.h"
 #include <SDL3\SDL.h>
 #include <SDL3_mixer\SDL_mixer.h>
 
@@ -11,7 +12,7 @@ namespace Thingy {
 	
 	class AudioManager {
 	public:
-		AudioManager(std::vector<uint8_t>& buffer);
+		AudioManager(std::vector<uint8_t>& buffer, std::unique_ptr<NetworkManager>& networkManager);
 		~AudioManager();
 
 		AudioManager(const AudioManager&) = delete;
@@ -44,7 +45,7 @@ namespace Thingy {
 		void ChangeVolume();
 		void ChangeMusicPos();
 		void ChangeMusic();
-		
+
 		void PauseMusic();
 		void ResumeMusic();
 
@@ -67,7 +68,17 @@ namespace Thingy {
 			return music;
 		}
 
+		void LoadMusicFromTrack(Track& track) {
+			Mix_HaltMusic();
+			queue.clear();
+			queue.push_back(track);
+			m_NetworkManager->DownloadAudio(track.audioURL, musicBuffer);
+		}
+
+
 	private:
+		std::unique_ptr<NetworkManager>& m_NetworkManager;
+
 		int audioOpen = 0;
 		SDL_AudioSpec spec;
 		int volume = 0;

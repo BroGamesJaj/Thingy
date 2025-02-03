@@ -29,6 +29,7 @@
     <ClInclude Include="src\Scenes\Scenes.h" />
     <ClInclude Include="src\Scenes\LoginPage.h" />
     <ClInclude Include="src\Core\Image.h" />
+    <ClInclude Include="src\Core\ImageManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -50,5 +51,6 @@
     <ClCompile Include="src\Core\Album.cpp" />
     <ClCompile Include="src\Core\SceneManager.cpp" />
     <ClCompile Include="src\Scenes\LoginPage.cpp" />
+    <ClCompile Include="src\Core\ImageManager.cpp" />
   </ItemGroup>
 </Project>
