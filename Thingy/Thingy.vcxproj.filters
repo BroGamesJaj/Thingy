@@ -21,15 +21,16 @@
     <ClInclude Include="src\Core\Scene.h" />
     <ClInclude Include="src\Core\AudioManager.h" />
     <ClInclude Include="src\Core\NetworkManager.h" />
-    <ClInclude Include="src\Scenes\FrontPage.h" />
+    <ClInclude Include="src\Scenes\FrontPageScene.h" />
     <ClInclude Include="src\Modules\PopularsModule.h" />
     <ClInclude Include="src\Core\Album.h" />
     <ClInclude Include="src\Core\SceneManager.h" />
     <ClInclude Include="src\Modules\Modules.h" />
     <ClInclude Include="src\Scenes\Scenes.h" />
-    <ClInclude Include="src\Scenes\LoginPage.h" />
+    <ClInclude Include="src\Scenes\LoginScene.h" />
     <ClInclude Include="src\Core\Image.h" />
     <ClInclude Include="src\Core\ImageManager.h" />
+    <ClInclude Include="src\Scenes\AlbumScene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -46,11 +47,12 @@
     <ClCompile Include="src\Core\Scene.cpp" />
     <ClCompile Include="src\Core\AudioManager.cpp" />
     <ClCompile Include="src\Core\NetworkManager.cpp" />
-    <ClCompile Include="src\Scenes\FrontPage.cpp" />
+    <ClCompile Include="src\Scenes\FrontPageScene.cpp" />
     <ClCompile Include="src\Modules\PopularsModule.cpp" />
     <ClCompile Include="src\Core\Album.cpp" />
     <ClCompile Include="src\Core\SceneManager.cpp" />
-    <ClCompile Include="src\Scenes\LoginPage.cpp" />
+    <ClCompile Include="src\Scenes\LoginScene.cpp" />
     <ClCompile Include="src\Core\ImageManager.cpp" />
+    <ClCompile Include="src\Scenes\AlbumScene.cpp" />
   </ItemGroup>
 </Project>

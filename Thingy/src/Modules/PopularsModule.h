@@ -16,9 +16,9 @@ namespace Thingy {
 		};
 		void OnLoad() override;
 		void OnUpdate() override;
-		void Window(std::string title) override;
+		void Window() override;
 
-		void OnRender() override;
+		uint16_t OnRender() override;
 
 
 		int MinWidth() const override { return 500; }
@@ -33,6 +33,8 @@ namespace Thingy {
 	private:
 		struct SDL_TDeleter { void operator()(SDL_Texture* p) { SDL_DestroyTexture(p); } };
 		
+		uint16_t upProps = 0;
+
 		SDL_Renderer* m_Renderer = nullptr;
 		std::unique_ptr<NetworkManager>& m_NetworkManager;
 		std::unique_ptr<AudioManager>& m_AudioManager;

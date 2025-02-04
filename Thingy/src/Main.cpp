@@ -132,14 +132,15 @@ void SetCustomWindowStyle(SDL_Window* window) {
 	HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
 	if (hwnd) {
 		LONG style = GetWindowLong(hwnd, GWL_STYLE);
-		style &= ~WS_OVERLAPPEDWINDOW;
-		style |= WS_POPUP | WS_EX_CLIENTEDGE;
+		style &= ~(WS_CAPTION | WS_THICKFRAME);
+		style |= WS_POPUP | WS_EX_CLIENTEDGE | WS_SYSMENU;
 		SetWindowLong(hwnd, GWL_STYLE, style);
 	
 		SetWindowPos(hwnd, nullptr, 0, 0, 0, 0,
 			SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 	}
 }
+
 
 SDL_HitTestResult window_hit_test(SDL_Window* win, const SDL_Point* pos, void*) {
 	

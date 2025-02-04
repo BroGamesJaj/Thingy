@@ -96,7 +96,7 @@ namespace Thingy {
 	void Application::SetupScenes() {
 		
 		sceneManager->AddScene(std::shared_ptr<FrontPageScene>(new Thingy::FrontPageScene()));
-		sceneManager->AddScene(std::shared_ptr<LoginPageScene>(new Thingy::LoginPageScene()));
+		sceneManager->AddScene(std::shared_ptr<LoginScene>(new Thingy::LoginScene()));
 		sceneManager->GetScenes();
 		std::shared_ptr<Module> popularsModule = std::make_shared<PopularsModule>(networkManager, audioManager, imageManager, renderer->GetRenderer());
 		storedModules.emplace("popularsModule", popularsModule);
@@ -117,7 +117,7 @@ namespace Thingy {
 		bool a = true;
 		bool first = true;
 		while (Running) {
-			
+
 			EventLoop();
 			if (audioManager->IsMusicLoaded())
 				audioManager->UpdateTrackPos();
@@ -215,9 +215,9 @@ namespace Thingy {
 		{
 			ImGui_ImplSDL3_ProcessEvent(&event);
 			if (event.type == SDL_EVENT_QUIT)
-				Running = true;
+				Running = false;
 			if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED && event.window.windowID == SDL_GetWindowID(renderer->GetWindow()))
-				Running = true;
+				Running = false;
 
 		}
 	}

@@ -1,5 +1,5 @@
 #include "tpch.h"
-#include "FrontPage.h"
+#include "FrontPageScene.h"
 #include "imgui.h"
 #include "imgui_internal.h"
 
@@ -21,11 +21,20 @@ namespace Thingy {
 		}
 	}
 	
-	void FrontPageScene::OnRender() {
+	uint16_t FrontPageScene::OnRender() {
+		std::string dragged = "";
 		for (auto& module : modules) {
-			module.second->OnRender();
+			uint16_t mReturn = module.second->OnRender();
+			if (mReturn & BIT(1)) {
+				dragged = module.first;
+			}
 		}
-
+		if (dragged != "") {
+			bool changed = false;
+			LayoutChangeScene(dragged, ImGui::GetMousePos(), modules, changed);
+			if (changed) UpdateLayout();
+		}
+		return 0;
 	}
 	
 	void FrontPageScene::LayoutChanged() {

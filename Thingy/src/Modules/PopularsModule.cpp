@@ -30,10 +30,17 @@ namespace Thingy {
 
 	void PopularsModule::OnUpdate() {
 	}
-	void PopularsModule::Window(std::string title) {
-		ImGui::Begin(title.data(), nullptr, defaultWindowFlags);
+	void PopularsModule::Window() {
 		ImVec2 bar_size = ImVec2(GetSize().x - 20, 30);
 		ImGui::InvisibleButton("DragBar", bar_size);
+		if (ImGui::IsItemHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left) && !ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+			upProps |= BIT(0);
+		}
+		if (upProps & BIT(1)) upProps &= ~BIT(1);
+		if (upProps & BIT(0) && ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+			upProps |= BIT(1);
+			upProps &= ~BIT(0);
+		}
 		ImGui::GetWindowDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 0, 0, 255), 0.0f, 0, 5.0f);
 		ImVec2 winSize = ImGui::GetWindowSize();
 		float centering = (winSize.x - 475) / 2;
@@ -167,13 +174,24 @@ namespace Thingy {
 			}
 		}
 		ImGui::Text("window size: (%.1f, %.1f)", ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
-		ImGui::End();
 	}
 
 
 
-	void PopularsModule::OnRender() {
-		Window(GetModuleName().data());
+	uint16_t PopularsModule::OnRender() {
+		ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
+		Window();
+		ImGui::End();
+		if (upProps & BIT(0)) {
+			ImGui::BeginDisabled();
+			ImGui::Begin("floater", nullptr, defaultWindowFlags);
+			Window();
+			ImGui::SetWindowPos({ ImGui::GetMousePos().x - (ImGui::FindWindowByName(GetModuleName().data())->Size.x / 2), ImGui::GetMousePos().y + 5 });
+			ImGui::SetWindowSize(ImGui::FindWindowByName(GetModuleName().data())->Size);
+			ImGui::End();
+			ImGui::EndDisabled();
+		}
+		return upProps;
 	}
 
 	void PopularsModule::GetPopulars() {

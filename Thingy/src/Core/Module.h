@@ -13,8 +13,8 @@ namespace Thingy {
 
 		virtual void OnLoad() = 0;
 		virtual void OnUpdate() = 0;
-		virtual void Window(std::string title) = 0;
-		virtual void OnRender() = 0;
+		virtual void Window() = 0;
+		virtual uint16_t OnRender() = 0;
 
 		virtual std::string GetModuleName() const = 0;
 

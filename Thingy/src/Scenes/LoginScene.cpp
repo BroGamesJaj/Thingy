@@ -1,35 +1,35 @@
 #include "tpch.h"
-#include "LoginPage.h"
+#include "LoginScene.h"
 
 namespace Thingy {
 	
-	LoginPageScene::~LoginPageScene() {
+	LoginScene::~LoginScene() {
 	
 	}
 	
-	void LoginPageScene::OnSwitch() {
+	void LoginScene::OnSwitch() {
 		for (auto& module : modules) {
 			module.second->OnLoad();
 		}
 	}
 	
-	void LoginPageScene::OnUpdate() {
+	void LoginScene::OnUpdate() {
 		for (auto& module : modules) {
 			module.second->OnUpdate();
 		}
 	}
 	
-	void LoginPageScene::OnRender() {
+	uint16_t LoginScene::OnRender() {
 		for (auto& module : modules) {
 			module.second->OnRender();
 		}
-
+		return 0;
 	}
 	
-	void LoginPageScene::LayoutChanged() {
+	void LoginScene::LayoutChanged() {
 	}
 	
-	void LoginPageScene::UpdateLayout() {
+	void LoginScene::UpdateLayout() {
 		ImGuiID dockspace_id = ImGui::GetID("DockSpace");
 		ImGui::DockBuilderRemoveNode(dockspace_id);
 		ImGui::DockBuilderAddNode(dockspace_id);
@@ -50,6 +50,6 @@ namespace Thingy {
 
 	}
 
-	void LoginPageScene::SaveLayout() {
+	void LoginScene::SaveLayout() {
 	}
 }

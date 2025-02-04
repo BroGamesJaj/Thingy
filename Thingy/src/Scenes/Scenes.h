@@ -1,4 +1,4 @@
 #pragma once
 
-#include "FrontPage.h"
-#include "LoginPage.h"
+#include "FrontPageScene.h"
+#include "LoginScene.h"
