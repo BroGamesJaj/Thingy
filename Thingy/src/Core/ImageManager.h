@@ -17,6 +17,8 @@ namespace Thingy {
 		void operator=(const ImageManager&) = delete;
 
 		SDL_Texture* GetTexture(std::string& url);
+		SDL_Surface* GetSurface(std::string& url);
+		SDL_Texture* GetTextureFromSurface(SDL_Surface* surface);
 
 		bool LoadTextureFromMemory(const void* data, size_t data_size, SDL_Renderer* renderer, SDL_Texture** out_texture, int* out_width, int* out_height) {
 			int image_width = 0;

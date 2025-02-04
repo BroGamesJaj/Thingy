@@ -12,10 +12,15 @@ namespace Thingy {
             if (!pixels) throw std::runtime_error("Failed to decode image");
         }
 
-        SDL_Texture* createTexture(SDL_Renderer* renderer) {
+        SDL_Surface* createSurface() {
             SDL_Surface* surface = SDL_CreateSurfaceFrom(width, height, SDL_PIXELFORMAT_RGBA32, pixels.get(), width * 4);
             if (!surface) throw std::runtime_error("Failed to create surface: " + std::string(SDL_GetError()));
-            
+            return surface;
+        }
+
+        SDL_Texture* createTexture(SDL_Renderer* renderer) {
+            SDL_Surface* surface = createSurface();
+
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
             SDL_DestroySurface(surface);
 
@@ -31,5 +36,6 @@ namespace Thingy {
 
         int width, height;
         std::unique_ptr<unsigned char, STB_Deleter> pixels;
+        
     };
 }

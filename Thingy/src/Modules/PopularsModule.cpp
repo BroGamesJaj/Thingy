@@ -10,10 +10,6 @@ namespace Thingy {
 		if (weeklyTracks.size() < 5) {
 			GetPopulars();
 			for (size_t i = 0; i < 5; i++) {
-				//std::future<SDL_Texture*> wt = std::async(std::launch::async, [=]() { return m_ImageManager->GetTexture(weeklyTracks[i].imageURL); });
-				//std::future<SDL_Texture*> mt = std::async(std::launch::deferred, [=]() { return m_ImageManager->GetTexture(monthlyTracks[i].imageURL); });
-				//std::future<SDL_Texture*> wal = std::async(std::launch::async, [=]() { return m_ImageManager->GetTexture(weeklyAlbums[i].imageURL); });
-				//std::future<SDL_Texture*> mal = std::async(std::launch::async, [=]() { return m_ImageManager->GetTexture(monthlyAlbums[i].imageURL); });
 				textures[weeklyTracks[i].id] = std::unique_ptr<SDL_Texture,SDL_TDeleter>(m_ImageManager->GetTexture(weeklyTracks[i].imageURL));
 				textures[monthlyTracks[i].id] = std::unique_ptr<SDL_Texture,SDL_TDeleter>(m_ImageManager->GetTexture(monthlyTracks[i].imageURL));
 				textures[weeklyAlbums[i].id] = std::unique_ptr<SDL_Texture,SDL_TDeleter>(m_ImageManager->GetTexture(weeklyAlbums[i].imageURL));
@@ -28,19 +24,11 @@ namespace Thingy {
 				} else {
 					textures[monthlyArtists[i].id] = std::unique_ptr<SDL_Texture,SDL_TDeleter>(m_ImageManager->GetTexture(monthlyArtists[i].artistImageURL));
 				}
-				//textures[weeklyTracks[i].id] = std::unique_ptr<SDL_Texture,SDL_TDeleter>(wt.get());
-				//textures[monthlyTracks[i].id] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(mt.get());
-				//textures[weeklyAlbums[i].id] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(wal.get());
-				//textures[monthlyAlbums[i].id] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(mal.get());
 			}
-
-			
 		}
 	}
 
 	void PopularsModule::OnUpdate() {
-
-		GetPopulars();
 	}
 	void PopularsModule::Window(std::string title) {
 		ImGui::Begin(title.data(), nullptr, defaultWindowFlags);

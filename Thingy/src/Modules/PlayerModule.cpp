@@ -7,7 +7,18 @@ namespace Thingy {
 	}
 
 	void PlayerModule::OnUpdate() {
+		int currentTrackID = m_AudioManager->GetCurrentTrack().id; 
 
+		if (currentTrackID != m_TrackID) {
+			
+			changed = true;
+			m_TrackID = currentTrackID;
+
+			image = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTexture(m_AudioManager->GetCurrentTrack().imageURL));
+
+		} else {
+			changed = false;
+		}
 	}
 
 	void PlayerModule::Window(std::string title) {
@@ -18,7 +29,7 @@ namespace Thingy {
 		if (m_AudioManager->GetQueue().size() == 0) {
 			ImGui::Button("image", { 300.0f, 300.0f });
 		} else {
-			ImGui::Image((ImTextureID)(intptr_t)m_ImageManager->GetTexture(m_AudioManager->GetCurrentTrack().imageURL), {300.0f, 300.0f});
+			ImGui::Image((ImTextureID)(intptr_t)image.get(), {300.0f, 300.0f});
 		}
 		ImGui::Text("Thing name");
 		if (ImGui::Button("back", { 30.0f, 30.0f })) {

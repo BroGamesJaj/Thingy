@@ -99,10 +99,10 @@ namespace Thingy {
 		sceneManager->AddScene(std::shared_ptr<LoginPageScene>(new Thingy::LoginPageScene()));
 		sceneManager->GetScenes();
 		std::shared_ptr<Module> popularsModule = std::make_shared<PopularsModule>(networkManager, audioManager, imageManager, renderer->GetRenderer());
-		modules.emplace("popularsModule", popularsModule);
+		storedModules.emplace("popularsModule", popularsModule);
 		sceneManager->GetScene("FrontPage")->PushModule(popularsModule);
 		std::shared_ptr<Module> playerModule = std::make_shared<PlayerModule>(audioManager, imageManager);
-		modules.emplace("playerModule", playerModule);
+		storedModules.emplace("playerModule", playerModule);
 		sceneManager->GetScene("FrontPage")->PushModule(playerModule);
 		sceneManager->SetActiveScene("FrontPage");
 		sceneManager->GetScenes();
@@ -113,7 +113,6 @@ namespace Thingy {
 		SDL_Renderer* sdlRenderer = renderer->GetRenderer();
 		SDL_Window* sdlWindow = renderer->GetWindow();
 
-		sceneManager->GetActiveScene()->OnUpdate();
 		SDL_ShowWindow(sdlWindow);
 		bool a = true;
 		bool first = true;
@@ -156,6 +155,7 @@ namespace Thingy {
 			//Header
 			CustomHeader(windowWidth, windowHeight, Running, *sdlWindow);
 
+			sceneManager->GetActiveScene()->OnUpdate();
 			sceneManager->GetActiveScene()->OnRender();
 			
 			//ImGui::Begin("Teszt", nullptr);
