@@ -11,3 +11,7 @@
 	path = Thingy/vendor/curl
 	url = https://github.com/BroGamesJaj/curl.git
 	branch = curl_8_11_1_c
+[submodule "Thingy/vendor/imgui"]
+	path = Thingy/vendor/imgui
+	url = https://github.com/MBotond21/imgui
+	branch = docking
