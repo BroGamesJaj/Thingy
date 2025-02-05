@@ -31,6 +31,7 @@ namespace Thingy {
 	void PopularsModule::OnUpdate() {
 	}
 	void PopularsModule::Window() {
+
 		ImVec2 bar_size = ImVec2(GetSize().x - 20, 30);
 		ImGui::InvisibleButton("DragBar", bar_size);
 		if (ImGui::IsItemHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left) && !ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
@@ -180,14 +181,17 @@ namespace Thingy {
 
 	uint16_t PopularsModule::OnRender() {
 		ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
+		ImVec2 size = GetSize();
+		size.x = ImClamp(size.x, (float)MinWidth(), (float)MaxWidth());
+		ImGui::SetWindowSize(size);
 		Window();
 		ImGui::End();
 		if (upProps & BIT(0)) {
 			ImGui::BeginDisabled();
 			ImGui::Begin("floater", nullptr, defaultWindowFlags);
 			Window();
-			ImGui::SetWindowPos({ ImGui::GetMousePos().x - (ImGui::FindWindowByName(GetModuleName().data())->Size.x / 2), ImGui::GetMousePos().y + 5 });
-			ImGui::SetWindowSize(ImGui::FindWindowByName(GetModuleName().data())->Size);
+			ImGui::SetWindowPos({ ImGui::GetMousePos().x - GetSize().x / 2, ImGui::GetMousePos().y + 5 });
+			ImGui::SetWindowSize(GetSize());
 			ImGui::End();
 			ImGui::EndDisabled();
 		}

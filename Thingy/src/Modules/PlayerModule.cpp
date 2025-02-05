@@ -22,6 +22,8 @@ namespace Thingy {
 	}
 
 	void PlayerModule::Window() {
+
+
 		ImVec2 bar_size = ImVec2(GetSize().x - 20, 30);
 		ImGui::InvisibleButton("DragBar", bar_size);
 		if (ImGui::IsItemHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left) && !ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
@@ -72,6 +74,10 @@ namespace Thingy {
 
 	uint16_t PlayerModule::OnRender() {
 		ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
+		
+		ImVec2 size = ImGui::GetWindowSize();
+		size.x = ImClamp(size.x, (float)MinWidth(), (float)MaxWidth());
+		ImGui::SetWindowSize(size);
 		Window();
 		ImGui::End();
 		if (upProps & BIT(0)) {
