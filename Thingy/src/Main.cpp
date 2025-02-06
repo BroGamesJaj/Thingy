@@ -2,8 +2,8 @@
 
 #include "Core/Log.h"
 #include "Core/Application.h"
-#include "Core/AudioManager.h"
-#include "Core/NetworkManager.h"
+#include "Core/Managers/AudioManager.h"
+#include "Core/Managers/NetworkManager.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>

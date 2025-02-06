@@ -4,7 +4,9 @@
 namespace Thingy {
 
 
+	void PopularsModule::SetupSubscriptions() {
 
+	}
 
 	void PopularsModule::OnLoad() {
 		if (weeklyTracks.size() < 5) {
@@ -78,7 +80,10 @@ namespace Thingy {
 			ImGui::Text("Monthly Top Albums");
 			for (size_t i = 0; i < 5; i++) {
 				ImGui::Image((ImTextureID)(intptr_t)textures[weeklyAlbums[i].id].get(), { 85.0f, 85.0f });
-				if (ImGui::IsItemClicked()) T_INFO("Hello {0}", i);
+				if (ImGui::IsItemClicked()) {
+					m_MessageManager->Publish("changeScene", "AlbumScene");
+					m_MessageManager->Publish("albumShare", weeklyAlbums[i]);
+				};
 				ImGui::SameLine();
 			}
 			ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2 + 5);
@@ -181,9 +186,6 @@ namespace Thingy {
 
 	uint16_t PopularsModule::OnRender() {
 		ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
-		ImVec2 size = GetSize();
-		size.x = ImClamp(size.x, (float)MinWidth(), (float)MaxWidth());
-		ImGui::SetWindowSize(size);
 		Window();
 		ImGui::End();
 		if (upProps & BIT(0)) {
@@ -206,12 +208,12 @@ namespace Thingy {
 		std::string monthlyAlbum = "https://api.jamendo.com/v3.0/albums/?client_id=8b1de417&format=jsonpretty&order=popularity_month&limit=5";
 		std::string monthlyArtist = "https://api.jamendo.com/v3.0/artists/?client_id=8b1de417&format=jsonpretty&order=popularity_month&limit=5";
 
-		std::future<std::vector<Track>> futureWeeklyTracks = std::async(std::launch::async, &NetworkManager::GetTrack, m_NetworkManager.get(), weeklyTrack);
-		std::future<std::vector<Album>> futureWeeklyAlbums = std::async(std::launch::async, &NetworkManager::GetAlbum, m_NetworkManager.get(), weeklyAlbum);
-		std::future<std::vector<Artist>> futureWeeklyArtists = std::async(std::launch::async, &NetworkManager::GetArtist, m_NetworkManager.get(), weeklyArtist);
-		std::future<std::vector<Track>> futureMonthlyTracks = std::async(std::launch::async, &NetworkManager::GetTrack, m_NetworkManager.get(), monthlyTrack);
-		std::future<std::vector<Album>> futureMonthlyAlbums = std::async(std::launch::async, &NetworkManager::GetAlbum, m_NetworkManager.get(), monthlyAlbum);
-		std::future<std::vector<Artist>> futureMonthlyArtists = std::async(std::launch::async, &NetworkManager::GetArtist, m_NetworkManager.get(), monthlyArtist);
+		std::future<std::vector<Track>> futureWeeklyTracks = std::async(std::launch::async, [this, weeklyTrack]() { return m_NetworkManager->GetTrack(weeklyTrack); });
+		std::future<std::vector<Album>> futureWeeklyAlbums = std::async(std::launch::async, [this, weeklyAlbum]() { return m_NetworkManager->GetAlbum(weeklyAlbum); });
+		std::future<std::vector<Artist>> futureWeeklyArtists = std::async(std::launch::async, [this, weeklyArtist]() { return m_NetworkManager->GetArtist(weeklyArtist); });
+		std::future<std::vector<Track>> futureMonthlyTracks = std::async(std::launch::async, [this, monthlyTrack]() { return m_NetworkManager->GetTrack(monthlyTrack); });
+		std::future<std::vector<Album>> futureMonthlyAlbums = std::async(std::launch::async, [this, monthlyAlbum]() { return m_NetworkManager->GetAlbum(monthlyAlbum); });
+		std::future<std::vector<Artist>> futureMonthlyArtists = std::async(std::launch::async, [this, monthlyArtist]() { return m_NetworkManager->GetArtist(monthlyArtist); });
 		
 		weeklyTracks = futureWeeklyTracks.get();
 		weeklyAlbums = futureWeeklyAlbums.get();

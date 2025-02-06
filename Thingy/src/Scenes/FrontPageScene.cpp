@@ -48,7 +48,6 @@ namespace Thingy {
 		ImGuiID dockspace_id = ImGui::GetID("DockSpace");
 		ImGui::DockBuilderRemoveNode(dockspace_id);
 		ImGui::DockBuilderAddNode(dockspace_id);
-
 		ImVec2 viewport_size = ImGui::GetMainViewport()->Size;
 		ImGui::DockBuilderSetNodeSize(dockspace_id, viewport_size);
 		float sum = 0;
@@ -63,7 +62,13 @@ namespace Thingy {
 		}
 
 		for (size_t i = 0; i < modules.size(); i++) {
+			if (modules[i].first == "PlayerModule") {
+				ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(300, 500));
+			}
 			ImGui::DockBuilderDockWindow(modules[i].first.data(), docks[i]);
+			if (modules[i].first == "PlayerModule") {
+				ImGui::PopStyleVar();
+			}
 		}
 		ImGui::DockBuilderFinish(dockspace_id);
 

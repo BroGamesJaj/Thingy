@@ -1,19 +1,20 @@
 #pragma once
 #include "Core\Module.h"
-#include "Core\Track.h"
-#include "Core\Album.h"
-#include "Core\Artist.h"
-#include "Core\NetworkManager.h"
-#include "Core\AudioManager.h"
-#include "Core\ImageManager.h"
-#include "Core\Image.h"
+
+#include "Core\Managers\AudioManager.h"
+#include "Core\Managers\NetworkManager.h"
+#include "Core\Managers\ImageManager.h"
+#include "Core\Managers\SceneManager.h"
+#include "Core\Managers\MessageManager.h"
 
 namespace Thingy {
 	class PopularsModule : public Module {
 	public:
 
-		PopularsModule(std::unique_ptr<NetworkManager>& networkManager, std::unique_ptr<AudioManager>& audioManager, std::unique_ptr<ImageManager>& imageManager, SDL_Renderer* renderer) : m_NetworkManager(networkManager), m_AudioManager(audioManager), m_ImageManager(imageManager), m_Renderer(renderer){
+		PopularsModule(std::unique_ptr<MessageManager>& messageManager, std::unique_ptr<NetworkManager>& networkManager, std::unique_ptr<AudioManager>& audioManager, std::unique_ptr<ImageManager>& imageManager, SDL_Renderer* renderer) : m_MessageManager(messageManager), m_NetworkManager(networkManager), m_AudioManager(audioManager), m_ImageManager(imageManager), m_Renderer(renderer){
 		};
+
+		void SetupSubscriptions() override;
 		void OnLoad() override;
 		void OnUpdate() override;
 		void Window() override;
@@ -21,8 +22,7 @@ namespace Thingy {
 		uint16_t OnRender() override;
 
 
-		int MinWidth() const override { return 500; }
-		int MaxWidth() const override { return 1280; }
+		int DefaultWidth() const override { return 1280; }
 
 		void GetPopulars();
 		
@@ -36,6 +36,8 @@ namespace Thingy {
 		uint16_t upProps = 0;
 
 		SDL_Renderer* m_Renderer = nullptr;
+
+		std::unique_ptr<MessageManager>& m_MessageManager;
 		std::unique_ptr<NetworkManager>& m_NetworkManager;
 		std::unique_ptr<AudioManager>& m_AudioManager;
 		std::unique_ptr<ImageManager>& m_ImageManager;

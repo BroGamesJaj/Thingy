@@ -32,6 +32,7 @@
 #include <optional>
 #include <set>
 #include <map>
+#include <variant>
 
 //Application
 #include "Core\Log.h"

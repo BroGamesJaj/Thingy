@@ -8,9 +8,9 @@ using json = nlohmann::json;
 namespace Thingy {
 	struct Album {
 		int id = 0;
+		int artistID = 0;
 		std::string name = "";
 		std::string releaseDate = "";
-		int artistID = 0;
 		std::string artistName = "";
 		std::string imageURL = "";
 		std::vector<Track> tracks;

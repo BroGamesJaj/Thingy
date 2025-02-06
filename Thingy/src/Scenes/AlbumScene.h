@@ -5,7 +5,17 @@ namespace Thingy {
 	class AlbumScene : public Scene {
 	public:
 
-		SCENE_CLASS_NAME("Album")
+		~AlbumScene();
+
+		void OnSwitch() override;
+		void OnUpdate() override;
+		uint16_t OnRender() override;
+
+		void LayoutChanged() override;
+		void UpdateLayout() override;
+		void SaveLayout() override;
+
+		SCENE_CLASS_NAME("AlbumScene");
 	private:
 
 	};

@@ -2,6 +2,8 @@
 #include "PlayerModule.h"
 namespace Thingy {
 
+	void PlayerModule::SetupSubscriptions() {}
+
 	void PlayerModule::OnLoad() {
 			
 	}
@@ -74,10 +76,6 @@ namespace Thingy {
 
 	uint16_t PlayerModule::OnRender() {
 		ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
-		
-		ImVec2 size = ImGui::GetWindowSize();
-		size.x = ImClamp(size.x, (float)MinWidth(), (float)MaxWidth());
-		ImGui::SetWindowSize(size);
 		Window();
 		ImGui::End();
 		if (upProps & BIT(0)) {

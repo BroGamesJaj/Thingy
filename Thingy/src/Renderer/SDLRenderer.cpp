@@ -51,6 +51,7 @@ namespace Thingy {
 			SDL_Log("Failed to set hit test: %s", SDL_GetError());
 		}
 		SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+		SDL_SetWindowMinimumSize(window, 1280, 720);
 	}
 
 	void SDLRenderer::CleanUp() {

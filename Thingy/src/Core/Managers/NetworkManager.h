@@ -2,9 +2,9 @@
 #include "tpch.h"
 #include <curl\curl.h>
 #include <SDL3\SDL.h>
-#include "Track.h"
-#include "Album.h"
-#include "Artist.h"
+#include "Core\Track.h"
+#include "Core\Album.h"
+#include "Core\Artist.h"
 #include <nlohmann\json.hpp>
 
 using json = nlohmann::json;
@@ -51,9 +51,9 @@ namespace Thingy {
 
 		std::string GetRequest(std::string& url);
 
-		std::vector<Track> GetTrack(std::string& url);
-		std::vector<Album> GetAlbum(std::string& url);
-		std::vector<Artist> GetArtist(std::string& url);
+		std::vector<Track> GetTrack(std::string url);
+		std::vector<Album> GetAlbum(std::string url);
+		std::vector<Artist> GetArtist(std::string url);
 
 
 

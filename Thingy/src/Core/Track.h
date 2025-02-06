@@ -7,13 +7,13 @@ using json = nlohmann::json;
 namespace Thingy {
 
 	struct Track {
-		int id = 0;
 		std::string title = "";
+		int id = 0;
+		int artistID = 0;
+		int albumID = 0;
 		int duration = 0;
 		std::string imageURL = "";
-		int artistID = 0;
 		std::string artistName = "";
-		int albumID = 0;
 		std::string albumName = "";
 		std::string albumImageURL = "";
 		std::string releaseDate = "";

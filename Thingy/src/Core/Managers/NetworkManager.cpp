@@ -118,7 +118,7 @@ namespace Thingy {
 		return response_string;
 	}
 
-	std::vector<Track> NetworkManager::GetTrack(std::string& url) {
+	std::vector<Track> NetworkManager::GetTrack(std::string url) {
 		std::string jsonData = GetRequest(url);
 		if (jsonData == "curl error" || jsonData.find("error code:") != std::string::npos) {
 			T_ERROR("{0}", jsonData);
@@ -133,7 +133,7 @@ namespace Thingy {
 		return tracks;
 	}
 
-	std::vector<Album> NetworkManager::GetAlbum(std::string& url) {
+	std::vector<Album> NetworkManager::GetAlbum(std::string url) {
 		std::string jsonData = GetRequest(url);
 		if (jsonData == "curl error" || jsonData.find("error code:") != std::string::npos) {
 			T_ERROR("{0}", jsonData);
@@ -160,7 +160,7 @@ namespace Thingy {
 		return albums;
 	}
 
-	std::vector<Artist> NetworkManager::GetArtist(std::string& url) {
+	std::vector<Artist> NetworkManager::GetArtist(std::string url) {
 		std::string jsonData = GetRequest(url);
 		if(jsonData == "curl error" || jsonData.find("error code:") != std::string::npos) {
 			T_ERROR("{0}", jsonData);

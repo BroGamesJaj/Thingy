@@ -4,7 +4,7 @@
 
 namespace Thingy {
 
-	SDL_Texture* ImageManager::GetTexture(std::string& url) {
+	SDL_Texture* ImageManager::GetTexture(std::string url) {
 		std::vector<unsigned char> buffer;
 		m_NetworkManager->DownloadImage(url, buffer);
 		Image image(buffer);

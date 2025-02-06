@@ -19,18 +19,20 @@
     <ClInclude Include="src\Core\Track.h" />
     <ClInclude Include="src\Core\Artist.h" />
     <ClInclude Include="src\Core\Scene.h" />
-    <ClInclude Include="src\Core\AudioManager.h" />
-    <ClInclude Include="src\Core\NetworkManager.h" />
+    <ClInclude Include="src\Core\Managers\AudioManager.h" />
+    <ClInclude Include="src\Core\Managers\NetworkManager.h" />
     <ClInclude Include="src\Scenes\FrontPageScene.h" />
     <ClInclude Include="src\Modules\PopularsModule.h" />
     <ClInclude Include="src\Core\Album.h" />
-    <ClInclude Include="src\Core\SceneManager.h" />
+    <ClInclude Include="src\Core\Managers\SceneManager.h" />
     <ClInclude Include="src\Modules\Modules.h" />
     <ClInclude Include="src\Scenes\Scenes.h" />
     <ClInclude Include="src\Scenes\LoginScene.h" />
     <ClInclude Include="src\Core\Image.h" />
-    <ClInclude Include="src\Core\ImageManager.h" />
+    <ClInclude Include="src\Core\Managers\ImageManager.h" />
     <ClInclude Include="src\Scenes\AlbumScene.h" />
+    <ClInclude Include="src\Modules\AlbumModule.h" />
+    <ClInclude Include="src\Core\Managers\MessageManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -45,14 +47,16 @@
     <ClCompile Include="src\Core\Module.cpp" />
     <ClCompile Include="src\Modules\PlayerModule.cpp" />
     <ClCompile Include="src\Core\Scene.cpp" />
-    <ClCompile Include="src\Core\AudioManager.cpp" />
-    <ClCompile Include="src\Core\NetworkManager.cpp" />
+    <ClCompile Include="src\Core\Managers\AudioManager.cpp" />
+    <ClCompile Include="src\Core\Managers\NetworkManager.cpp" />
     <ClCompile Include="src\Scenes\FrontPageScene.cpp" />
     <ClCompile Include="src\Modules\PopularsModule.cpp" />
     <ClCompile Include="src\Core\Album.cpp" />
-    <ClCompile Include="src\Core\SceneManager.cpp" />
+    <ClCompile Include="src\Core\Managers\SceneManager.cpp" />
     <ClCompile Include="src\Scenes\LoginScene.cpp" />
-    <ClCompile Include="src\Core\ImageManager.cpp" />
+    <ClCompile Include="src\Core\Managers\ImageManager.cpp" />
     <ClCompile Include="src\Scenes\AlbumScene.cpp" />
+    <ClCompile Include="src\Modules\AlbumModule.cpp" />
+    <ClCompile Include="src\Core\Managers\MessageManager.cpp" />
   </ItemGroup>
 </Project>

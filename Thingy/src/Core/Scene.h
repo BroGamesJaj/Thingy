@@ -53,7 +53,6 @@ namespace Thingy {
 		
 		virtual void PushModule(std::shared_ptr<Module> module) {
 			modules.push_back(std::make_pair(module->GetModuleName(),module));
-			LayoutChanged();
 		}
 
 		virtual void PopModule(const std::string& moduleName) {
@@ -64,7 +63,6 @@ namespace Thingy {
 			if(modules.size() == beforeSize) {
 				T_ERROR("Module {0} was not found for deletion in Scene {1}", moduleName, GetSceneName());
 			}
-			LayoutChanged();
 		}
 		
 		virtual void LayoutChanged() = 0;

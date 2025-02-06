@@ -90,22 +90,29 @@ namespace Thingy {
 		networkManager = std::unique_ptr<NetworkManager>(new NetworkManager());
 		imageManager = std::unique_ptr<ImageManager>(new ImageManager(networkManager, renderer->GetRenderer()));
 		audioManager = std::unique_ptr<AudioManager>(new AudioManager(musicBuffer, networkManager));
-		sceneManager = std::unique_ptr<SceneManager>(new SceneManager());
+		messageManager = std::unique_ptr<MessageManager>(new MessageManager());
+		sceneManager = std::unique_ptr<SceneManager>(new SceneManager(messageManager));
 	}
 
 	void Application::SetupScenes() {
 		
-		sceneManager->AddScene(std::shared_ptr<FrontPageScene>(new Thingy::FrontPageScene()));
-		sceneManager->AddScene(std::shared_ptr<LoginScene>(new Thingy::LoginScene()));
+		sceneManager->AddScene(std::shared_ptr<FrontPageScene>(new FrontPageScene()));
+		sceneManager->AddScene(std::shared_ptr<LoginScene>(new LoginScene()));
+		sceneManager->AddScene(std::shared_ptr<AlbumScene>(new AlbumScene()));
 		sceneManager->GetScenes();
-		std::shared_ptr<Module> popularsModule = std::make_shared<PopularsModule>(networkManager, audioManager, imageManager, renderer->GetRenderer());
-		storedModules.emplace("popularsModule", popularsModule);
-		sceneManager->GetScene("FrontPage")->PushModule(popularsModule);
-		std::shared_ptr<Module> playerModule = std::make_shared<PlayerModule>(audioManager, imageManager);
-		storedModules.emplace("playerModule", playerModule);
-		sceneManager->GetScene("FrontPage")->PushModule(playerModule);
+		storedModules.emplace("popularsModule", std::make_shared<PopularsModule>(messageManager, networkManager, audioManager, imageManager, renderer->GetRenderer()));
+		storedModules.emplace("albumModule", std::make_shared<AlbumModule>(messageManager, audioManager, imageManager));
+		storedModules.emplace("playerModule", std::make_shared<PlayerModule>(messageManager, audioManager, imageManager));
+		sceneManager->GetScene("FrontPage")->PushModule(storedModules["popularsModule"]);
+		sceneManager->GetScene("FrontPage")->PushModule(storedModules["playerModule"]);
+		sceneManager->GetScene("AlbumScene")->PushModule(storedModules["albumModule"]);
 		sceneManager->SetActiveScene("FrontPage");
 		sceneManager->GetScenes();
+
+		for (auto& module : storedModules) {
+			module.second->SetupSubscriptions();
+		}
+
 	}
 
 	void Application::Run() {
@@ -114,7 +121,6 @@ namespace Thingy {
 		SDL_Window* sdlWindow = renderer->GetWindow();
 
 		SDL_ShowWindow(sdlWindow);
-		bool a = true;
 		bool first = true;
 		while (Running) {
 
@@ -138,17 +144,19 @@ namespace Thingy {
 			ImGuiIO& io = ImGui::GetIO(); (void)io;
 			float windowWidth = static_cast<float>(winW);
 			float windowHeight = static_cast<float>(winH);
-
+			ImGuiStyle& style = ImGui::GetStyle();
+			style.DockingSeparatorSize = 10.0f;
 			ImGuiViewport* main_viewport = ImGui::GetMainViewport();
 			main_viewport->WorkPos = ImVec2(10, 50);
-			main_viewport->WorkSize = ImVec2(windowWidth - 20, windowHeight - 55);
+			main_viewport->WorkSize = ImVec2(windowWidth - 20, windowHeight - 60);
 			ImGuiID dockspace_id = ImGui::GetID("DockSpace");
 			ImGuiDockNodeFlags dockSpaceFlags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoResizeY | ImGuiDockNodeFlags_AutoHideTabBar | ImGuiDockNodeFlags_NoTabBar;
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(100, 0.0f));
 			ImGui::DockSpaceOverViewport(dockspace_id, main_viewport, dockSpaceFlags);
-			
-			if (a) {
+			ImGui::PopStyleVar();
+			if (sceneManager->GetLayoutChanged()) {
 				sceneManager->GetActiveScene()->UpdateLayout();
-				a = false;
+				sceneManager->ResetLayoutChanged();
 			}
 
 

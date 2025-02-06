@@ -1,6 +1,6 @@
 #pragma once
 #include "tpch.h"
-#include "Image.h"
+#include "Core\Image.h"
 #include "NetworkManager.h"
 #include <SDL3\SDL.h>
 #include "imgui.h"
@@ -16,7 +16,7 @@ namespace Thingy {
 		ImageManager(const ImageManager&) = delete;
 		void operator=(const ImageManager&) = delete;
 
-		SDL_Texture* GetTexture(std::string& url);
+		SDL_Texture* GetTexture(std::string url);
 		SDL_Surface* GetSurface(std::string& url);
 		SDL_Texture* GetTextureFromSurface(SDL_Surface* surface);
 
