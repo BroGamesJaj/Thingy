@@ -81,8 +81,8 @@ namespace Thingy {
 			for (size_t i = 0; i < 5; i++) {
 				ImGui::Image((ImTextureID)(intptr_t)textures[weeklyAlbums[i].id].get(), { 85.0f, 85.0f });
 				if (ImGui::IsItemClicked()) {
-					m_MessageManager->Publish("changeScene", "AlbumScene");
 					m_MessageManager->Publish("albumShare", weeklyAlbums[i]);
+					m_MessageManager->Publish("changeScene", "AlbumScene");
 				};
 				ImGui::SameLine();
 			}
@@ -215,12 +215,49 @@ namespace Thingy {
 		std::future<std::vector<Album>> futureMonthlyAlbums = std::async(std::launch::async, [this, monthlyAlbum]() { return m_NetworkManager->GetAlbum(monthlyAlbum); });
 		std::future<std::vector<Artist>> futureMonthlyArtists = std::async(std::launch::async, [this, monthlyArtist]() { return m_NetworkManager->GetArtist(monthlyArtist); });
 		
+		std::string weeklyDetailedAlbums = "https://api.jamendo.com/v3.0/tracks/?client_id=8b1de417&format=jsonpretty";
+		std::string monthlyDetailedAlbums = "https://api.jamendo.com/v3.0/tracks/?client_id=8b1de417&format=jsonpretty";
+		
 		weeklyTracks = futureWeeklyTracks.get();
 		weeklyAlbums = futureWeeklyAlbums.get();
 		weeklyArtists = futureWeeklyArtists.get();
 		monthlyTracks = futureMonthlyTracks.get();
 		monthlyAlbums = futureMonthlyAlbums.get();
 		monthlyArtists = futureMonthlyArtists.get();
+		for (size_t i = 0; i < weeklyAlbums.size(); i++) {
+			weeklyDetailedAlbums += "&album_id[]=" + std::to_string(weeklyAlbums[i].id);
+		}
+		for (size_t i = 0; i < monthlyAlbums.size(); i++) {
+			monthlyDetailedAlbums += "&album_id[]=" + std::to_string(monthlyAlbums[i].id);
+		}
+
+		std::future<std::vector<Track>> futureDetailedWeeklyAlbums = std::async(std::launch::async, [this, weeklyDetailedAlbums]() { return m_NetworkManager->GetTrack(weeklyDetailedAlbums); });
+		std::future<std::vector<Track>> futureDetailedMonthlyAlbums = std::async(std::launch::async, [this, monthlyDetailedAlbums]() { return m_NetworkManager->GetTrack(monthlyDetailedAlbums); });
+		
+		std::vector<Track> wAlbumTracks = futureDetailedWeeklyAlbums.get();
+		std::vector<Track> mAlbumTracks = futureDetailedMonthlyAlbums.get();
+
+		for (size_t i = 0; i < weeklyAlbums.size(); i++) {
+			for (size_t j = 0; j < wAlbumTracks.size(); j++) {
+				if (weeklyAlbums[i].id == wAlbumTracks[j].albumID) {
+					if (weeklyAlbums[i].tracks.size() == 0) {
+						weeklyAlbums[i].imageURL = wAlbumTracks[j].imageURL;
+					}
+					weeklyAlbums[i].tracks.push_back(wAlbumTracks[j]);
+				}
+			}
+		}
+		for (size_t i = 0; i < monthlyAlbums.size(); i++) {
+			for (size_t j = 0; j < mAlbumTracks.size(); j++) {
+				if (monthlyAlbums[i].id == mAlbumTracks[j].albumID) {
+					if (monthlyAlbums[i].tracks.size() == 0) {
+						monthlyAlbums[i].imageURL = mAlbumTracks[j].imageURL;
+					}
+					monthlyAlbums[i].tracks.push_back(mAlbumTracks[j]);
+				}
+			}
+		}
+
 	}
 	
 }

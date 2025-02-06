@@ -17,6 +17,7 @@ namespace Thingy {
 	}
 
 	void AlbumModule::OnLoad() {
+		textures[album.id] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTexture(album.imageURL));
 	}
 	
 	void AlbumModule::OnUpdate() {
@@ -36,7 +37,7 @@ namespace Thingy {
 		}
 		ImGui::GetWindowDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 0, 0, 255), 0.0f, 0, 5.0f);
 
-		ImGui::Button("Album cover", ImVec2(300, 300));
+		ImGui::Image((ImTextureID)(intptr_t)textures[album.id].get(), { 300.0f, 300.0f });
 		ImGui::SameLine();
 		ImGui::BeginGroup();
 		ImGui::Text(album.name.data());
