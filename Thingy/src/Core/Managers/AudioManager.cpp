@@ -65,7 +65,7 @@ namespace Thingy {
 	}
 		
 	void AudioManager::NextTrack() {
-		if (currentTrackNum < queue.size()) {
+		if (currentTrackNum < queue.size()-1) {
 			currentTrackNum++;
 			ChangeMusic();
 
@@ -74,7 +74,7 @@ namespace Thingy {
 			currentTrackPos = 0;
 			Mix_PlayMusic(music, 0);
 			PauseMusic();
-		} else if (currentTrackNum == queue.size()) {
+		} else if (currentTrackNum == queue.size()-1) {
 			currentTrackNum = 0;
 			ChangeMusic();
 		}

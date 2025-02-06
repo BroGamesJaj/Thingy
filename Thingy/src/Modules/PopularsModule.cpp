@@ -57,6 +57,8 @@ namespace Thingy {
 			for (size_t i = 0; i < 5; i++) {
 				ImGui::Image((ImTextureID)(intptr_t)textures[weeklyTracks[i].id].get(), {85.0f, 85.0f});
 				if (ImGui::IsItemClicked()) {
+					m_AudioManager->GetQueue().clear();
+					m_AudioManager->GetQueue().push_back(weeklyTracks[i]);
 					m_AudioManager->LoadMusicFromTrack(weeklyTracks[i]);
 					m_AudioManager->ChangeMusic();
 					m_AudioManager->ResumeMusic();
@@ -67,6 +69,8 @@ namespace Thingy {
 			for (size_t i = 0; i < 5; i++) {
 				ImGui::Image((ImTextureID)(intptr_t)textures[monthlyTracks[i].id].get(), { 85.0f, 85.0f });
 				if (ImGui::IsItemClicked()) {
+					m_AudioManager->GetQueue().clear();
+					m_AudioManager->GetQueue().push_back(weeklyTracks[i]);
 					m_AudioManager->LoadMusicFromTrack(monthlyTracks[i]);
 					m_AudioManager->ChangeMusic();
 					m_AudioManager->ResumeMusic();
@@ -117,6 +121,8 @@ namespace Thingy {
 			for (size_t i = 0; i < 5; i++) {
 				ImGui::Image((ImTextureID)(intptr_t)textures[weeklyTracks[i].id].get(), { 85.0f, 85.0f });
 				if (ImGui::IsItemClicked()) {
+					m_AudioManager->GetQueue().clear();
+					m_AudioManager->GetQueue().push_back(weeklyTracks[i]);
 					m_AudioManager->LoadMusicFromTrack(weeklyTracks[i]);
 					m_AudioManager->ChangeMusic();
 					m_AudioManager->ResumeMusic();
@@ -131,6 +137,8 @@ namespace Thingy {
 			for (size_t i = 0; i < 5; i++) {
 				ImGui::Image((ImTextureID)(intptr_t)textures[monthlyTracks[i].id].get(), { 85.0f, 85.0f });
 				if (ImGui::IsItemClicked()) {
+					m_AudioManager->GetQueue().clear();
+					m_AudioManager->GetQueue().push_back(weeklyTracks[i]);
 					m_AudioManager->LoadMusicFromTrack(monthlyTracks[i]);
 					m_AudioManager->ChangeMusic();
 					m_AudioManager->ResumeMusic();

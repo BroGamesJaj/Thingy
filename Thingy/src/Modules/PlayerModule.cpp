@@ -75,6 +75,7 @@ namespace Thingy {
 	}
 
 	uint16_t PlayerModule::OnRender() {
+		if (m_AudioManager->GetQueue().size() != 0) {
 		ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
 		Window();
 		ImGui::End();
@@ -86,6 +87,7 @@ namespace Thingy {
 			ImGui::SetWindowSize(ImGui::FindWindowByName(GetModuleName().data())->Size);
 			ImGui::End();
 			ImGui::EndDisabled();
+		}
 		}
 		return upProps;
 	}
