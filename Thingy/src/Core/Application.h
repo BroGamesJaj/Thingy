@@ -28,13 +28,18 @@ namespace Thingy {
 
 	private:
 		bool Running = true;
+		
+		std::unordered_map<std::string, SDL_Cursor*> customCursors;
+
 		std::unique_ptr<SDLRenderer> renderer = nullptr;
 		std::unique_ptr<AudioManager> audioManager = nullptr;
 		std::unique_ptr<NetworkManager> networkManager = nullptr;
 		std::unique_ptr<ImageManager> imageManager = nullptr;
 		std::unique_ptr<SceneManager> sceneManager = nullptr;
 		std::unique_ptr<MessageManager> messageManager = nullptr;
+
 		std::unordered_map<std::string, std::shared_ptr<Module>> storedModules;
+
 	};
 
 }

@@ -21,6 +21,49 @@ namespace Thingy {
 	std::chrono::steady_clock::time_point begin;
 	std::chrono::steady_clock::time_point end;
 	
+	SDL_Cursor* CreateCustomCursor(const char* imagePath, int newWidth = 32, int newHeight = 32) {
+		// Load BMP image
+		SDL_Surface* originalSurface = SDL_LoadBMP(imagePath);
+		if (!originalSurface) {
+			SDL_Log("Failed to load cursor image: %s", SDL_GetError());
+			return nullptr;
+		}
+
+		// Convert to RGBA32 format for compatibility
+		SDL_Surface* convertedSurface = SDL_ConvertSurface(originalSurface, SDL_PIXELFORMAT_RGBA32);
+		SDL_DestroySurface(originalSurface); // Free original surface
+		if (!convertedSurface) {
+			SDL_Log("Failed to convert surface format: %s", SDL_GetError());
+			return nullptr;
+		}
+
+		// Create resized surface with matching format
+		SDL_Surface* resizedSurface = SDL_CreateSurface(newWidth, newHeight, convertedSurface->format);
+		if (!resizedSurface) {
+			SDL_Log("Failed to create resized surface: %s", SDL_GetError());
+			SDL_DestroySurface(convertedSurface);
+			return nullptr;
+		}
+
+		// Scale image
+		SDL_Rect srcRect = { 0, 0, convertedSurface->w, convertedSurface->h };
+		SDL_Rect dstRect = { 0, 0, newWidth, newHeight };
+		if (!SDL_BlitSurfaceScaled(convertedSurface, &srcRect, resizedSurface, &dstRect, SDL_SCALEMODE_LINEAR)) {
+			SDL_Log("Failed to scale image: %s", SDL_GetError());
+			SDL_DestroySurface(convertedSurface);
+			SDL_DestroySurface(resizedSurface);
+			return nullptr;
+		}
+
+		// Create cursor from resized surface
+		SDL_Cursor* customCursor = SDL_CreateColorCursor(resizedSurface, 0, 0);
+
+		// Clean up
+		SDL_DestroySurface(convertedSurface);
+		SDL_DestroySurface(resizedSurface);
+
+		return customCursor;
+	}
 
 	void CustomHeader(float& windowWidth, float& windowHeight, bool& done, SDL_Window& window) {
 
@@ -75,6 +118,11 @@ namespace Thingy {
 		SetupManagers();
 
 		SetupScenes();
+
+		int cursorWidth = GetSystemMetrics(SM_CXCURSOR);
+		int cursorHeight = GetSystemMetrics(SM_CYCURSOR);
+		customCursors.emplace("openHand", CreateCustomCursor("../assets/cursors/openHand.bmp", cursorWidth / 2, cursorHeight / 2));
+		customCursors.emplace("closedHand", CreateCustomCursor("../assets/cursors/closedHand.bmp", cursorWidth / 2, cursorHeight / 2));
 		//for testing
 		//networkManager->DownloadFile("https:\/\/prod-1.storage.jamendo.com\/?trackid=1848357&format=mp31&from=app-devsite", musicBuffer);
 		//
@@ -116,7 +164,7 @@ namespace Thingy {
 	}
 
 	void Application::Run() {
-		
+
 		SDL_Renderer* sdlRenderer = renderer->GetRenderer();
 		SDL_Window* sdlWindow = renderer->GetWindow();
 
@@ -136,7 +184,7 @@ namespace Thingy {
 			ImGui_ImplSDLRenderer3_NewFrame();
 			ImGui_ImplSDL3_NewFrame();
 			ImGui::NewFrame();
-			
+
 			//convenience variables
 			int winW = 0;
 			int winH = 0;
@@ -164,8 +212,8 @@ namespace Thingy {
 			CustomHeader(windowWidth, windowHeight, Running, *sdlWindow);
 
 			sceneManager->GetActiveScene()->OnUpdate();
-			sceneManager->GetActiveScene()->OnRender();
-			
+			uint16_t upProps = sceneManager->GetActiveScene()->OnRender();
+
 			//ImGui::Begin("Teszt", nullptr);
 			//ImGui::InputText("link", &link, 0, ResizeCallback, (void*)&link);
 			//if (ImGui::Button("send")) {
@@ -179,7 +227,7 @@ namespace Thingy {
 			//ImGui::Image((ImTextureID)(intptr_t)texture, ImVec2((float)300, (float)300));
 			//
 			//ImGui::End();
-			
+
 			try {
 				//playerModule->OnRender();
 				//populars->OnRender();
@@ -190,6 +238,17 @@ namespace Thingy {
 			}
 			catch (...) {
 				std::cerr << "An unknown error occurred." << std::endl;
+			}
+			if (upProps & BIT(0)) {
+				if (!SDL_SetCursor(customCursors["closedHand"])) {
+					SDL_GetError();
+				}
+			} else if (upProps & BIT(2)) {
+				if (!SDL_SetCursor(customCursors["openHand"])) {
+					SDL_GetError();
+				}
+			} else {
+				SDL_SetCursor(SDL_GetDefaultCursor());
 			}
 
 			ImGui::Render();

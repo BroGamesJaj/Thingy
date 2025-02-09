@@ -39,6 +39,11 @@ namespace Thingy {
 		if (ImGui::IsItemHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left) && !ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
 			upProps |= BIT(0);
 		}
+		if (ImGui::IsItemHovered()) {
+			upProps |= BIT(2);
+		} else {
+			upProps &= ~BIT(2);
+		}
 		if (upProps & BIT(1)) upProps &= ~BIT(1);
 		if (upProps & BIT(0) && ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
 			upProps |= BIT(1);

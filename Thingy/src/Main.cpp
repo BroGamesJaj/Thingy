@@ -34,49 +34,7 @@ static const char* windowNames[3] = { "Left Window", "Center Window", "Right Win
 //std::vector<char> musicBuffer;
 
 
-SDL_Cursor* CreateCustomCursor(const char* imagePath, int newWidth = 32, int newHeight = 32) {
-	// Load BMP image
-	SDL_Surface* originalSurface = SDL_LoadBMP(imagePath);
-	if (!originalSurface) {
-		SDL_Log("Failed to load cursor image: %s", SDL_GetError());
-		return nullptr;
-	}
 
-	// Convert to RGBA32 format for compatibility
-	SDL_Surface* convertedSurface = SDL_ConvertSurface(originalSurface, SDL_PIXELFORMAT_RGBA32);
-	SDL_DestroySurface(originalSurface); // Free original surface
-	if (!convertedSurface) {
-		SDL_Log("Failed to convert surface format: %s", SDL_GetError());
-		return nullptr;
-	}
-
-	// Create resized surface with matching format
-	SDL_Surface* resizedSurface = SDL_CreateSurface(newWidth, newHeight, convertedSurface->format);
-	if (!resizedSurface) {
-		SDL_Log("Failed to create resized surface: %s", SDL_GetError());
-		SDL_DestroySurface(convertedSurface);
-		return nullptr;
-	}
-
-	// Scale image
-	SDL_Rect srcRect = { 0, 0, convertedSurface->w, convertedSurface->h };
-	SDL_Rect dstRect = { 0, 0, newWidth, newHeight };
-	if (!SDL_BlitSurfaceScaled(convertedSurface, &srcRect, resizedSurface, &dstRect, SDL_SCALEMODE_LINEAR)) {
-		SDL_Log("Failed to scale image: %s", SDL_GetError());
-		SDL_DestroySurface(convertedSurface);
-		SDL_DestroySurface(resizedSurface);
-		return nullptr;
-	}
-
-	// Create cursor from resized surface
-	SDL_Cursor* customCursor = SDL_CreateColorCursor(resizedSurface, 0, 0);
-
-	// Clean up
-	SDL_DestroySurface(convertedSurface);
-	SDL_DestroySurface(resizedSurface);
-
-	return customCursor;
-}
 
 void UpdateDockingLayout() {
 

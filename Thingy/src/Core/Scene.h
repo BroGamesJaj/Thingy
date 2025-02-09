@@ -16,6 +16,7 @@ namespace Thingy {
 		for (size_t i = 0; i < modules.size(); i++) {
 
 			if (modules[i].first != dragged) {
+				if (!ImGui::FindWindowByName(modules[i].first.data())) break;
 				ImVec2 winSize = ImGui::FindWindowByName(modules[i].first.data())->Size;
 				ImVec2 winPos = ImGui::FindWindowByName(modules[i].first.data())->Pos;
 				if (currentPos.x > winPos.x && currentPos.x < winPos.x + winSize.x && currentPos.y > winPos.y && currentPos.y < winPos.y + winSize.y) {
