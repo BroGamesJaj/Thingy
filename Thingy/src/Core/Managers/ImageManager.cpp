@@ -17,7 +17,7 @@ namespace Thingy {
 		Image image(buffer);
 		return image.createSurface();
 	}
-
+	 
 	SDL_Texture* ImageManager::GetTextureFromSurface(SDL_Surface* surface) {
 		SDL_Texture* texture = SDL_CreateTextureFromSurface(m_Renderer, surface);
 		if (!texture) throw std::runtime_error("Failed to create texture: " + std::string(SDL_GetError()));
