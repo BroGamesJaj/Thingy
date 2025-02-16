@@ -39,6 +39,8 @@ namespace Thingy {
 
 		static SDLRenderer* Create(const WindowProps& props = WindowProps());
 
+		void ChangeHitTest(bool on);
+
 		SDL_Window* GetWindow() { return window; }
 		SDL_Renderer* GetRenderer() { return renderer; }
 
