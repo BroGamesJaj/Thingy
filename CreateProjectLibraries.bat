@@ -59,8 +59,8 @@ if %CONFIG% == Debug (
 	REM Build curl shared library in Debug mode
 	nmake /f Makefile.vc vc=17 mode=dll MACHINE=x64 Debug=yes clean
 	nmake /f Makefile.vc vc=17 mode=dll MACHINE=x64 Debug=no clean
-	nmake /f Makefile.vc vc=17 mode=dll MACHINE=x64 Debug=yes
-	nmake /f Makefile.vc vc=17 mode=dll MACHINE=x64 Debug=no
+	nmake /f Makefile.vc vc=17 mode=dll MACHINE=x64 Debug=yes WINBUILD_ACKNOWLEDGE_DEPRECATED=yes
+	nmake /f Makefile.vc vc=17 mode=dll MACHINE=x64 Debug=no WINBUILD_ACKNOWLEDGE_DEPRECATED=yes
 ) else (
 	REM Build spdlog shared library
 	cd Thingy/vendor/spdlog
