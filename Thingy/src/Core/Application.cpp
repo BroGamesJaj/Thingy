@@ -135,12 +135,7 @@ namespace Thingy {
 
 		SDL_Renderer* sdlRenderer = renderer->GetRenderer();
 		SDL_Window* sdlWindow = renderer->GetWindow();
-
-		ImGuiIO& io = ImGui::GetIO();
-		ImFontConfig* config;
-		ImFont* quicksandFont = io.Fonts->AddFontFromFileTTF("../assets/fonts/Quicksand-VariableFont_wght.ttf", 16.0f);
-		ImFont* quicksandBoldFont = io.Fonts->AddFontFromFileTTF("../assets/fonts/Quicksand-Bold.ttf", 16.0f);
-		io.FontDefault = quicksandBoldFont;
+		Fonts::LoadFonts();
 
 		SDL_ShowWindow(sdlWindow);
 		bool first = true;
@@ -184,7 +179,7 @@ namespace Thingy {
 
 
 			//Header
-			CustomHeader(windowWidth, windowHeight, Running, *sdlWindow, fullscreen, fullscreenChanged);
+			CustomHeader(windowWidth, windowHeight, Running, *sdlWindow, fullscreen, fullscreenChanged, searchTerm);
 
 			sceneManager->GetActiveScene()->OnUpdate();
 			uint16_t upProps = sceneManager->GetActiveScene()->OnRender();

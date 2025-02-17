@@ -1,5 +1,6 @@
 #pragma once
 #include "tpch.h"
+#include "Fonts.h"
 
 #include "Renderer\SDLRenderer.h"
 #include "Managers\AudioManager.h"

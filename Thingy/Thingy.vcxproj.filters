@@ -35,6 +35,7 @@
     <ClInclude Include="src\Core\Managers\MessageManager.h" />
     <ClInclude Include="src\Core\HelperFunctions.h" />
     <ClInclude Include="src\Core\CustomHeader.h" />
+    <ClInclude Include="src\Core\Fonts.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -62,5 +63,6 @@
     <ClCompile Include="src\Core\Managers\MessageManager.cpp" />
     <ClCompile Include="src\Core\HelperFunctions.cpp" />
     <ClCompile Include="src\Core\CustomHeader.cpp" />
+    <ClCompile Include="src\Core\Fonts.cpp" />
   </ItemGroup>
 </Project>
