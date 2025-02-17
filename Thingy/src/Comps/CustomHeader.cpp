@@ -22,9 +22,12 @@ namespace Thingy {
 		ImGui::SetCursorPosX(winW / 2 - std::clamp(200.0f * scale, 200.0f, 400.0f));
 		ImGui::SetNextItemWidth(400.0f * scale);
 		ImGui::PushFont(Fonts::size30);
-		if (ImGui::InputText("##search", &search, 0, ResizeCallback, (void*)&search)) {
-			
+		ImGui::InputText("##search", &search, 0, ResizeCallback, (void*)&search);
+		if (ImGui::IsItemFocused()) {
+			autoCompleteOn = true;
 		}
+		ImGui::PopFont();
+		/*
 		if (ImGui::BeginPopup("SearchPopup", ImGuiWindowFlags_NoMove)) {
 			ImGui::Text("helllo");
 			std::string temp = search + "hello";
@@ -35,7 +38,7 @@ namespace Thingy {
 			
 			ImGui::EndPopup();
 		}
-		ImGui::PopFont();
+		*/
 		ImGui::SetCursorPosX(winW - 15 - 40 - 5 - 40 - 5 - 40);
 		if (ImGui::Button("_", { 40.0f, 30.0f }))
 			m_MessageManager->Publish("minimize", 0);
@@ -50,8 +53,38 @@ namespace Thingy {
 
 		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Vertical;
 		ImGui::End();
+
+		AutoComplete();
 	}
 
-	void CustomHeader::AutoComplete() {}
+	void CustomHeader::AutoComplete() {
+		if (autoCompleteOn) {
+			int w;
+			SDL_GetWindowSizeInPixels(m_Window, &w, NULL);
+			float winW = static_cast<float>(w);
+			float scale = std::clamp(winW / 1280, 1.0f, 2.0f);
+			int y;
+			SDL_GetWindowPosition(m_Window, NULL, &y);
+			ImGui::SetNextWindowSize({ 400.0f * scale, 0});
+			ImGui::SetNextWindowPos({ winW / 2 - std::clamp(200.0f * scale, 200.0f, 400.0f), 50});
+			ImGui::Begin("popup", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing);
+			if (!ImGui::IsAnyItemActive() && !ImGui::IsWindowHovered())
+				autoCompleteOn = false;
+			ImGui::PushFont(Fonts::size25);
+			for (size_t i = 0; i < 5; i++) {
+				std::string term = search + std::to_string(i);
+				if (ImGui::Selectable(term.c_str())) {
+					T_INFO("selected: {0}", term);
+					search = term;
+					autoCompleteOn = false;
+				}
+			}
+			ImGui::Text("helloooofdsaf");
+			ImGui::Text("helloo");
+			ImGui::PopFont();
+			ImGui::End();
+
+		}
+	}
 
 }

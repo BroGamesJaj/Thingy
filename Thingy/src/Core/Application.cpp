@@ -84,7 +84,7 @@ namespace Thingy {
 		ImGui_ImplSDLRenderer3_Init(renderer->GetRenderer());
 		
 		SetupManagers();
-
+		StartSubscriptions();
 		SetupScenes();
 		
 		int cursorWidth = GetSystemMetrics(SM_CXCURSOR);
@@ -113,9 +113,9 @@ namespace Thingy {
 
 	void Application::SetupScenes() {
 		
-		sceneManager->AddScene(std::shared_ptr<FrontPageScene>(new FrontPageScene()));
-		sceneManager->AddScene(std::shared_ptr<LoginScene>(new LoginScene()));
-		sceneManager->AddScene(std::shared_ptr<AlbumScene>(new AlbumScene()));
+		sceneManager->AddScene(std::make_shared<FrontPageScene>());
+		sceneManager->AddScene(std::make_shared<LoginScene>());
+		sceneManager->AddScene(std::make_shared<AlbumScene>());
 		sceneManager->GetScenes();
 		storedModules.emplace("popularsModule", std::make_shared<PopularsModule>(messageManager, networkManager, audioManager, imageManager, renderer->GetRenderer()));
 		storedModules.emplace("albumModule", std::make_shared<AlbumModule>(messageManager, audioManager, imageManager));
@@ -140,6 +140,8 @@ namespace Thingy {
 			SDL_MinimizeWindow(renderer->GetWindow());
 			});
 		messageManager->Subscribe("changeFullscreen", "start", [this](MessageData data) {
+			T_INFO("fullscreen");
+			fullscreen = !fullscreen;
 			fullscreenChanged = true;
 			});
 
@@ -193,36 +195,12 @@ namespace Thingy {
 
 
 			//Header
-			customHeader->OnRender();
 
 			sceneManager->GetActiveScene()->OnUpdate();
 			uint16_t upProps = sceneManager->GetActiveScene()->OnRender();
 
-			//ImGui::Begin("Teszt", nullptr);
-			//ImGui::InputText("link", &link, 0, ResizeCallback, (void*)&link);
-			//if (ImGui::Button("send")) {
-			//
-			//	T_INFO("send");
-			//	if (link.empty()) break;
-			//	
-			//	networkManager->GetArtist(link);
-			//
-			//}
-			//ImGui::Image((ImTextureID)(intptr_t)texture, ImVec2((float)300, (float)300));
-			//
-			//ImGui::End();
+			customHeader->OnRender();
 
-			try {
-				//playerModule->OnRender();
-				//populars->OnRender();
-
-			}
-			catch (const std::exception& e) {
-				std::cerr << "An error occurred: " << e.what() << std::endl;
-			}
-			catch (...) {
-				std::cerr << "An unknown error occurred." << std::endl;
-			}
 			if (upProps & BIT(0)) {
 				if (!SDL_SetCursor(customCursors["closedHand"])) {
 					SDL_GetError();

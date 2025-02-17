@@ -24,6 +24,7 @@ namespace Thingy {
 		std::unique_ptr<MessageManager>& m_MessageManager;
 		SDL_Window* m_Window;
 		std::string& search;
+		bool autoCompleteOn = false;
 	};
 
 }
