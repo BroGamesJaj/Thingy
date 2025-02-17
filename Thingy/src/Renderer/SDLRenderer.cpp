@@ -19,9 +19,6 @@ namespace Thingy {
 		SDL_GetWindowSize(win, &w, &h);
 
 		const int EDGE_SIZE = 5;
-		if (IsInItem(pos)) return SDL_HITTEST_NORMAL;
-		
-		if (IsInHeader(pos, w, EDGE_SIZE)) return SDL_HITTEST_DRAGGABLE;
 
 		// Corners
 		if (pos->x < EDGE_SIZE && pos->y < EDGE_SIZE) return SDL_HITTEST_RESIZE_TOPLEFT;
@@ -35,7 +32,9 @@ namespace Thingy {
 		if (pos->x < EDGE_SIZE) return SDL_HITTEST_RESIZE_LEFT;
 		if (pos->x > w - EDGE_SIZE) return SDL_HITTEST_RESIZE_RIGHT;
 
-		if (pos->y < 50 && pos->y >= EDGE_SIZE && pos->x < w - 145) return SDL_HITTEST_DRAGGABLE;
+		if (IsInItem(pos)) return SDL_HITTEST_NORMAL;
+		if (IsInHeader(pos, w, EDGE_SIZE)) return SDL_HITTEST_DRAGGABLE;
+
 		return SDL_HITTEST_NORMAL;
 	}
 
