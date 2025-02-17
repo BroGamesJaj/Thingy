@@ -126,13 +126,6 @@ namespace Thingy {
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
 					ImGui::Image((ImTextureID)(intptr_t)textures[weeklyAlbums[i].id].get(), imageSize);
-					if (ImGui::IsItemClicked()) {
-						m_AudioManager->GetQueue().clear();
-						m_AudioManager->GetQueue().push_back(weeklyTracks[i]);
-						m_AudioManager->LoadMusicFromTrack(weeklyTracks[i]);
-						m_AudioManager->ChangeMusic();
-						m_AudioManager->ResumeMusic();
-					};
 					LimitedTextWrap(weeklyAlbums[i].name.data(), width, 3);
 				}
 
@@ -143,15 +136,7 @@ namespace Thingy {
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
 					ImGui::Image((ImTextureID)(intptr_t)textures[weeklyArtists[i].id].get(), imageSize);
-					if (ImGui::IsItemClicked()) {
-						m_AudioManager->GetQueue().clear();
-						m_AudioManager->GetQueue().push_back(weeklyTracks[i]);
-						m_AudioManager->LoadMusicFromTrack(weeklyTracks[i]);
-						m_AudioManager->ChangeMusic();
-						m_AudioManager->ResumeMusic();
-					};
-					std::string text = "long text text text" + std::to_string(i);
-					LimitedTextWrap(monthlyTracks[i].artistName.data(), width, 3);
+					LimitedTextWrap(weeklyArtists[i].artistName.data(), width, 3);
 				}
 				ImGui::EndTable();
 			}
@@ -167,8 +152,8 @@ namespace Thingy {
 					ImGui::Image((ImTextureID)(intptr_t)textures[monthlyTracks[i].id].get(), imageSize);
 					if (ImGui::IsItemClicked()) {
 						m_AudioManager->GetQueue().clear();
-						m_AudioManager->GetQueue().push_back(weeklyTracks[i]);
-						m_AudioManager->LoadMusicFromTrack(weeklyTracks[i]);
+						m_AudioManager->GetQueue().push_back(monthlyTracks[i]);
+						m_AudioManager->LoadMusicFromTrack(monthlyTracks[i]);
 						m_AudioManager->ChangeMusic();
 						m_AudioManager->ResumeMusic();
 					};
@@ -212,7 +197,7 @@ namespace Thingy {
 			}
 
 		} else {
-			float rowHeight = height * 1.9f;
+			float rowHeight = height * 1.0f;
 			ImGui::SetCursorPosX(centering);
 			ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(10, 10));
 			

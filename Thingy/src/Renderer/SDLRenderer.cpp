@@ -25,9 +25,14 @@ namespace Thingy {
 		return SDL_HITTEST_NORMAL;
 	}
 
-	SDLRenderer* SDLRenderer::Create(const WindowProps& props)
-	{
+	SDLRenderer* SDLRenderer::Create(const WindowProps& props) {
 		return new SDLRenderer(props);
+	}
+
+	void SDLRenderer::ChangeHitTest(bool on) {
+		if (!SDL_SetWindowHitTest(window, (on) ? WindowHitTest : NULL, nullptr)) {
+			SDL_Log("Failed to set hit test: %s", SDL_GetError());
+		}
 	}
 
 	SDLRenderer::SDLRenderer(const WindowProps& props) {
@@ -46,10 +51,7 @@ namespace Thingy {
 		SetWindowFlags();
 		CreateSDLWindow(props);
 		CreateRenderer();
-		
-		if (!SDL_SetWindowHitTest(window, WindowHitTest, nullptr)) {
-			SDL_Log("Failed to set hit test: %s", SDL_GetError());
-		}
+		ChangeHitTest(true);
 		SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 		SDL_SetWindowMinimumSize(window, 1280, 720);
 	}

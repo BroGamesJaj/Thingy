@@ -87,6 +87,7 @@ namespace Thingy {
 		
 		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Vertical;
 		ImGui::End();
+		
 	}
 
 	static int ResizeCallback(ImGuiInputTextCallbackData* data)
@@ -118,7 +119,7 @@ namespace Thingy {
 		SetupManagers();
 
 		SetupScenes();
-
+		
 		int cursorWidth = GetSystemMetrics(SM_CXCURSOR);
 		int cursorHeight = GetSystemMetrics(SM_CYCURSOR);
 		customCursors.emplace("openHand", CreateCustomCursor("../assets/cursors/openHand.bmp", cursorWidth / 2, cursorHeight / 2));
@@ -179,6 +180,7 @@ namespace Thingy {
 			if (fullscreenChanged) {
 				SDL_SetWindowFullscreen(sdlWindow, fullscreen);
 				SDL_SetWindowBordered(sdlWindow, false);
+				renderer->ChangeHitTest(!fullscreen);
 				fullscreenChanged = false;
 			}
 			ImGui_ImplSDLRenderer3_NewFrame();
