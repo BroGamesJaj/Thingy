@@ -6,7 +6,7 @@
 
 namespace Thingy {
 
-	using MessageData = std::variant<Track, Album, Artist, std::string, std::vector<Track>, std::vector<Album>, std::vector<Artist>>;
+	using MessageData = std::variant<int,Track, Album, Artist, std::string, std::vector<Track>, std::vector<Album>, std::vector<Artist>>;
 	class MessageManager {
 	public:
 		using Callback = std::function<void(MessageData)>;

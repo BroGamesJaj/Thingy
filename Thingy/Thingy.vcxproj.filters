@@ -34,7 +34,7 @@
     <ClInclude Include="src\Modules\AlbumModule.h" />
     <ClInclude Include="src\Core\Managers\MessageManager.h" />
     <ClInclude Include="src\Core\HelperFunctions.h" />
-    <ClInclude Include="src\Core\CustomHeader.h" />
+    <ClInclude Include="src\Comps\CustomHeader.h" />
     <ClInclude Include="src\Core\Fonts.h" />
   </ItemGroup>
   <ItemGroup>
@@ -62,7 +62,7 @@
     <ClCompile Include="src\Modules\AlbumModule.cpp" />
     <ClCompile Include="src\Core\Managers\MessageManager.cpp" />
     <ClCompile Include="src\Core\HelperFunctions.cpp" />
-    <ClCompile Include="src\Core\CustomHeader.cpp" />
+    <ClCompile Include="src\Comps\CustomHeader.cpp" />
     <ClCompile Include="src\Core\Fonts.cpp" />
   </ItemGroup>
 </Project>

@@ -152,7 +152,7 @@
     <ClInclude Include="src\Core\Album.h" />
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\Artist.h" />
-    <ClInclude Include="src\Core\CustomHeader.h" />
+    <ClInclude Include="src\Comps\CustomHeader.h" />
     <ClInclude Include="src\Core\Fonts.h" />
     <ClInclude Include="src\Core\HelperFunctions.h" />
     <ClInclude Include="src\Core\Managers\AudioManager.h" />
@@ -179,7 +179,7 @@
   <ItemGroup>
     <ClCompile Include="src\Core\Album.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />
-    <ClCompile Include="src\Core\CustomHeader.cpp" />
+    <ClCompile Include="src\Comps\CustomHeader.cpp" />
     <ClCompile Include="src\Core\Fonts.cpp" />
     <ClCompile Include="src\Core\HelperFunctions.cpp" />
     <ClCompile Include="src\Core\Managers\AudioManager.cpp" />

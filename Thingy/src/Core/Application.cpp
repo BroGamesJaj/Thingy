@@ -91,6 +91,7 @@ namespace Thingy {
 		int cursorHeight = GetSystemMetrics(SM_CYCURSOR);
 		customCursors.emplace("openHand", CreateCustomCursor("../assets/cursors/openHand.bmp", cursorWidth / 2, cursorHeight / 2));
 		customCursors.emplace("closedHand", CreateCustomCursor("../assets/cursors/closedHand.bmp", cursorWidth / 2, cursorHeight / 2));
+		customHeader = std::make_unique<CustomHeader>(messageManager, renderer->GetWindow(), searchTerm);
 		//for testing
 		//networkManager->DownloadFile("https:\/\/prod-1.storage.jamendo.com\/?trackid=1848357&format=mp31&from=app-devsite", musicBuffer);
 		//
@@ -103,11 +104,11 @@ namespace Thingy {
 	}
 
 	void Application::SetupManagers() {
-		networkManager = std::unique_ptr<NetworkManager>(new NetworkManager());
-		imageManager = std::unique_ptr<ImageManager>(new ImageManager(networkManager, renderer->GetRenderer()));
-		audioManager = std::unique_ptr<AudioManager>(new AudioManager(musicBuffer, networkManager));
-		messageManager = std::unique_ptr<MessageManager>(new MessageManager());
-		sceneManager = std::unique_ptr<SceneManager>(new SceneManager(messageManager));
+		networkManager = std::make_unique<NetworkManager>();
+		imageManager = std::make_unique<ImageManager>(networkManager, renderer->GetRenderer());
+		audioManager = std::make_unique<AudioManager>(musicBuffer, networkManager);
+		messageManager = std::make_unique<MessageManager>();
+		sceneManager = std::make_unique<SceneManager>(messageManager);
 	}
 
 	void Application::SetupScenes() {
@@ -128,6 +129,19 @@ namespace Thingy {
 		for (auto& module : storedModules) {
 			module.second->SetupSubscriptions();
 		}
+
+	}
+
+	void Application::StartSubscriptions() {
+		messageManager->Subscribe("closeWindow", "start", [this](MessageData data) {
+			Running = false;
+			});
+		messageManager->Subscribe("minimize", "start", [this](MessageData data) {
+			SDL_MinimizeWindow(renderer->GetWindow());
+			});
+		messageManager->Subscribe("changeFullscreen", "start", [this](MessageData data) {
+			fullscreenChanged = true;
+			});
 
 	}
 
@@ -179,7 +193,7 @@ namespace Thingy {
 
 
 			//Header
-			CustomHeader(windowWidth, windowHeight, Running, *sdlWindow, fullscreen, fullscreenChanged, searchTerm);
+			customHeader->OnRender();
 
 			sceneManager->GetActiveScene()->OnUpdate();
 			uint16_t upProps = sceneManager->GetActiveScene()->OnRender();

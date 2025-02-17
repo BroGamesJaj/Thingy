@@ -10,7 +10,7 @@
 #include "Managers\MessageManager.h"
 
 #include "Image.h"
-#include "CustomHeader.h"
+#include "Comps\CustomHeader.h"
 
 namespace Thingy {
 	class Application {
@@ -23,6 +23,8 @@ namespace Thingy {
 
 		void SetupManagers();
 		void SetupScenes();
+
+		void StartSubscriptions();
 
 		void Run();
 
@@ -41,6 +43,7 @@ namespace Thingy {
 		std::unique_ptr<MessageManager> messageManager = nullptr;
 
 		std::unordered_map<std::string, std::shared_ptr<Module>> storedModules;
+		std::unique_ptr<CustomHeader> customHeader = nullptr;
 
 	};
 
