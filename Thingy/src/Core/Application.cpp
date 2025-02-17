@@ -65,42 +65,9 @@ namespace Thingy {
 		return customCursor;
 	}
 
-	void CustomHeader(float& windowWidth, float& windowHeight, bool& done, SDL_Window& window) {
+	
 
-		ImGui::SetNextWindowSize({ windowWidth, windowHeight });
-		ImGui::SetNextWindowPos({ 0.0f, 0.0f });
-
-		ImGui::Begin("Custom Header", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus);
-		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Horizontal;
-		ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 15 - 40 - 5 - 40 - 5 - 40);
-		if(ImGui::Button("_", { 40.0f, 30.0f }))
-			SDL_MinimizeWindow(&window);
-			
-		//ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 10 - 40 - 5 - 40); // 10 padding right, width of X button, padding between buttons, width of button
-		if (ImGui::Button("[]", { 40.0f, 30.0f })) {
-			fullscreen = !fullscreen;
-			fullscreenChanged = true;
-		}
-		//ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 10 - 40); // 10 padding right, width of button
-		if(ImGui::Button("X", { 40.0f, 30.0f }))
-			done = false;
-		
-		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Vertical;
-		ImGui::End();
-		
-	}
-
-	static int ResizeCallback(ImGuiInputTextCallbackData* data)
-	{
-		if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
-		{
-			ImVector<char>* my_str = (ImVector<char>*)data->UserData;
-			IM_ASSERT(my_str->begin() == data->Buf);
-			my_str->resize(data->BufSize); // NB: On resizing calls, generally data->BufSize == data->BufTextLen + 1
-			data->Buf = my_str->begin();
-		}
-		return 0;
-	}
+	
 
 	Application::Application() {
 		begin = std::chrono::steady_clock::now();
@@ -169,6 +136,12 @@ namespace Thingy {
 		SDL_Renderer* sdlRenderer = renderer->GetRenderer();
 		SDL_Window* sdlWindow = renderer->GetWindow();
 
+		ImGuiIO& io = ImGui::GetIO();
+		ImFontConfig* config;
+		ImFont* quicksandFont = io.Fonts->AddFontFromFileTTF("../assets/fonts/Quicksand-VariableFont_wght.ttf", 16.0f);
+		ImFont* quicksandBoldFont = io.Fonts->AddFontFromFileTTF("../assets/fonts/Quicksand-Bold.ttf", 16.0f);
+		io.FontDefault = quicksandBoldFont;
+
 		SDL_ShowWindow(sdlWindow);
 		bool first = true;
 		while (Running) {
@@ -191,7 +164,7 @@ namespace Thingy {
 			int winW = 0;
 			int winH = 0;
 			SDL_GetWindowSizeInPixels(sdlWindow, &winW, &winH);
-			ImGuiIO& io = ImGui::GetIO(); (void)io;
+			ImGuiIO& io = ImGui::GetIO();
 			float windowWidth = static_cast<float>(winW);
 			float windowHeight = static_cast<float>(winH);
 			ImGuiStyle& style = ImGui::GetStyle();
@@ -211,7 +184,7 @@ namespace Thingy {
 
 
 			//Header
-			CustomHeader(windowWidth, windowHeight, Running, *sdlWindow);
+			CustomHeader(windowWidth, windowHeight, Running, *sdlWindow, fullscreen, fullscreenChanged);
 
 			sceneManager->GetActiveScene()->OnUpdate();
 			uint16_t upProps = sceneManager->GetActiveScene()->OnRender();

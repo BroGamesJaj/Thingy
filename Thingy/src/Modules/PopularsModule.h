@@ -7,6 +7,8 @@
 #include "Core\Managers\SceneManager.h"
 #include "Core\Managers\MessageManager.h"
 
+#include "Core\HelperFunctions.h"
+
 namespace Thingy {
 	class PopularsModule : public Module {
 	public:

@@ -33,6 +33,8 @@
     <ClInclude Include="src\Scenes\AlbumScene.h" />
     <ClInclude Include="src\Modules\AlbumModule.h" />
     <ClInclude Include="src\Core\Managers\MessageManager.h" />
+    <ClInclude Include="src\Core\HelperFunctions.h" />
+    <ClInclude Include="src\Core\CustomHeader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -58,5 +60,7 @@
     <ClCompile Include="src\Scenes\AlbumScene.cpp" />
     <ClCompile Include="src\Modules\AlbumModule.cpp" />
     <ClCompile Include="src\Core\Managers\MessageManager.cpp" />
+    <ClCompile Include="src\Core\HelperFunctions.cpp" />
+    <ClCompile Include="src\Core\CustomHeader.cpp" />
   </ItemGroup>
 </Project>

@@ -3,7 +3,7 @@
 namespace Thingy {
 
 	void AlbumModule::SetupSubscriptions() {
-		m_MessageManager->Subscribe("albumShare", "albumModule", [this](MessageData name) {
+		m_MessageManager->Subscribe("openAlbum", "albumModule", [this](MessageData name) {
 			std::visit([this](auto&& value) {
 				using T = std::decay_t<decltype(value)>;
 				if constexpr (std::is_same_v<T, Album>) {

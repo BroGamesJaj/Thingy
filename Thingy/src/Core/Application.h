@@ -9,6 +9,7 @@
 #include "Managers\MessageManager.h"
 
 #include "Image.h"
+#include "CustomHeader.h"
 
 namespace Thingy {
 	class Application {
@@ -28,7 +29,7 @@ namespace Thingy {
 
 	private:
 		bool Running = true;
-		
+		std::string searchTerm = "";
 		std::unordered_map<std::string, SDL_Cursor*> customCursors;
 
 		std::unique_ptr<SDLRenderer> renderer = nullptr;

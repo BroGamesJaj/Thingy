@@ -2,34 +2,6 @@
 #include "PopularsModule.h"
 
 namespace Thingy {
-	void LimitedTextWrap(const char* text, float maxWidth, int maxLines) {
-		// Save the current cursor position
-		ImVec2 cursorPos = ImGui::GetCursorScreenPos();
-
-		// Calculate the height for the allowed number of lines
-		float lineHeight = ImGui::GetTextLineHeight();
-		float maxHeight = lineHeight * maxLines;
-
-		// Clip the rendering to limit the height
-		ImGui::PushClipRect(
-			cursorPos,
-			ImVec2(cursorPos.x + maxWidth, cursorPos.y + maxHeight),
-			true // Clip outside this rect
-		);
-
-		// Push wrapping width and render the text
-		ImGui::PushTextWrapPos(cursorPos.x + maxWidth);
-		ImGui::TextWrapped("%s", text);
-		ImGui::PopTextWrapPos();
-
-		// Pop the clipping rectangle
-		ImGui::PopClipRect();
-
-		// Adjust cursor to simulate limited rendering height
-		ImGui::SetCursorPosY(cursorPos.y + maxHeight);
-	}
-
-
 
 	void PopularsModule::SetupSubscriptions() {
 
@@ -126,6 +98,10 @@ namespace Thingy {
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
 					ImGui::Image((ImTextureID)(intptr_t)textures[weeklyAlbums[i].id].get(), imageSize);
+					if (ImGui::IsItemClicked()) {
+						m_MessageManager->Publish("openAlbum", weeklyAlbums[i]);
+						m_MessageManager->Publish("changeScene", "AlbumScene");
+					}
 					LimitedTextWrap(weeklyAlbums[i].name.data(), width, 3);
 				}
 
@@ -168,12 +144,9 @@ namespace Thingy {
 					ImGui::TableNextColumn();
 					ImGui::Image((ImTextureID)(intptr_t)textures[monthlyAlbums[i].id].get(), imageSize);
 					if (ImGui::IsItemClicked()) {
-						m_AudioManager->GetQueue().clear();
-						m_AudioManager->GetQueue().push_back(weeklyTracks[i]);
-						m_AudioManager->LoadMusicFromTrack(weeklyTracks[i]);
-						m_AudioManager->ChangeMusic();
-						m_AudioManager->ResumeMusic();
-					};
+						m_MessageManager->Publish("openAlbum", monthlyAlbums[i]);
+						m_MessageManager->Publish("changeScene", "AlbumScene");
+					}
 					LimitedTextWrap(monthlyAlbums[i].name.data(), width, 3);
 				}
 
@@ -197,7 +170,6 @@ namespace Thingy {
 			}
 
 		} else {
-			float rowHeight = height * 1.0f;
 			ImGui::SetCursorPosX(centering);
 			ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(10, 10));
 			
@@ -205,7 +177,7 @@ namespace Thingy {
 				ImGui::TableNextRow();	
 				ImGui::TableNextColumn();
 				ImGui::Text("Weekly Tracks");
-				ImGui::TableNextRow(0, rowHeight);
+				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
 					ImGui::Image((ImTextureID)(intptr_t)textures[weeklyTracks[i].id].get(), imageSize);
@@ -222,49 +194,39 @@ namespace Thingy {
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
 				ImGui::Text("Weekly Albums");
-				ImGui::TableNextRow(0, rowHeight);
+				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
 					ImGui::Image((ImTextureID)(intptr_t)textures[weeklyAlbums[i].id].get(), imageSize);
 					if (ImGui::IsItemClicked()) {
-						m_AudioManager->GetQueue().clear();
-						m_AudioManager->GetQueue().push_back(weeklyTracks[i]);
-						m_AudioManager->LoadMusicFromTrack(weeklyTracks[i]);
-						m_AudioManager->ChangeMusic();
-						m_AudioManager->ResumeMusic();
-					};
+						m_MessageManager->Publish("openAlbum", weeklyAlbums[i]);
+						m_MessageManager->Publish("changeScene", "AlbumScene");
+					}
 					LimitedTextWrap(weeklyAlbums[i].name.data(), width, 3);
 				}
 
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
 				ImGui::Text("Weekly Artists");
-				ImGui::TableNextRow(0, rowHeight);
+				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
 					ImGui::Image((ImTextureID)(intptr_t)textures[weeklyArtists[i].id].get(), imageSize);
-					if (ImGui::IsItemClicked()) {
-						m_AudioManager->GetQueue().clear();
-						m_AudioManager->GetQueue().push_back(weeklyTracks[i]);
-						m_AudioManager->LoadMusicFromTrack(weeklyTracks[i]);
-						m_AudioManager->ChangeMusic();
-						m_AudioManager->ResumeMusic();
-					};
-					std::string text = "long text text text" + std::to_string(i);
-					LimitedTextWrap(monthlyTracks[i].artistName.data(), width, 3);
+					
+					LimitedTextWrap(weeklyArtists[i].artistName.data(), width, 3);
 				}
 
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
 				ImGui::Text("Monthly Tracks");
-				ImGui::TableNextRow(0, rowHeight);
+				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
 					ImGui::Image((ImTextureID)(intptr_t)textures[monthlyTracks[i].id].get(), imageSize);
 					if (ImGui::IsItemClicked()) {
 						m_AudioManager->GetQueue().clear();
-						m_AudioManager->GetQueue().push_back(weeklyTracks[i]);
-						m_AudioManager->LoadMusicFromTrack(weeklyTracks[i]);
+						m_AudioManager->GetQueue().push_back(monthlyTracks[i]);
+						m_AudioManager->LoadMusicFromTrack(monthlyTracks[i]);
 						m_AudioManager->ChangeMusic();
 						m_AudioManager->ResumeMusic();
 					};
@@ -274,34 +236,24 @@ namespace Thingy {
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
 				ImGui::Text("Monthly Albums");
-				ImGui::TableNextRow(0, rowHeight);
+				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
 					ImGui::Image((ImTextureID)(intptr_t)textures[monthlyAlbums[i].id].get(), imageSize);
 					if (ImGui::IsItemClicked()) {
-						m_AudioManager->GetQueue().clear();
-						m_AudioManager->GetQueue().push_back(weeklyTracks[i]);
-						m_AudioManager->LoadMusicFromTrack(weeklyTracks[i]);
-						m_AudioManager->ChangeMusic();
-						m_AudioManager->ResumeMusic();
-					};
+						m_MessageManager->Publish("openAlbum", monthlyAlbums[i]);
+						m_MessageManager->Publish("changeScene", "AlbumScene");
+					}
 					LimitedTextWrap(monthlyAlbums[i].name.data(), width, 3);
 				}
 
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
 				ImGui::Text("Monthly Artists");
-				ImGui::TableNextRow(0, rowHeight);
+				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
 					ImGui::Image((ImTextureID)(intptr_t)textures[monthlyArtists[i].id].get(), imageSize);
-					if (ImGui::IsItemClicked()) {
-						m_AudioManager->GetQueue().clear();
-						m_AudioManager->GetQueue().push_back(weeklyTracks[i]);
-						m_AudioManager->LoadMusicFromTrack(weeklyTracks[i]);
-						m_AudioManager->ChangeMusic();
-						m_AudioManager->ResumeMusic();
-					};
 					LimitedTextWrap(monthlyArtists[i].artistName.data(), width, 3);
 				}
 				ImGui::EndTable();
