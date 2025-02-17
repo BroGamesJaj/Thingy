@@ -5,7 +5,7 @@
 #include <SDL3_mixer/SDL_mixer.h>
 #define SDL_MIXER_HINT_DEBUG_MUSIC_INTERFACES
 #include <SDL3/SDL_system.h>
-
+#include <imgui.h>
 namespace Thingy {
 
 	struct WindowProps {

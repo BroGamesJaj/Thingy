@@ -8,12 +8,15 @@ namespace Thingy {
 		ImGui::Begin("Custom Header", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus);
 
 		float winW = ImGui::GetWindowWidth();
-		float scale = winW / 1280;
+		float scale = std::clamp(winW / 1280, 1.0f, 2.0f);
 		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Horizontal;
 		ImGui::Button("image", { 40.0f, 40.0f });
 
-		ImGui::SetCursorPosX(winW - std::clamp(100.0f * scale, 100.0f, 300.0f));
-		//ImGui::InputText("link", &search, 0, ResizeCallback, (void*)&search);
+		ImGui::SetCursorPosX(winW / 2 - std::clamp(200.0f * scale, 200.0f, 400.0f));
+		ImGui::SetNextItemWidth(400.0f * scale);
+		ImGui::PushFont(Fonts::size30);
+		ImGui::InputText("##search", &search, 0, ResizeCallback, (void*)&search);
+		ImGui::PopFont();
 		ImGui::SetCursorPosX(winW - 15 - 40 - 5 - 40 - 5 - 40);
 		if (ImGui::Button("_", { 40.0f, 30.0f }))
 			SDL_MinimizeWindow(&window);

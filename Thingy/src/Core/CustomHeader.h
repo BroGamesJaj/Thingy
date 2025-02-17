@@ -3,7 +3,9 @@
 #include <SDL3\SDL.h>
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <imgui_stdlib.h>
 
+#include "Fonts.h"
 #include "HelperFunctions.h"
 
 namespace Thingy {

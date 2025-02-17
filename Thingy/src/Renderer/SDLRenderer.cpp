@@ -1,14 +1,28 @@
 #include "tpch.h"
 #include "SDLRenderer.h"
 namespace Thingy {
+	
+	bool IsInHeader(const SDL_Point* pt, int winW, const int edgeSize) {
+		ImVec2 headerSize = ImVec2(winW, 50);
 
+		return (pt->x >= edgeSize && pt->x < headerSize.x && pt->y >= edgeSize && pt->y < headerSize.y);
+	}
+	bool IsInItem(const SDL_Point* pt) {
+		ImVec2 mouse = ImGui::GetMousePos();
+		return (pt->x >= mouse.x - 1 && pt->x <= mouse.x + 1 &&
+			pt->y >= mouse.y - 1 && pt->y <= mouse.y + 1) &&
+			ImGui::IsAnyItemHovered();
+	}
 
 	SDL_HitTestResult WindowHitTest(SDL_Window* win, const SDL_Point* pos, void*) {
-
 		int w, h;
 		SDL_GetWindowSize(win, &w, &h);
 
 		const int EDGE_SIZE = 5;
+		if (IsInItem(pos)) return SDL_HITTEST_NORMAL;
+		
+		if (IsInHeader(pos, w, EDGE_SIZE)) return SDL_HITTEST_DRAGGABLE;
+
 		// Corners
 		if (pos->x < EDGE_SIZE && pos->y < EDGE_SIZE) return SDL_HITTEST_RESIZE_TOPLEFT;
 		if (pos->x > w - EDGE_SIZE && pos->y < EDGE_SIZE) return SDL_HITTEST_RESIZE_TOPRIGHT;
