@@ -1,5 +1,3 @@
-@echo off
-
 set CONFIG=Debug
 for /f "delims=" %%A in ('"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -find **\vcvars64.bat') do set "VSCMD=%%A"
 
@@ -16,11 +14,11 @@ if %CONFIG% == Debug (
 		mkdir build
 	)
 	cd build
-
+	echo "spdlog build dir opened"
 	REM Build spdlog shared library
 	cmake ..
 	cmake --build .
-
+	echo "spdlog built"
 	REM Path to SDL
 	cd "%~dp0"Thingy/vendor/SDL_mixer/external/SDL
 	
