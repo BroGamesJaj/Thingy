@@ -55,8 +55,8 @@ if (WIN32)
     target_compile_options(Thingy PRIVATE "/utf-8")
 endif()
 
-# Find SDL3 and SDL_mixer
-find_package(SDL3 REQUIRED PATHS "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL_mixer/external/SDL/sdl_build" NO_DEFAULT_PATH)
+set(CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL_mixer/external/SDL/sdl_build")
+find_package(SDL3 REQUIRED)
 
 # SDL3 include directories
 target_include_directories(Thingy PRIVATE 

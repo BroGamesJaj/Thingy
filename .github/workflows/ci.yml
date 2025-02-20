@@ -11,6 +11,9 @@ jobs:
         with:
             submodules: 'true'
 
+      - name: Checkout submodules
+        run: git submodule update --init --recursive
+
       - name: Set up MSVC
         shell: cmd
         run: |
@@ -23,6 +26,3 @@ jobs:
       - name: Run Generate Project script
         shell: cmd
         run: GenerateProjects.bat
-
-      - name: Run executable from build
-        run: ./build/bin/-Windows-AMD64/Debug/Thingy.exe

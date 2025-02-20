@@ -108,5 +108,3 @@ if %CONFIG% == Debug (
 )
 
 cd "%~dp0"
-
-call GenerateProjects.bat
