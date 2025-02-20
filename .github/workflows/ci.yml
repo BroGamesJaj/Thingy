@@ -15,9 +15,11 @@ jobs:
             "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
 
       - name: Run Create Libraries batch file
+        shell: cmd
         run: CreateProjectLibraries.bat
 
       - name: Run Generate Project script
+        shell: cmd
         run: GenerateProjects.bat
 
       - name: Run executable from build
