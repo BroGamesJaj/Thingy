@@ -123,7 +123,7 @@ namespace Thingy {
 		sceneManager->GetScene("FrontPage")->PushModule(storedModules["popularsModule"]);
 		sceneManager->GetScene("FrontPage")->PushModule(storedModules["playerModule"]);
 		sceneManager->GetScene("AlbumScene")->PushModule(storedModules["albumModule"]);
-		sceneManager->SetActiveScene("FrontPage");
+		sceneManager->ChangeScene("FrontPage", OPEN);
 		sceneManager->GetScenes();
 
 		for (auto& module : storedModules) {

@@ -50,5 +50,6 @@ namespace Thingy {
 		std::vector<Album> monthlyAlbums;
 		std::vector<Artist> weeklyArtists; 
 		std::vector<Artist> monthlyArtists;
+		std::time_t lastFetch = 0;
 	};
 }

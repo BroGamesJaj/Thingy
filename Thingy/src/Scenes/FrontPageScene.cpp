@@ -38,6 +38,8 @@ namespace Thingy {
 		}
 		return sReturn;
 	}
+
+	void FrontPageScene::BeforeSwitch() {}
 	
 	void FrontPageScene::LayoutChanged() {
 	}

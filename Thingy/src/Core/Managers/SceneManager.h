@@ -5,6 +5,23 @@
 #include "MessageManager.h"
 
 namespace Thingy {
+
+	enum ActiveSceneType {
+		OPEN,
+		BACK,
+		NEXT
+	};
+	
+	struct SceneState {
+		std::string sceneName;
+		std::unordered_map<std::string, std::variant<int,std::string>> moduleState;
+
+		SceneState(const std::string sName, const std::unordered_map<std::string, std::variant<int, std::string>> mState) {
+			sceneName = sName;
+			moduleState = mState;
+		}
+	};
+
 	class SceneManager {
 	public:
 		SceneManager(std::unique_ptr<MessageManager>& messageManager);
@@ -13,7 +30,7 @@ namespace Thingy {
 		SceneManager(const SceneManager&) = delete;
 		void operator=(const SceneManager&) = delete;
 
-		void ChangeScene(std::string newSceneName);
+		void ChangeScene(const std::string newSceneName, const ActiveSceneType type);
 
 		std::shared_ptr<Scene>& GetScene(std::string sceneName) {
 			auto it = scenes.find(sceneName);
@@ -40,17 +57,7 @@ namespace Thingy {
 			scenes[scene->GetSceneName()] = scene;
 		}
 
-		bool SetActiveScene(const std::string& name) {
-			auto it = scenes.find(name);
-			if (it != scenes.end()) {
-				activeScene = it->second;
-				activeScene->OnSwitch();
-				return true;
-			} else {
-				T_ERROR("SceneManager: Scene not found");
-				return false;
-			}
-		}
+		bool SetActiveScene(const std::string& name);
 
 		std::shared_ptr<Scene>& GetActiveScene() { return activeScene; }
 
@@ -60,6 +67,10 @@ namespace Thingy {
 		std::shared_ptr<Scene> activeScene;
 
 		std::unique_ptr<MessageManager>& m_MessageManager;
+
+		std::vector<SceneState> history;
+		int currentSceneIndex = 0;
+
 
 	};
 }

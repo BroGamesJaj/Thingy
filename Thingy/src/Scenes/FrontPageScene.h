@@ -10,6 +10,7 @@ namespace Thingy {
 		void OnSwitch() override;
 		void OnUpdate() override;
 		uint16_t OnRender() override;
+		void BeforeSwitch() override;
 
 		void LayoutChanged() override;
 		void UpdateLayout() override;

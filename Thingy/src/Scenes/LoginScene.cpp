@@ -25,6 +25,8 @@ namespace Thingy {
 		}
 		return 0;
 	}
+
+	void LoginScene::BeforeSwitch() {}
 	
 	void LoginScene::LayoutChanged() {
 	}

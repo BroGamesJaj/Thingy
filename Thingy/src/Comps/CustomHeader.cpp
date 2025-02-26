@@ -18,7 +18,19 @@ namespace Thingy {
 		float scale = std::clamp(winW / 1280, 1.0f, 2.0f);
 		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Horizontal;
 		ImGui::Button("image", { 40.0f, 40.0f });
-
+		if (ImGui::IsItemClicked()) {
+			m_MessageManager->Publish("homeButton", "");
+		}
+		ImGui::Button("back", { 40.0f, 40.0f });
+		if (ImGui::IsItemClicked()) {
+			T_INFO("back");
+			m_MessageManager->Publish("previousScene", "");
+		}
+		ImGui::Button("next", { 40.0f, 40.0f });
+		if (ImGui::IsItemClicked()) {
+			T_INFO("next");
+			m_MessageManager->Publish("nextScene", "");
+		}
 		ImGui::SetCursorPosX(winW / 2 - std::clamp(200.0f * scale, 200.0f, 400.0f));
 		ImGui::SetNextItemWidth(400.0f * scale);
 		ImGui::PushFont(Fonts::size30);

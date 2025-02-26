@@ -27,7 +27,8 @@ namespace Thingy {
 
 		uint16_t upProps = 0;
 
-		Album album;
+		int curr = 0;
+		std::vector<Album> album;
 		std::unique_ptr<MessageManager>& m_MessageManager;
 		std::unique_ptr<AudioManager>& m_AudioManager;
 		std::unique_ptr<ImageManager>& m_ImageManager;

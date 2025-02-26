@@ -7,8 +7,16 @@ namespace Thingy {
 			std::visit([this](auto&& value) {
 				using T = std::decay_t<decltype(value)>;
 				if constexpr (std::is_same_v<T, Album>) {
-					album = value;
-					std::cout << album.toString() << std::endl;
+					for (size_t i = 0; i < album.size(); i++) {
+						if (album[i].name == value.name) {
+							curr = i;
+							T_INFO("returned");
+							return;
+						}
+					}
+					album.emplace_back(value);
+					curr = album.size() - 1;
+					std::cout << album[curr].toString() << std::endl;
 				} else {
 					T_ERROR("SceneManager: Invalid data type for scene name");
 				}
@@ -17,7 +25,8 @@ namespace Thingy {
 	}
 
 	void AlbumModule::OnLoad() {
-		textures[album.id] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTexture(album.imageURL));
+		if (!textures[album[curr].id]) 
+			textures[album[curr].id] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTexture(album[curr].imageURL));
 	}
 	
 	void AlbumModule::OnUpdate() {
@@ -37,11 +46,11 @@ namespace Thingy {
 		}
 		ImGui::GetWindowDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 0, 0, 255), 0.0f, 0, 5.0f);
 
-		ImGui::Image((ImTextureID)(intptr_t)textures[album.id].get(), { 300.0f, 300.0f });
+		ImGui::Image((ImTextureID)(intptr_t)textures[album[curr].id].get(), {300.0f, 300.0f});
 		ImGui::SameLine();
 		ImGui::BeginGroup();
-		ImGui::Text(album.name.data());
-		ImGui::Text("Track count: %zu", album.tracks.size());
+		ImGui::Text(album[curr].name.data());
+		ImGui::Text("Track count: %zu", album[curr].tracks.size());
 		ImGui::SameLine();
 		ImGui::Text("length");
 		ImGui::EndGroup();

@@ -48,6 +48,7 @@ namespace Thingy {
 		virtual void OnSwitch() = 0;
 		virtual void OnUpdate() = 0;
 		virtual uint16_t OnRender() = 0;
+		virtual void BeforeSwitch() = 0;
 
 		virtual std::string GetSceneName() const = 0;
 		const Modules& GetModules() const { return modules; };

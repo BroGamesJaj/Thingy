@@ -34,6 +34,10 @@ namespace Thingy {
 		}
 		return 0;
 	}
+	void AlbumScene::BeforeSwitch() {
+	
+	}
+
 	void AlbumScene::LayoutChanged() {
 		if (!ImGui::GetCurrentContext()) {
 			T_ERROR("ImGui context is not initialized!");

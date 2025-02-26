@@ -9,7 +9,7 @@ namespace Thingy {
 
 	void PopularsModule::OnLoad() {
 		
-		if (weeklyTracks.size() < 5) {
+		if (weeklyTracks.size() == 0 || lastFetch == 0 || lastFetch < std::chrono::system_clock::to_time_t((std::chrono::system_clock::now() - std::chrono::hours(1)))) {
 			GetPopulars();
 			for (size_t i = 0; i < 5; i++) {
 				textures[weeklyTracks[i].id] = std::unique_ptr<SDL_Texture,SDL_TDeleter>(m_ImageManager->GetTexture(weeklyTracks[i].imageURL));
@@ -27,6 +27,7 @@ namespace Thingy {
 					textures[monthlyArtists[i].id] = std::unique_ptr<SDL_Texture,SDL_TDeleter>(m_ImageManager->GetTexture(monthlyArtists[i].artistImageURL));
 				}
 			}
+			lastFetch = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 		}
 		
 	}
