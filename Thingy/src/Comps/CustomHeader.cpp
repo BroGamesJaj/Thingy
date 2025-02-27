@@ -19,7 +19,7 @@ namespace Thingy {
 		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Horizontal;
 		ImGui::Button("image", { 40.0f, 40.0f });
 		if (ImGui::IsItemClicked()) {
-			m_MessageManager->Publish("homeButton", "");
+			m_MessageManager->Publish("homeButton", std::string("FrontPage"));
 		}
 		ImGui::Button("back", { 40.0f, 40.0f });
 		if (ImGui::IsItemClicked()) {

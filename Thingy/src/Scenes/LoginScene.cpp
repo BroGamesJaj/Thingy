@@ -7,9 +7,9 @@ namespace Thingy {
 	
 	}
 	
-	void LoginScene::OnSwitch() {
+	void LoginScene::OnSwitch(std::unordered_map<std::string, std::variant<int, std::string>> newModuleState) {
 		for (auto& module : modules) {
-			module.second->OnLoad();
+			module.second->OnLoad(-1);
 		}
 	}
 	
@@ -26,7 +26,11 @@ namespace Thingy {
 		return 0;
 	}
 
-	void LoginScene::BeforeSwitch() {}
+	void LoginScene::BeforeSwitch() {
+		for (auto& module : modules) {
+			m_MessageManager->Publish("beforeSwitch" + module.first, GetSceneName());
+		}
+	}
 	
 	void LoginScene::LayoutChanged() {
 	}

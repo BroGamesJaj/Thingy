@@ -13,7 +13,7 @@ namespace Thingy {
 		AlbumModule(std::unique_ptr<MessageManager>& messageManager, std::unique_ptr<AudioManager>& audioManager, std::unique_ptr<ImageManager>& imageManager) : m_MessageManager(messageManager), m_AudioManager(audioManager), m_ImageManager(imageManager) {
 		}
 		void SetupSubscriptions() override;
-		void OnLoad() override;
+		void OnLoad(const std::variant<int, std::string> moduleState) override;
 		void OnUpdate() override;
 		void Window() override;
 		uint16_t OnRender() override;

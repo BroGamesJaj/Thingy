@@ -9,9 +9,9 @@ namespace Thingy {
 	
 	}
 	
-	void FrontPageScene::OnSwitch() {
+	void FrontPageScene::OnSwitch(std::unordered_map<std::string, std::variant<int, std::string>> newModuleState) {
 		for (auto& module : modules) {
-			module.second->OnLoad();
+			module.second->OnLoad(-1);
 		}
 	}
 	
@@ -39,7 +39,11 @@ namespace Thingy {
 		return sReturn;
 	}
 
-	void FrontPageScene::BeforeSwitch() {}
+	void FrontPageScene::BeforeSwitch() {
+		for (auto& module : modules) {
+			m_MessageManager->Publish("beforeSwitch" + module.first, GetSceneName());
+		}
+	}
 	
 	void FrontPageScene::LayoutChanged() {
 	}

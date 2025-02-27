@@ -42,6 +42,7 @@ namespace Thingy {
 				throw ERROR_NOT_FOUND;
 			}
 		}
+
 		void GetScenes() {
 			for (auto& scene : scenes) {
 				T_INFO("{0}", scene.first);
@@ -57,7 +58,7 @@ namespace Thingy {
 			scenes[scene->GetSceneName()] = scene;
 		}
 
-		bool SetActiveScene(const std::string& name);
+		bool SetActiveScene(const std::string& name, const ActiveSceneType type);
 
 		std::shared_ptr<Scene>& GetActiveScene() { return activeScene; }
 

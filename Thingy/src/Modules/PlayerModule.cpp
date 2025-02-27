@@ -4,7 +4,7 @@ namespace Thingy {
 
 	void PlayerModule::SetupSubscriptions() {}
 
-	void PlayerModule::OnLoad() {
+	void PlayerModule::OnLoad(const std::variant<int, std::string> moduleState) {
 			
 	}
 

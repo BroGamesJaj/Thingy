@@ -3,28 +3,44 @@
 namespace Thingy {
 
 	void AlbumModule::SetupSubscriptions() {
-		m_MessageManager->Subscribe("openAlbum", "albumModule", [this](MessageData name) {
-			std::visit([this](auto&& value) {
-				using T = std::decay_t<decltype(value)>;
-				if constexpr (std::is_same_v<T, Album>) {
+		m_MessageManager->Subscribe("openAlbum", "albumModule", [this](const MessageData data) {
+			
+				if (data.type() == typeid(Album)) {
+					Album recAlbum = std::any_cast<Album>(data);
 					for (size_t i = 0; i < album.size(); i++) {
-						if (album[i].name == value.name) {
+						if (album[i].name == recAlbum.name) {
 							curr = i;
 							T_INFO("returned");
 							return;
 						}
 					}
-					album.emplace_back(value);
+					album.emplace_back(recAlbum);
 					curr = album.size() - 1;
 					std::cout << album[curr].toString() << std::endl;
 				} else {
-					T_ERROR("SceneManager: Invalid data type for scene name");
+					T_ERROR("AlbumModule: Invalid data type for openAlbum");
 				}
-				}, name);
 			});
+
+		m_MessageManager->Subscribe("beforeSwitch" + GetModuleName(), GetModuleName(), [this](const MessageData data) {
+			m_MessageManager->Publish("saveModuleState", std::make_pair<std::string, std::variant<int, std::string>>(GetModuleName(), album[curr].name));
+			});
+		
 	}
 
-	void AlbumModule::OnLoad() {
+	void AlbumModule::OnLoad(const std::variant<int, std::string> moduleState) {
+		if (std::holds_alternative<std::string>(moduleState)) {
+			std::string albumName = std::get<std::string>(moduleState);
+			for (size_t i = 0; i < album.size(); i++) {
+				if (album[i].name == albumName) {
+					curr = i;
+				}
+			}
+		}
+		if (std::holds_alternative<int>(moduleState)) {
+			T_ERROR("album got: {0}", std::get<int>(moduleState));
+		}
+		T_INFO("curr: {0}", curr);
 		if (!textures[album[curr].id]) 
 			textures[album[curr].id] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTexture(album[curr].imageURL));
 	}

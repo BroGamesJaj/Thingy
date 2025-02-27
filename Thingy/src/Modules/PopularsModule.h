@@ -17,7 +17,7 @@ namespace Thingy {
 		};
 
 		void SetupSubscriptions() override;
-		void OnLoad() override;
+		void OnLoad(const std::variant<int, std::string> moduleState) override;
 		void OnUpdate() override;
 		void Window() override;
 

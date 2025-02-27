@@ -6,10 +6,10 @@
 
 namespace Thingy {
 
-	using MessageData = std::variant<int,Track, Album, Artist, std::string, std::vector<Track>, std::vector<Album>, std::vector<Artist>>;
+	using MessageData = std::any;
 	class MessageManager {
 	public:
-		using Callback = std::function<void(MessageData)>;
+		using Callback = std::function<void(const MessageData)>;
 
 		MessageManager();
 		~MessageManager();
@@ -40,6 +40,7 @@ namespace Thingy {
 					listeners.erase(event);
 				}
 			}
+			T_INFO("Unsubbed");
 		}
 
 		void UnSubscribeAll(const std::string& identifier) {

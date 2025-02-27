@@ -113,9 +113,9 @@ namespace Thingy {
 
 	void Application::SetupScenes() {
 		
-		sceneManager->AddScene(std::make_shared<FrontPageScene>());
-		sceneManager->AddScene(std::make_shared<LoginScene>());
-		sceneManager->AddScene(std::make_shared<AlbumScene>());
+		sceneManager->AddScene(std::make_shared<FrontPageScene>(messageManager));
+		sceneManager->AddScene(std::make_shared<LoginScene>(messageManager));
+		sceneManager->AddScene(std::make_shared<AlbumScene>(messageManager));
 		sceneManager->GetScenes();
 		storedModules.emplace("popularsModule", std::make_shared<PopularsModule>(messageManager, networkManager, audioManager, imageManager, renderer->GetRenderer()));
 		storedModules.emplace("albumModule", std::make_shared<AlbumModule>(messageManager, audioManager, imageManager));
@@ -123,7 +123,7 @@ namespace Thingy {
 		sceneManager->GetScene("FrontPage")->PushModule(storedModules["popularsModule"]);
 		sceneManager->GetScene("FrontPage")->PushModule(storedModules["playerModule"]);
 		sceneManager->GetScene("AlbumScene")->PushModule(storedModules["albumModule"]);
-		sceneManager->ChangeScene("FrontPage", OPEN);
+		messageManager->Publish("homeButton", std::string("FrontPage"));
 		sceneManager->GetScenes();
 
 		for (auto& module : storedModules) {
@@ -133,13 +133,13 @@ namespace Thingy {
 	}
 
 	void Application::StartSubscriptions() {
-		messageManager->Subscribe("closeWindow", "start", [this](MessageData data) {
+		messageManager->Subscribe("closeWindow", "start", [this](const MessageData data) {
 			Running = false;
 			});
-		messageManager->Subscribe("minimize", "start", [this](MessageData data) {
+		messageManager->Subscribe("minimize", "start", [this](const MessageData data) {
 			SDL_MinimizeWindow(renderer->GetWindow());
 			});
-		messageManager->Subscribe("changeFullscreen", "start", [this](MessageData data) {
+		messageManager->Subscribe("changeFullscreen", "start", [this](const MessageData data) {
 			T_INFO("fullscreen");
 			fullscreen = !fullscreen;
 			fullscreenChanged = true;

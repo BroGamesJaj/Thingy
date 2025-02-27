@@ -2,6 +2,7 @@
 #include "tpch.h"
 
 #include "Module.h"
+#include "Core\Managers\MessageManager.h"
 
 namespace Thingy {
 
@@ -37,7 +38,6 @@ namespace Thingy {
 
 	class Scene {
 	public:
-
 		virtual ~Scene() = default;
 
 		//Scene(const Scene&) = delete;
@@ -45,7 +45,7 @@ namespace Thingy {
 
 		//virtual void InitModules() const = 0;
 		//virtual void CleanUpModules() const = 0;
-		virtual void OnSwitch() = 0;
+		virtual void OnSwitch(std::unordered_map<std::string, std::variant<int, std::string>> newModuleState) = 0;
 		virtual void OnUpdate() = 0;
 		virtual uint16_t OnRender() = 0;
 		virtual void BeforeSwitch() = 0;
@@ -66,7 +66,7 @@ namespace Thingy {
 				T_ERROR("Module {0} was not found for deletion in Scene {1}", moduleName, GetSceneName());
 			}
 		}
-		
+
 		virtual void LayoutChanged() = 0;
 		virtual void UpdateLayout() = 0;
 		virtual void SaveLayout() = 0;

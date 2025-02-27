@@ -17,7 +17,7 @@ namespace Thingy {
 		virtual ~Module() = default;
 
 		virtual void SetupSubscriptions() = 0;
-		virtual void OnLoad() = 0;
+		virtual void OnLoad(const std::variant<int, std::string> moduleState) = 0;
 		virtual void OnUpdate() = 0;
 		virtual void Window() = 0;
 		virtual uint16_t OnRender() = 0;

@@ -7,7 +7,7 @@ namespace Thingy {
 
 	}
 
-	void PopularsModule::OnLoad() {
+	void PopularsModule::OnLoad(const std::variant<int, std::string> moduleState) {
 		
 		if (weeklyTracks.size() == 0 || lastFetch == 0 || lastFetch < std::chrono::system_clock::to_time_t((std::chrono::system_clock::now() - std::chrono::hours(1)))) {
 			GetPopulars();
@@ -101,7 +101,7 @@ namespace Thingy {
 					ImGui::Image((ImTextureID)(intptr_t)textures[weeklyAlbums[i].id].get(), imageSize);
 					if (ImGui::IsItemClicked()) {
 						m_MessageManager->Publish("openAlbum", weeklyAlbums[i]);
-						m_MessageManager->Publish("changeScene", "AlbumScene");
+						m_MessageManager->Publish("changeScene", std::string("AlbumScene"));
 					}
 					LimitedTextWrap(weeklyAlbums[i].name.data(), width, 3);
 				}
@@ -146,7 +146,7 @@ namespace Thingy {
 					ImGui::Image((ImTextureID)(intptr_t)textures[monthlyAlbums[i].id].get(), imageSize);
 					if (ImGui::IsItemClicked()) {
 						m_MessageManager->Publish("openAlbum", monthlyAlbums[i]);
-						m_MessageManager->Publish("changeScene", "AlbumScene");
+						m_MessageManager->Publish("changeScene", std::string("AlbumScene"));
 					}
 					LimitedTextWrap(monthlyAlbums[i].name.data(), width, 3);
 				}

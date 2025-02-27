@@ -2,13 +2,39 @@
 #include "AlbumScene.h"
 
 namespace Thingy {
+	AlbumScene::AlbumScene(std::unique_ptr<MessageManager>& messageManager) : m_MessageManager(messageManager) {
+		m_MessageManager->Subscribe("change" + GetSceneName(), GetSceneName(), [this](const MessageData data) {
+			BeforeSwitch();
+			});
+	};
+
 	AlbumScene::~AlbumScene() {
 	}
 	
-	void AlbumScene::OnSwitch() {
-
+	void AlbumScene::OnSwitch(std::unordered_map<std::string, std::variant<int, std::string>> newModuleState) {
+		for (auto& m : newModuleState) {
+			if(std::holds_alternative<int>(m.second))
+			std::cout << m.first << " " << std::get<int>(m.second) << std::endl;
+			if(std::holds_alternative<std::string>(m.second))
+			std::cout << m.first << " " << std::get<std::string>(m.second) << std::endl;
+		}
+		m_MessageManager->Subscribe("saveModuleState", GetSceneName(), [this](const MessageData data) {
+			T_ERROR("saveModuleState");
+			if (data.type() == typeid(std::pair<std::string, std::variant<int, std::string>>)) {
+				std::pair<std::string, std::variant<int, std::string>> pair = std::any_cast<std::pair<std::string, std::variant<int, std::string>>>(data);
+				moduleStates.emplace(pair.first, pair.second);
+			} else {
+				T_ERROR("There was a problem saving module state!");
+			}
+			});
+		moduleStates.clear();
+		moduleStates = newModuleState;
 		for (auto& module : modules) {
-			module.second->OnLoad();
+			if (moduleStates.find(module.first) != moduleStates.end()) {
+				module.second->OnLoad(moduleStates[module.first]);
+			} else {
+				module.second->OnLoad(-1);
+			}
 		}
 	}
 	
@@ -34,8 +60,20 @@ namespace Thingy {
 		}
 		return 0;
 	}
-	void AlbumScene::BeforeSwitch() {
+
 	
+	void AlbumScene::BeforeSwitch() {
+		for (auto& module : modules) {
+			m_MessageManager->Publish("beforeSwitch" + module.first, GetSceneName());
+		}
+		for (auto& m : moduleStates) {
+			if (std::holds_alternative<int>(m.second))
+				std::cout << m.first << " " << std::get<int>(m.second) << std::endl;
+			if (std::holds_alternative<std::string>(m.second))
+				std::cout << m.first << " " << std::get<std::string>(m.second) << std::endl;
+		}
+		m_MessageManager->Publish("setHistory", moduleStates);
+		m_MessageManager->UnSubscribe("saveModuleState", GetSceneName());
 	}
 
 	void AlbumScene::LayoutChanged() {
