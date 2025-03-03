@@ -31,12 +31,14 @@ namespace Thingy {
 				return queue[currentTrackNum];
 			}
 			Track dummy;
+			dummy.id = -1;
 			return dummy;
 			
 		}
 		int& GetCurrentTrackPos() { return currentTrackPos; }
 		int GetCurrentTrackDuration() { return music ? Mix_MusicDuration(music) : 0; }
 		std::vector<Track> GetQueue() { return queue; }
+	
 
 		bool IsMusicPaused() { return static_cast<bool>(Mix_PausedMusic()); }
 		bool IsMusicPlaying() { return static_cast<bool>(Mix_PlayingMusic()); }
@@ -73,6 +75,10 @@ namespace Thingy {
 			queue.clear();
 			queue.push_back(track);
 			m_NetworkManager->DownloadAudio(track.audioURL, musicBuffer);
+		}
+
+		void ClearQueue() {
+			queue.clear();
 		}
 
 

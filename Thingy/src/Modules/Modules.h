@@ -2,3 +2,4 @@
 #include "PlayerModule.h"
 #include "PopularsModule.h"
 #include "AlbumModule.h"
+#include "ArtistModule.h"

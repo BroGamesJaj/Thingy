@@ -8,10 +8,9 @@
 #include "Core\Managers\MessageManager.h"
 
 namespace Thingy {
-	class AlbumModule : public Module {
+	class ArtistModule : public Module {
 	public:
-		AlbumModule(std::unique_ptr<MessageManager>& messageManager, std::unique_ptr<AudioManager>& audioManager, std::unique_ptr<ImageManager>& imageManager, std::unique_ptr<NetworkManager>& networkManager) : m_MessageManager(messageManager), m_AudioManager(audioManager), m_ImageManager(imageManager), m_NetworkManager(networkManager) {
-		}
+		ArtistModule(std::unique_ptr<MessageManager>& messageManager, std::unique_ptr<AudioManager>& audioManager, std::unique_ptr<ImageManager>& imageManager, std::unique_ptr<NetworkManager>& networkManager) : m_MessageManager(messageManager), m_AudioManager(audioManager), m_ImageManager(imageManager), m_NetworkManager(networkManager) {}
 		void SetupSubscriptions() override;
 		void OnLoad(const std::variant<int, std::string> moduleState) override;
 		void OnUpdate() override;
@@ -20,7 +19,7 @@ namespace Thingy {
 
 		int DefaultWidth() const override { return 1280; }
 
-		MODULE_CLASS_NAME("albumModule")
+		MODULE_CLASS_NAME("artistModule")
 	private:
 
 		struct SDL_TDeleter { void operator()(SDL_Texture* p) { SDL_DestroyTexture(p); } };
@@ -28,13 +27,14 @@ namespace Thingy {
 		uint16_t upProps = 0;
 
 		int curr = 0;
-		std::vector<Album> album;
+		std::vector<Artist> artists;
+		std::unordered_map<uint32_t, std::vector<Album>> albums;
 		std::unique_ptr<MessageManager>& m_MessageManager;
 		std::unique_ptr<NetworkManager>& m_NetworkManager;
 		std::unique_ptr<AudioManager>& m_AudioManager;
 		std::unique_ptr<ImageManager>& m_ImageManager;
 		std::unordered_map<uint32_t, std::unique_ptr<SDL_Texture, SDL_TDeleter>> textures;
-		std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::unique_ptr<SDL_Texture, SDL_TDeleter>>> trackTextures;
+		std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::unique_ptr<SDL_Texture, SDL_TDeleter>>> albumTextures;
 
 	};
 }

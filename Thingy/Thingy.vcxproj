@@ -166,11 +166,13 @@
     <ClInclude Include="src\Core\Managers\SceneManager.h" />
     <ClInclude Include="src\Core\Track.h" />
     <ClInclude Include="src\Modules\AlbumModule.h" />
+    <ClInclude Include="src\Modules\ArtistModule.h" />
     <ClInclude Include="src\Modules\Modules.h" />
     <ClInclude Include="src\Modules\PlayerModule.h" />
     <ClInclude Include="src\Modules\PopularsModule.h" />
     <ClInclude Include="src\Renderer\SDLRenderer.h" />
     <ClInclude Include="src\Scenes\AlbumScene.h" />
+    <ClInclude Include="src\Scenes\ArtistScene.h" />
     <ClInclude Include="src\Scenes\FrontPageScene.h" />
     <ClInclude Include="src\Scenes\LoginScene.h" />
     <ClInclude Include="src\Scenes\Scenes.h" />
@@ -191,11 +193,13 @@
     <ClCompile Include="src\Core\Scene.cpp" />
     <ClCompile Include="src\Core\Managers\SceneManager.cpp" />
     <ClCompile Include="src\Modules\AlbumModule.cpp" />
+    <ClCompile Include="src\Modules\ArtistModule.cpp" />
     <ClCompile Include="src\Modules\PlayerModule.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Modules\PopularsModule.cpp" />
     <ClCompile Include="src\Renderer\SDLRenderer.cpp" />
     <ClCompile Include="src\Scenes\AlbumScene.cpp" />
+    <ClCompile Include="src\Scenes\ArtistScene.cpp" />
     <ClCompile Include="src\Scenes\FrontPageScene.cpp" />
     <ClCompile Include="src\Scenes\LoginScene.cpp" />
     <ClCompile Include="src\tpch.cpp">

@@ -13,6 +13,7 @@ namespace Thingy {
 		std::string releaseDate = "";
 		std::string artistName = "";
 		std::string imageURL = "";
+		int trackCount = 0;
 		std::vector<Track> tracks;
 
 		inline std::string toString() const {
@@ -24,6 +25,7 @@ namespace Thingy {
 				<< "Artist ID: " << artistID << "\n"
 				<< "Artist Name: " << artistName << "\n"
 				<< "Image URL: " << imageURL << "\n"
+				<< "Track Count: " << trackCount << "\n"
 				<< "Tracks: " << tracks.size() << " tracks";
 			return oss.str();
 		}

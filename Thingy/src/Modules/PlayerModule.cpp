@@ -11,7 +11,7 @@ namespace Thingy {
 	void PlayerModule::OnUpdate() {
 		int currentTrackID = m_AudioManager->GetCurrentTrack().id; 
 
-		if (currentTrackID != m_TrackID) {
+		if (currentTrackID != m_TrackID && currentTrackID != -1) {
 			
 			changed = true;
 			m_TrackID = currentTrackID;

@@ -83,8 +83,6 @@ namespace Thingy {
 					ImGui::TableNextColumn();
 					ImGui::Image((ImTextureID)(intptr_t)textures[weeklyTracks[i].id].get(), imageSize);
 					if (ImGui::IsItemClicked()) {
-						m_AudioManager->GetQueue().clear();
-						m_AudioManager->GetQueue().push_back(weeklyTracks[i]);
 						m_AudioManager->LoadMusicFromTrack(weeklyTracks[i]);
 						m_AudioManager->ChangeMusic();
 						m_AudioManager->ResumeMusic();
@@ -113,6 +111,10 @@ namespace Thingy {
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
 					ImGui::Image((ImTextureID)(intptr_t)textures[weeklyArtists[i].id].get(), imageSize);
+					if (ImGui::IsItemClicked()) {
+						m_MessageManager->Publish("openArtist", weeklyArtists[i]);
+						m_MessageManager->Publish("changeScene", std::string("ArtistScene"));
+					}
 					LimitedTextWrap(weeklyArtists[i].artistName.data(), width, 3);
 				}
 				ImGui::EndTable();
@@ -128,8 +130,6 @@ namespace Thingy {
 					ImGui::TableNextColumn();
 					ImGui::Image((ImTextureID)(intptr_t)textures[monthlyTracks[i].id].get(), imageSize);
 					if (ImGui::IsItemClicked()) {
-						m_AudioManager->GetQueue().clear();
-						m_AudioManager->GetQueue().push_back(monthlyTracks[i]);
 						m_AudioManager->LoadMusicFromTrack(monthlyTracks[i]);
 						m_AudioManager->ChangeMusic();
 						m_AudioManager->ResumeMusic();
@@ -159,12 +159,9 @@ namespace Thingy {
 					ImGui::TableNextColumn();
 					ImGui::Image((ImTextureID)(intptr_t)textures[monthlyArtists[i].id].get(), imageSize);
 					if (ImGui::IsItemClicked()) {
-						m_AudioManager->GetQueue().clear();
-						m_AudioManager->GetQueue().push_back(weeklyTracks[i]);
-						m_AudioManager->LoadMusicFromTrack(weeklyTracks[i]);
-						m_AudioManager->ChangeMusic();
-						m_AudioManager->ResumeMusic();
-					};
+						m_MessageManager->Publish("openArtist", monthlyArtists[i]);
+						m_MessageManager->Publish("changeScene", std::string("ArtistScene"));
+					}
 					LimitedTextWrap(monthlyArtists[i].artistName.data(), width, 3);
 				}
 				ImGui::EndTable();
@@ -183,8 +180,6 @@ namespace Thingy {
 					ImGui::TableNextColumn();
 					ImGui::Image((ImTextureID)(intptr_t)textures[weeklyTracks[i].id].get(), imageSize);
 					if (ImGui::IsItemClicked()) {
-						m_AudioManager->GetQueue().clear();
-						m_AudioManager->GetQueue().push_back(weeklyTracks[i]);
 						m_AudioManager->LoadMusicFromTrack(weeklyTracks[i]);
 						m_AudioManager->ChangeMusic();
 						m_AudioManager->ResumeMusic();
@@ -201,7 +196,7 @@ namespace Thingy {
 					ImGui::Image((ImTextureID)(intptr_t)textures[weeklyAlbums[i].id].get(), imageSize);
 					if (ImGui::IsItemClicked()) {
 						m_MessageManager->Publish("openAlbum", weeklyAlbums[i]);
-						m_MessageManager->Publish("changeScene", "AlbumScene");
+						m_MessageManager->Publish("changeScene", std::string("AlbumScene"));
 					}
 					LimitedTextWrap(weeklyAlbums[i].name.data(), width, 3);
 				}
@@ -213,7 +208,10 @@ namespace Thingy {
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
 					ImGui::Image((ImTextureID)(intptr_t)textures[weeklyArtists[i].id].get(), imageSize);
-					
+					if (ImGui::IsItemClicked()) {
+						m_MessageManager->Publish("openArtist", weeklyArtists[i]);
+						m_MessageManager->Publish("changeScene", std::string("ArtistScene"));
+					}
 					LimitedTextWrap(weeklyArtists[i].artistName.data(), width, 3);
 				}
 
@@ -225,8 +223,6 @@ namespace Thingy {
 					ImGui::TableNextColumn();
 					ImGui::Image((ImTextureID)(intptr_t)textures[monthlyTracks[i].id].get(), imageSize);
 					if (ImGui::IsItemClicked()) {
-						m_AudioManager->GetQueue().clear();
-						m_AudioManager->GetQueue().push_back(monthlyTracks[i]);
 						m_AudioManager->LoadMusicFromTrack(monthlyTracks[i]);
 						m_AudioManager->ChangeMusic();
 						m_AudioManager->ResumeMusic();
@@ -243,7 +239,7 @@ namespace Thingy {
 					ImGui::Image((ImTextureID)(intptr_t)textures[monthlyAlbums[i].id].get(), imageSize);
 					if (ImGui::IsItemClicked()) {
 						m_MessageManager->Publish("openAlbum", monthlyAlbums[i]);
-						m_MessageManager->Publish("changeScene", "AlbumScene");
+						m_MessageManager->Publish("changeScene", std::string("AlbumScene"));
 					}
 					LimitedTextWrap(monthlyAlbums[i].name.data(), width, 3);
 				}
@@ -255,6 +251,10 @@ namespace Thingy {
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
 					ImGui::Image((ImTextureID)(intptr_t)textures[monthlyArtists[i].id].get(), imageSize);
+					if (ImGui::IsItemClicked()) {
+						m_MessageManager->Publish("openArtist", monthlyArtists[i]);
+						m_MessageManager->Publish("changeScene", std::string("ArtistScene"));
+					}
 					LimitedTextWrap(monthlyArtists[i].artistName.data(), width, 3);
 				}
 				ImGui::EndTable();
@@ -286,12 +286,12 @@ namespace Thingy {
 	}
 
 	void PopularsModule::GetPopulars() {
-		std::string weeklyTrack = "https://api.jamendo.com/v3.0/tracks/?client_id=8b1de417&format=jsonpretty&order=popularity_week&limit=5";
-		std::string weeklyAlbum = "https://api.jamendo.com/v3.0/albums/?client_id=8b1de417&format=jsonpretty&order=popularity_week&limit=5";
-		std::string weeklyArtist = "https://api.jamendo.com/v3.0/artists/?client_id=8b1de417&format=jsonpretty&order=popularity_week&limit=5";
-		std::string monthlyTrack = "https://api.jamendo.com/v3.0/tracks/?client_id=8b1de417&format=jsonpretty&order=popularity_month&limit=5";
-		std::string monthlyAlbum = "https://api.jamendo.com/v3.0/albums/?client_id=8b1de417&format=jsonpretty&order=popularity_month&limit=5";
-		std::string monthlyArtist = "https://api.jamendo.com/v3.0/artists/?client_id=8b1de417&format=jsonpretty&order=popularity_month&limit=5";
+		std::string weeklyTrack = "https://api.jamendo.com/v3.0/tracks/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&order=popularity_week&limit=5";
+		std::string weeklyAlbum = "https://api.jamendo.com/v3.0/albums/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&order=popularity_week&limit=5";
+		std::string weeklyArtist = "https://api.jamendo.com/v3.0/artists/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&order=popularity_week&limit=5";
+		std::string monthlyTrack = "https://api.jamendo.com/v3.0/tracks/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&order=popularity_month&limit=5";
+		std::string monthlyAlbum = "https://api.jamendo.com/v3.0/albums/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&order=popularity_month&limit=5";
+		std::string monthlyArtist = "https://api.jamendo.com/v3.0/artists/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&order=popularity_month&limit=5";
 
 		std::future<std::vector<Track>> futureWeeklyTracks = std::async(std::launch::async, [this, weeklyTrack]() { return m_NetworkManager->GetTrack(weeklyTrack); });
 		std::future<std::vector<Album>> futureWeeklyAlbums = std::async(std::launch::async, [this, weeklyAlbum]() { return m_NetworkManager->GetAlbum(weeklyAlbum); });
@@ -300,8 +300,8 @@ namespace Thingy {
 		std::future<std::vector<Album>> futureMonthlyAlbums = std::async(std::launch::async, [this, monthlyAlbum]() { return m_NetworkManager->GetAlbum(monthlyAlbum); });
 		std::future<std::vector<Artist>> futureMonthlyArtists = std::async(std::launch::async, [this, monthlyArtist]() { return m_NetworkManager->GetArtist(monthlyArtist); });
 		
-		std::string weeklyDetailedAlbums = "https://api.jamendo.com/v3.0/tracks/?client_id=8b1de417&format=jsonpretty";
-		std::string monthlyDetailedAlbums = "https://api.jamendo.com/v3.0/tracks/?client_id=8b1de417&format=jsonpretty";
+		std::string weeklyDetailedAlbums = "https://api.jamendo.com/v3.0/tracks/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty";
+		std::string monthlyDetailedAlbums = "https://api.jamendo.com/v3.0/tracks/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty";
 		
 		weeklyTracks = futureWeeklyTracks.get();
 		weeklyAlbums = futureWeeklyAlbums.get();

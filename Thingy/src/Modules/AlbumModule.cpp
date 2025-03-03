@@ -1,9 +1,10 @@
 #include "AlbumModule.h"
 
+
 namespace Thingy {
 
 	void AlbumModule::SetupSubscriptions() {
-		m_MessageManager->Subscribe("openAlbum", "albumModule", [this](const MessageData data) {
+		m_MessageManager->Subscribe("openAlbum", GetModuleName(), [this](const MessageData data) {
 			
 				if (data.type() == typeid(Album)) {
 					Album recAlbum = std::any_cast<Album>(data);
@@ -13,6 +14,9 @@ namespace Thingy {
 							T_INFO("returned");
 							return;
 						}
+					}
+					if (recAlbum.tracks.empty()) {
+						recAlbum.tracks = m_NetworkManager->GetTrack("https://api.jamendo.com/v3.0/tracks/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&limit=200&album_id=2442");
 					}
 					album.emplace_back(recAlbum);
 					curr = album.size() - 1;
@@ -43,6 +47,12 @@ namespace Thingy {
 		T_INFO("curr: {0}", curr);
 		if (!textures[album[curr].id]) 
 			textures[album[curr].id] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTexture(album[curr].imageURL));
+		for (auto& track : album[curr].tracks) {
+			if (!trackTextures[album[curr].id][track.id]) {
+				trackTextures[album[curr].id][track.id] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTexture(track.imageURL));
+			}
+		}
+		
 	}
 	
 	void AlbumModule::OnUpdate() {
@@ -66,11 +76,31 @@ namespace Thingy {
 		ImGui::SameLine();
 		ImGui::BeginGroup();
 		ImGui::Text(album[curr].name.data());
+		ImGui::Text(album[curr].artistName.data());
 		ImGui::Text("Track count: %zu", album[curr].tracks.size());
 		ImGui::SameLine();
 		ImGui::Text("length");
 		ImGui::EndGroup();
-
+		ImGui::BeginChild("Tracks", ImVec2(0,300), false, ImGuiWindowFlags_HorizontalScrollbar);
+		for (auto& track : album[curr].tracks) {
+			ImGui::BeginGroup();
+			ImGui::Image((ImTextureID)(intptr_t)trackTextures[album[curr].id][track.id].get(), { 200.0f, 200.0f });
+			if (ImGui::IsItemClicked()) {
+				m_AudioManager->LoadMusicFromTrack(track);
+				m_AudioManager->ChangeMusic();
+				m_AudioManager->ResumeMusic();
+			};
+			LimitedTextWrap(track.title.data(), 180, 3);
+			ImGui::EndGroup();
+			ImGui::SameLine();
+		}
+		ImGui::EndChild();
+		if (ImGui::Button("emptyq")) {
+			T_INFO("q: {0}", m_AudioManager->GetQueue().size());
+			m_AudioManager->ClearQueue();
+			T_INFO("q after: {0}", m_AudioManager->GetQueue().size());
+		}
+		
 	}
 
 	uint16_t AlbumModule::OnRender() {

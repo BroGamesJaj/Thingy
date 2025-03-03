@@ -36,6 +36,8 @@
     <ClInclude Include="src\Core\HelperFunctions.h" />
     <ClInclude Include="src\Comps\CustomHeader.h" />
     <ClInclude Include="src\Core\Fonts.h" />
+    <ClInclude Include="src\Scenes\ArtistScene.h" />
+    <ClInclude Include="src\Modules\ArtistModule.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -64,5 +66,7 @@
     <ClCompile Include="src\Core\HelperFunctions.cpp" />
     <ClCompile Include="src\Comps\CustomHeader.cpp" />
     <ClCompile Include="src\Core\Fonts.cpp" />
+    <ClCompile Include="src\Scenes\ArtistScene.cpp" />
+    <ClCompile Include="src\Modules\ArtistModule.cpp" />
   </ItemGroup>
 </Project>
