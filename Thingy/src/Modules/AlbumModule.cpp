@@ -47,11 +47,6 @@ namespace Thingy {
 		T_INFO("curr: {0}", curr);
 		if (!textures[album[curr].id]) 
 			textures[album[curr].id] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTexture(album[curr].imageURL));
-		for (auto& track : album[curr].tracks) {
-			if (!trackTextures[album[curr].id][track.id]) {
-				trackTextures[album[curr].id][track.id] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTexture(track.imageURL));
-			}
-		}
 		
 	}
 	
@@ -84,7 +79,7 @@ namespace Thingy {
 		ImGui::BeginChild("Tracks", ImVec2(0,300), false, ImGuiWindowFlags_HorizontalScrollbar);
 		for (auto& track : album[curr].tracks) {
 			ImGui::BeginGroup();
-			ImGui::Image((ImTextureID)(intptr_t)trackTextures[album[curr].id][track.id].get(), { 200.0f, 200.0f });
+			ImGui::Image((ImTextureID)(intptr_t)textures[album[curr].id].get(), { 200.0f, 200.0f });
 			if (ImGui::IsItemClicked()) {
 				m_AudioManager->LoadMusicFromTrack(track);
 				m_AudioManager->ChangeMusic();
@@ -95,11 +90,6 @@ namespace Thingy {
 			ImGui::SameLine();
 		}
 		ImGui::EndChild();
-		if (ImGui::Button("emptyq")) {
-			T_INFO("q: {0}", m_AudioManager->GetQueue().size());
-			m_AudioManager->ClearQueue();
-			T_INFO("q after: {0}", m_AudioManager->GetQueue().size());
-		}
 		
 	}
 

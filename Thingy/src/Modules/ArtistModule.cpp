@@ -67,18 +67,14 @@ namespace Thingy {
 		}
 		int i = 0;
 		std::unordered_map<uint32_t, std::future<Image>> images;
+		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();	
 		for (auto& album : artists[curr].albums) {
 			if (!albumTextures[artists[curr].id][album.id]) {
-				//std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 				std::string& url = album.imageURL;
 				images.emplace(album.id, std::async(std::launch::async, [this, &url]() { return m_ImageManager->GetImage(url); }));
-				//albumTextures[artists[curr].id][album.id] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTexture(album.imageURL));
-				//std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-				//std::cout << "full time = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[milliseconds]" << std::endl;
 			}
 			
 		}
-		T_INFO("fetches started");
 		while (!images.empty()) {
 			for (auto it = images.begin(); it != images.end(); ) {
 				auto& image = it->second;
@@ -86,12 +82,12 @@ namespace Thingy {
 					albumTextures[artists[curr].id][it->first] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTextureFromImage(image.get()));
 					it = images.erase(it);
 				} else {
-					T_TRACE("not done");
 					++it;
 				}
 			}
 		}
-		T_INFO("images done");
+		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+		T_INFO("full time = {0} [milliseconds]", std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
 
 	}
 
@@ -120,9 +116,15 @@ namespace Thingy {
 		ImGui::Text("length");
 		ImGui::EndGroup();
 		ImGui::BeginChild("Albums", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);
-		for (auto& album : artists[curr].albums) {
+		for (size_t i = 0; i < artists[curr].albums.size(); i++) {
+			Album& album = artists[curr].albums[i];
 			ImGui::BeginGroup();
-			ImGui::Image((ImTextureID)(intptr_t)albumTextures[artists[curr].id][album.id].get(), { 200.0f, 200.0f });
+			ImGui::Image((ImTextureID)(intptr_t)albumTextures[artists[curr].id][album.id].get(), {200.0f, 200.0f});
+			if (ImGui::IsItemClicked()) {
+				m_MessageManager->Publish("openAlbum", album);
+				m_MessageManager->Publish("changeScene", std::string("AlbumScene"));
+
+			}
 			LimitedTextWrap(album.name.data(), 180, 3);
 			ImGui::EndGroup();
 			ImGui::SameLine();
