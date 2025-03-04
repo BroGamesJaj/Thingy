@@ -7,20 +7,31 @@ namespace Thingy {
 		m_MessageManager->Subscribe("openArtist", GetModuleName(), [this](const MessageData data) {
 
 			if (data.type() == typeid(Artist)) {
-				Artist recAlbum = std::any_cast<Artist>(data);
+				Artist recArtist = std::any_cast<Artist>(data);
 				for (size_t i = 0; i < artists.size(); i++) {
-					if (artists[i].artistName == recAlbum.artistName) {
+					if (artists[i].artistName == recArtist.artistName) {
 						curr = i;
 						T_INFO("returned");
 						return;
 					}
 				}
-				artists.emplace_back(recAlbum);
-				curr = artists.size() - 1;
-				if (artists[curr].albums.empty()) {
-					artists[curr].albums = m_NetworkManager->GetAlbum("https://api.jamendo.com/v3.0/albums/tracks/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&limit=200&artist_id=" + std::to_string(artists[curr].id));
+				
+				std::string url = 
+					"https://api.jamendo.com/v3.0/artists/tracks/?client_id=" 
+					+ std::string(CLIENTID) 
+					+ "&format=jsonpretty&limit=1&id=" 
+					+ std::to_string(recArtist.id);
+
+				std::vector<Artist> getArtist = m_NetworkManager->GetArtistsWithTracks(url);
+				if (getArtist.size() < 1) {
+					T_ERROR("ArtistModule: GetArtistsWithTracks returned 0 artists.");
+					return;
 				}
+				artists.emplace_back(getArtist[0]);
+				T_INFO("-1curr: {0}", curr);
+				curr = artists.size() - 1;
 				std::cout << artists[curr].toString() << std::endl;
+				T_INFO("0curr: {0}", curr);
 			} else {
 				T_ERROR("ArtistModule: Invalid data type for openArtist");
 			}
@@ -33,6 +44,7 @@ namespace Thingy {
 	}
 
 	void ArtistModule::OnLoad(const std::variant<int, std::string> moduleState) {
+		T_INFO("1curr: {0}", curr);
 		if (std::holds_alternative<std::string>(moduleState)) {
 			std::string artistName = std::get<std::string>(moduleState);
 			for (size_t i = 0; i < artists.size(); i++) {
@@ -53,11 +65,33 @@ namespace Thingy {
 			}
 
 		}
-		for (auto& album : albums[artists[curr].id]) {
+		int i = 0;
+		std::unordered_map<uint32_t, std::future<Image>> images;
+		for (auto& album : artists[curr].albums) {
 			if (!albumTextures[artists[curr].id][album.id]) {
-				albumTextures[artists[curr].id][album.id] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTexture(album.imageURL));
+				//std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+				std::string& url = album.imageURL;
+				images.emplace(album.id, std::async(std::launch::async, [this, &url]() { return m_ImageManager->GetImage(url); }));
+				//albumTextures[artists[curr].id][album.id] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTexture(album.imageURL));
+				//std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+				//std::cout << "full time = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[milliseconds]" << std::endl;
+			}
+			
+		}
+		T_INFO("fetches started");
+		while (!images.empty()) {
+			for (auto it = images.begin(); it != images.end(); ) {
+				auto& image = it->second;
+				if (image.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+					albumTextures[artists[curr].id][it->first] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTextureFromImage(image.get()));
+					it = images.erase(it);
+				} else {
+					T_TRACE("not done");
+					++it;
+				}
 			}
 		}
+		T_INFO("images done");
 
 	}
 
@@ -86,7 +120,7 @@ namespace Thingy {
 		ImGui::Text("length");
 		ImGui::EndGroup();
 		ImGui::BeginChild("Albums", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);
-		for (auto& album : albums[artists[curr].id]) {
+		for (auto& album : artists[curr].albums) {
 			ImGui::BeginGroup();
 			ImGui::Image((ImTextureID)(intptr_t)albumTextures[artists[curr].id][album.id].get(), { 200.0f, 200.0f });
 			LimitedTextWrap(album.name.data(), 180, 3);

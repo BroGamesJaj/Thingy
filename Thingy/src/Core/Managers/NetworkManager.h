@@ -54,6 +54,7 @@ namespace Thingy {
 		std::vector<Track> GetTrack(std::string url);
 		std::vector<Album> GetAlbum(std::string url);
 		std::vector<Artist> GetArtist(std::string url);
+		std::vector<Artist> GetArtistsWithTracks(std::string url);
 
 
 

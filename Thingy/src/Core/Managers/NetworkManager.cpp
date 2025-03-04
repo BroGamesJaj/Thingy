@@ -184,4 +184,46 @@ namespace Thingy {
 		}
 		return artists;
 	}
+
+	//https://api.jamendo.com/v3.0/artists/tracks/
+	std::vector<Artist> NetworkManager::GetArtistsWithTracks(std::string url) {
+		std::string jsonData = GetRequest(url);
+		if (jsonData == "curl error" || jsonData.find("error code:") != std::string::npos) {
+			T_ERROR("{0}", jsonData);
+			return std::vector<Artist>();
+		}
+		json parsedJsonData = json::parse(jsonData);
+		json& headers = parsedJsonData["headers"];
+		if (headers["status"] != "success") {
+			T_ERROR("{0}", jsonData);
+			T_ERROR("code: {0}", headers["code"].get<int>());
+			return std::vector<Artist>();
+		}
+		json& results = parsedJsonData["results"];
+		std::vector<Artist> artists;
+		for (size_t i = 0; i < headers["results_count"]; i++) {
+			std::cout << "hello" << std::endl;
+			json& currArtist = results[i];
+			Artist artist = currArtist;
+			std::unordered_map<uint32_t, Album> albums;
+			for (size_t j = 0; j < currArtist["tracks"].size(); j++) {
+				json& currTrack = currArtist["tracks"][j];
+				Track track = currTrack;
+				albums[track.albumID].tracks.push_back(track);
+			}
+			for (auto& albumPair : albums) {
+				Album& album = albumPair.second;
+				album.artistID = artist.id;
+				album.artistName = artist.artistName;
+				album.id = albumPair.first;
+				album.imageURL = album.tracks[0].imageURL;
+				album.name = album.tracks[0].albumName;
+				album.releaseDate = album.tracks[0].releaseDate;
+				album.trackCount = album.tracks.size();
+				artist.albums.push_back(album);
+			}
+			artists.push_back(artist);
+		}
+		return artists;
+	}
 }

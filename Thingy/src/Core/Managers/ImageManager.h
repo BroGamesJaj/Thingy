@@ -16,6 +16,10 @@ namespace Thingy {
 		ImageManager(const ImageManager&) = delete;
 		void operator=(const ImageManager&) = delete;
 
+		Image GetImage(std::string& url);
+
+		SDL_Texture* GetTextureFromImage(Image image);
+
 		SDL_Texture* GetTexture(std::string url);
 		SDL_Surface* GetSurface(std::string& url);
 		SDL_Texture* GetTextureFromSurface(SDL_Surface* surface);
