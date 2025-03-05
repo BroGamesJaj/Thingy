@@ -209,6 +209,8 @@ namespace Thingy {
 			for (size_t j = 0; j < currArtist["tracks"].size(); j++) {
 				json& currTrack = currArtist["tracks"][j];
 				Track track = currTrack;
+				track.artistID = artist.id;
+				track.artistName = artist.artistName;
 				albums[track.albumID].tracks.push_back(track);
 			}
 			for (auto& albumPair : albums) {

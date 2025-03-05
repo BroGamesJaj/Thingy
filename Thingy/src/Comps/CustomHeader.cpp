@@ -51,6 +51,9 @@ namespace Thingy {
 			ImGui::EndPopup();
 		}
 		*/
+		if(ImGui::Button("Queue")) {
+			m_MessageManager->Publish("changeQueueOpen", "");
+		};
 		ImGui::SetCursorPosX(winW - 15 - 40 - 5 - 40 - 5 - 40);
 		if (ImGui::Button("_", { 40.0f, 30.0f }))
 			m_MessageManager->Publish("minimize", 0);

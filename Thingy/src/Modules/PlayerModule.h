@@ -10,11 +10,8 @@
 namespace Thingy {
 	class PlayerModule : public Module {
 	public:
-		PlayerModule(std::unique_ptr<MessageManager>& messageManager, std::unique_ptr<AudioManager>& audioManager, std::unique_ptr<ImageManager>& imageManager) : m_MessageManager(messageManager), m_AudioManager(audioManager), m_ImageManager(imageManager), m_CurrentTime(audioManager->GetCurrentTrackPos()), m_AudioVolume(audioManager->GetVolume()) {
-			m_TrackID = 0;
-			m_TrackName = "";
-			m_TrackArtist = "";
-			m_TrackDuration = 0;
+		PlayerModule(std::unique_ptr<MessageManager>& messageManager, std::unique_ptr<AudioManager>& audioManager, std::unique_ptr<ImageManager>& imageManager) : m_MessageManager(messageManager), m_AudioManager(audioManager), m_ImageManager(imageManager), m_CurrentTime(audioManager->GetCurrentTrackPos()), m_AudioVolume(audioManager->GetVolume()), queue(audioManager->GetQueue()) {
+			currentTrack = Track();
 		}
 
 		void SetupSubscriptions() override;
@@ -23,19 +20,14 @@ namespace Thingy {
 		void Window() override;
 		uint16_t OnRender() override;
 
+
 		int DefaultWidth() const override { return 400; }
-
-		void SetCurrentTrack(Track currTrack) {
-			m_TrackID = currTrack.id;
-			m_TrackName = currTrack.title;
-			m_TrackArtist = currTrack.artistName;
-			m_TrackDuration = currTrack.duration;
-		}
-
 
 
 		MODULE_CLASS_NAME("PlayerModule")
 	private:
+		void QueueView();
+		void PlayerView();
 
 		struct SDL_TDeleter { void operator()(SDL_Texture* p) { SDL_DestroyTexture(p); } };
 
@@ -45,11 +37,13 @@ namespace Thingy {
 		std::unique_ptr<AudioManager>& m_AudioManager;
 		std::unique_ptr<ImageManager>& m_ImageManager;
 
-		int m_TrackID;
-		std::string m_TrackName;
-		std::string m_TrackArtist;
-		std::unique_ptr<SDL_Texture, SDL_TDeleter> image;
-		int m_TrackDuration;
+		bool open = true;
+		bool isQueueOpen = false;
+
+		std::vector<Track>& queue;
+		std::unordered_map<uint32_t, std::unique_ptr<SDL_Texture, SDL_TDeleter>> queueTextures;
+
+		Track currentTrack;
 
 		int& m_CurrentTime;
 		int& m_AudioVolume;
