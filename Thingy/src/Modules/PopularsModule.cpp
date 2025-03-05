@@ -35,6 +35,9 @@ namespace Thingy {
 	void PopularsModule::OnUpdate() {
 	}
 	void PopularsModule::Window() {
+		ImVec4 normalColor = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+		ImGui::PushStyleColor(ImGuiCol_Button, normalColor);
+
 		float scale = (ImGui::GetWindowSize().x / DefaultWidth());
 		float width = std::clamp(100.0f * scale, 85.0f, 125.0f);
 		float height = std::clamp(100.0f * scale, 85.0f, 125.0f);
@@ -81,8 +84,7 @@ namespace Thingy {
 				ImGui::TableNextRow(0, height * 2);
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
-					ImGui::Image((ImTextureID)(intptr_t)textures[weeklyTracks[i].id].get(), imageSize);
-					if (ImGui::IsItemClicked()) {
+					if(ImGui::ImageButton(std::string("##weeklyT" + i).data(), (ImTextureID)(intptr_t)textures[weeklyTracks[i].id].get(), imageSize)) {
 						m_MessageManager->Publish("startMusic", weeklyTracks[i]);
 					};
 					LimitedTextWrap(weeklyTracks[i].title.data(), width, 3);
@@ -94,8 +96,7 @@ namespace Thingy {
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
-					ImGui::Image((ImTextureID)(intptr_t)textures[weeklyAlbums[i].id].get(), imageSize);
-					if (ImGui::IsItemClicked()) {
+					if (ImGui::ImageButton(std::string("##weeklyA" + i).data(), (ImTextureID)(intptr_t)textures[weeklyAlbums[i].id].get(), imageSize)) {
 						m_MessageManager->Publish("openAlbum", weeklyAlbums[i]);
 						m_MessageManager->Publish("changeScene", std::string("AlbumScene"));
 					}
@@ -108,8 +109,7 @@ namespace Thingy {
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
-					ImGui::Image((ImTextureID)(intptr_t)textures[weeklyArtists[i].id].get(), imageSize);
-					if (ImGui::IsItemClicked()) {
+					if (ImGui::ImageButton(std::string("##weeklyAr" + i).data(), (ImTextureID)(intptr_t)textures[weeklyArtists[i].id].get(), imageSize)) {
 						m_MessageManager->Publish("openArtist", weeklyArtists[i]);
 						m_MessageManager->Publish("changeScene", std::string("ArtistScene"));
 					}
@@ -126,8 +126,7 @@ namespace Thingy {
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
-					ImGui::Image((ImTextureID)(intptr_t)textures[monthlyTracks[i].id].get(), imageSize);
-					if (ImGui::IsItemClicked()) {
+					if (ImGui::ImageButton(std::string("##monthlyT" + i).data(), (ImTextureID)(intptr_t)textures[monthlyTracks[i].id].get(), imageSize)) {
 						m_MessageManager->Publish("startMusic", monthlyTracks[i]);
 					};
 					LimitedTextWrap(monthlyTracks[i].title.data(), width, 3);
@@ -139,8 +138,7 @@ namespace Thingy {
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
-					ImGui::Image((ImTextureID)(intptr_t)textures[monthlyAlbums[i].id].get(), imageSize);
-					if (ImGui::IsItemClicked()) {
+					if (ImGui::ImageButton(std::string("##monthlyA" + i).data(), (ImTextureID)(intptr_t)textures[monthlyAlbums[i].id].get(), imageSize)) {
 						m_MessageManager->Publish("openAlbum", monthlyAlbums[i]);
 						m_MessageManager->Publish("changeScene", std::string("AlbumScene"));
 					}
@@ -153,8 +151,7 @@ namespace Thingy {
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
-					ImGui::Image((ImTextureID)(intptr_t)textures[monthlyArtists[i].id].get(), imageSize);
-					if (ImGui::IsItemClicked()) {
+					if (ImGui::ImageButton(std::string("##monthlyAr" + i).data(), (ImTextureID)(intptr_t)textures[monthlyArtists[i].id].get(), imageSize)) {
 						m_MessageManager->Publish("openArtist", monthlyArtists[i]);
 						m_MessageManager->Publish("changeScene", std::string("ArtistScene"));
 					}
@@ -174,8 +171,7 @@ namespace Thingy {
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
-					ImGui::Image((ImTextureID)(intptr_t)textures[weeklyTracks[i].id].get(), imageSize);
-					if (ImGui::IsItemClicked()) {
+					if (ImGui::ImageButton(std::string("##weeklyT" + i).data(), (ImTextureID)(intptr_t)textures[weeklyTracks[i].id].get(), imageSize)) {
 						m_MessageManager->Publish("startMusic", weeklyTracks[i]);
 					};
 					LimitedTextWrap(weeklyTracks[i].title.data(), width, 3);
@@ -187,8 +183,7 @@ namespace Thingy {
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
-					ImGui::Image((ImTextureID)(intptr_t)textures[weeklyAlbums[i].id].get(), imageSize);
-					if (ImGui::IsItemClicked()) {
+					if (ImGui::ImageButton(std::string("##weeklyA" + i).data(), (ImTextureID)(intptr_t)textures[weeklyAlbums[i].id].get(), imageSize)) {
 						m_MessageManager->Publish("openAlbum", weeklyAlbums[i]);
 						m_MessageManager->Publish("changeScene", std::string("AlbumScene"));
 					}
@@ -201,8 +196,7 @@ namespace Thingy {
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
-					ImGui::Image((ImTextureID)(intptr_t)textures[weeklyArtists[i].id].get(), imageSize);
-					if (ImGui::IsItemClicked()) {
+					if (ImGui::ImageButton(std::string("##weeklyAr" + i).data(), (ImTextureID)(intptr_t)textures[weeklyArtists[i].id].get(), imageSize)) {
 						m_MessageManager->Publish("openArtist", weeklyArtists[i]);
 						m_MessageManager->Publish("changeScene", std::string("ArtistScene"));
 					}
@@ -215,8 +209,7 @@ namespace Thingy {
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
-					ImGui::Image((ImTextureID)(intptr_t)textures[monthlyTracks[i].id].get(), imageSize);
-					if (ImGui::IsItemClicked()) {
+					if (ImGui::ImageButton(std::string("##monthlyT" + i).data(), (ImTextureID)(intptr_t)textures[monthlyTracks[i].id].get(), imageSize)) {
 						m_MessageManager->Publish("startMusic", monthlyTracks[i]);
 					};
 					LimitedTextWrap(monthlyTracks[i].title.data(), width, 3);
@@ -228,8 +221,7 @@ namespace Thingy {
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
-					ImGui::Image((ImTextureID)(intptr_t)textures[monthlyAlbums[i].id].get(), imageSize);
-					if (ImGui::IsItemClicked()) {
+					if (ImGui::ImageButton(std::string("##monthlyA" + i).data(), (ImTextureID)(intptr_t)textures[monthlyAlbums[i].id].get(), imageSize)) {
 						m_MessageManager->Publish("openAlbum", monthlyAlbums[i]);
 						m_MessageManager->Publish("changeScene", std::string("AlbumScene"));
 					}
@@ -242,8 +234,7 @@ namespace Thingy {
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
-					ImGui::Image((ImTextureID)(intptr_t)textures[monthlyArtists[i].id].get(), imageSize);
-					if (ImGui::IsItemClicked()) {
+					if (ImGui::ImageButton(std::string("##monthlyAr" + i).data(), (ImTextureID)(intptr_t)textures[monthlyArtists[i].id].get(), imageSize)) {
 						m_MessageManager->Publish("openArtist", monthlyArtists[i]);
 						m_MessageManager->Publish("changeScene", std::string("ArtistScene"));
 					}
@@ -257,6 +248,7 @@ namespace Thingy {
 		
 	
 		ImGui::Text("window size: (%.1f, %.1f)", ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+		ImGui::PopStyleColor();
 	}
 
 
