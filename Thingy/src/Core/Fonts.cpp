@@ -14,18 +14,21 @@ namespace Thingy {
 	ImFont* Fonts::size60 = nullptr;
 	ImFont* Fonts::size70 = nullptr;
 
+	static const ImWchar full_unicode_range[] = { 0x0020, 0xFFFF, 0 };
+
 	void Fonts::LoadFonts() {
 		ImGuiIO& io = ImGui::GetIO();
 
-		base = io.Fonts->AddFontFromFileTTF("../assets/fonts/Quicksand-Bold.ttf", 16.0f);
-		size25 = io.Fonts->AddFontFromFileTTF("../assets/fonts/Quicksand-Bold.ttf", 25.0f);
-		size30 = io.Fonts->AddFontFromFileTTF("../assets/fonts/Quicksand-Bold.ttf", 30.0f);
-		size35 = io.Fonts->AddFontFromFileTTF("../assets/fonts/Quicksand-Bold.ttf", 35.0f);
-		size40 = io.Fonts->AddFontFromFileTTF("../assets/fonts/Quicksand-Bold.ttf", 40.0f);
-		size45 = io.Fonts->AddFontFromFileTTF("../assets/fonts/Quicksand-Bold.ttf", 45.0f);
-		size50 = io.Fonts->AddFontFromFileTTF("../assets/fonts/Quicksand-Bold.ttf", 50.0f);
-		size60 = io.Fonts->AddFontFromFileTTF("../assets/fonts/Quicksand-Bold.ttf", 60.0f);
-		size70 = io.Fonts->AddFontFromFileTTF("../assets/fonts/Quicksand-Bold.ttf", 70.0f);
+		base = io.Fonts->AddFontFromFileTTF("../assets/fonts/Quicksand-Bold.ttf", 16.0f, nullptr, full_unicode_range);
+		size25 = io.Fonts->AddFontFromFileTTF("../assets/fonts/Quicksand-Bold.ttf", 25.0f, nullptr, full_unicode_range);
+		size30 = io.Fonts->AddFontFromFileTTF("../assets/fonts/Quicksand-Bold.ttf", 30.0f, nullptr, full_unicode_range);
+		size35 = io.Fonts->AddFontFromFileTTF("../assets/fonts/Quicksand-Bold.ttf", 35.0f, nullptr, full_unicode_range);
+		size40 = io.Fonts->AddFontFromFileTTF("../assets/fonts/Quicksand-Bold.ttf", 40.0f, nullptr, full_unicode_range);
+		size45 = io.Fonts->AddFontFromFileTTF("../assets/fonts/Quicksand-Bold.ttf", 45.0f, nullptr, full_unicode_range);
+		size50 = io.Fonts->AddFontFromFileTTF("../assets/fonts/Quicksand-Bold.ttf", 50.0f, nullptr, full_unicode_range);
+		size60 = io.Fonts->AddFontFromFileTTF("../assets/fonts/Quicksand-Bold.ttf", 60.0f, nullptr, full_unicode_range);
+		size70 = io.Fonts->AddFontFromFileTTF("../assets/fonts/Quicksand-Bold.ttf", 70.0f, nullptr, full_unicode_range);
+		io.Fonts->Build();
 
 		io.FontDefault = base;
 	
