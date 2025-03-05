@@ -28,10 +28,9 @@ namespace Thingy {
 					return;
 				}
 				artists.emplace_back(getArtist[0]);
-				T_INFO("-1curr: {0}", curr);
+				
 				curr = artists.size() - 1;
-				std::cout << artists[curr].toString() << std::endl;
-				T_INFO("0curr: {0}", curr);
+				T_INFO("{0}", artists[curr].toString());
 			} else {
 				T_ERROR("ArtistModule: Invalid data type for openArtist");
 			}
@@ -56,7 +55,6 @@ namespace Thingy {
 		if (std::holds_alternative<int>(moduleState)) {
 			T_ERROR("artist got: {0}", std::get<int>(moduleState));
 		}
-		T_INFO("curr: {0}", curr);
 		if (!textures[artists[curr].id]) {
 			if (artists[curr].artistImageURL == "") {
 			textures[artists[curr].id] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetDefaultArtistImage());
@@ -65,7 +63,6 @@ namespace Thingy {
 			}
 
 		}
-		int i = 0;
 		std::unordered_map<uint32_t, std::future<Image>> images;
 		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();	
 		for (auto& album : artists[curr].albums) {
@@ -111,7 +108,7 @@ namespace Thingy {
 		ImGui::SameLine();
 		ImGui::BeginGroup();
 		ImGui::Text(artists[curr].artistName.data());
-		ImGui::Text("Track count: %zu", artists[curr].albums.size());
+		ImGui::Text("Album count: %zu", artists[curr].albums.size());
 		ImGui::SameLine();
 		ImGui::Text("length");
 		ImGui::EndGroup();

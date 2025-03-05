@@ -3,7 +3,7 @@
 
 namespace Thingy {
 
-	AudioManager::AudioManager(std::vector<uint8_t>& buffer, std::unique_ptr<NetworkManager>& networkManager) : musicBuffer(buffer), m_NetworkManager(networkManager), volume(0), currentTrackNum(0), currentTrackPos(0), audioOpen(0) {
+	AudioManager::AudioManager(std::vector<uint8_t>& buffer, std::unique_ptr<NetworkManager>& networkManager, std::unique_ptr<MessageManager>& messageManager) : musicBuffer(buffer), m_NetworkManager(networkManager), m_MessageManager(messageManager) {
 		SDL_Log("Audio Manager Constructor");
 		spec.freq = MIX_DEFAULT_FREQUENCY;
 		spec.format = MIX_DEFAULT_FORMAT;
@@ -21,6 +21,27 @@ namespace Thingy {
 		audioOpen = 1;
 		
 		Mix_VolumeMusic(volume);
+
+		m_MessageManager->Subscribe("startMusic", "audioManager", [this](MessageData data) {
+			if (data.type() == typeid(Track)) {
+				Track track = std::any_cast<Track>(data);
+				LoadMusicFromTrack(track);
+				ChangeMusic();
+				ResumeMusic();
+			} else {
+				PlayQueueFromStart();
+			}
+			});
+
+		m_MessageManager->Subscribe("addToQueue", "audioManager", [this](MessageData data) {
+			if (data.type() == typeid(std::vector<Track>)) {
+				std::vector<Track> tracks = std::any_cast<std::vector<Track>>(data);
+				AddToQueue(tracks);
+			} else if (data.type() == typeid(Track)) {
+				Track track = std::any_cast<Track>(data);
+				queue.push_back(track);
+			}
+			});
 	}
 
 	AudioManager::~AudioManager() {
@@ -67,8 +88,9 @@ namespace Thingy {
 	void AudioManager::NextTrack() {
 		if (currentTrackNum < queue.size()-1) {
 			currentTrackNum++;
+			LoadMusicFromQueue();
 			ChangeMusic();
-
+			ResumeMusic();
 		}
 		else if (queue.size() == 0 || queue.size() == 1) {
 			currentTrackPos = 0;
@@ -76,6 +98,7 @@ namespace Thingy {
 			PauseMusic();
 		} else if (currentTrackNum == queue.size()-1) {
 			currentTrackNum = 0;
+			LoadMusicFromQueue();
 			ChangeMusic();
 		}
 	
@@ -85,7 +108,9 @@ namespace Thingy {
 		if (currentTrackPos < 5) {
 			if (currentTrackNum > 0) {
 				currentTrackNum--;
+				LoadMusicFromQueue();
 				ChangeMusic();
+				ResumeMusic();
 			} else if (currentTrackNum == 0) {
 				Mix_RewindMusic();
 			}
@@ -111,6 +136,46 @@ namespace Thingy {
 			SDL_Log("Mix_LoadMUS_IO failed: %s\n", SDL_GetError());
 		}
 		SDL_Log("Music Loaded");
+	}
+
+	Mix_Music* AudioManager::LoadMusicFromMemory(const std::vector<uint8_t>& buffer) {
+		SDL_IOStream* ioStream = SDL_IOFromConstMem(buffer.data(), buffer.size());
+		if (!ioStream) {
+			SDL_Log("Failed to create IOStream: %s\n", SDL_GetError());
+			return nullptr;
+		}
+
+		Mix_Music* music = Mix_LoadMUS_IO(ioStream, 1);
+		if (!music) {
+			SDL_Log("Failed to load music: %s\n", SDL_GetError());
+		}
+		return music;
+	}
+
+	void AudioManager::LoadMusicFromTrack(Track& track) {
+		Mix_HaltMusic();
+		queue.clear();
+		queue.push_back(track);
+		m_NetworkManager->DownloadAudio(track.audioURL, musicBuffer);
+	}
+
+	void AudioManager::LoadMusicFromQueue() {
+		Mix_HaltMusic();
+		m_NetworkManager->DownloadAudio(queue[currentTrackNum].audioURL, musicBuffer);
+	}
+
+	void AudioManager::AddToQueue(const std::vector<Track>& tracks) {
+		queue.reserve(queue.size() + tracks.size());
+		queue.insert(queue.end(), tracks.begin(), tracks.end());
+	}
+
+	void AudioManager::PlayQueueFromStart() {
+		if (queue.size() != 0) {
+			currentTrackNum = 0;
+			LoadMusicFromQueue();
+			ChangeMusic();
+			ResumeMusic();
+		}
 	}
 
 	

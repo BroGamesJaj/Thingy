@@ -13,4 +13,6 @@ namespace Thingy {
 		}
 		return 0;
 	}
+
+	std::string SecondsToTimeString(int seconds);
 }

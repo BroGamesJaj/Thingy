@@ -2,6 +2,8 @@
 #include "tpch.h"
 #include "Core\Track.h"
 #include "NetworkManager.h"
+#include "MessageManager.h"
+
 #include <SDL3\SDL.h>
 #include <SDL3_mixer\SDL_mixer.h>
 
@@ -12,13 +14,11 @@ namespace Thingy {
 	
 	class AudioManager {
 	public:
-		AudioManager(std::vector<uint8_t>& buffer, std::unique_ptr<NetworkManager>& networkManager);
+		AudioManager(std::vector<uint8_t>& buffer, std::unique_ptr<NetworkManager>& networkManager, std::unique_ptr<MessageManager>& messageManager);
 		~AudioManager();
 
 		AudioManager(const AudioManager&) = delete;
 		void operator=(const AudioManager&) = delete;
-
-		void Init();
 		
 		void CleanUp();
 
@@ -32,12 +32,15 @@ namespace Thingy {
 			}
 			Track dummy;
 			dummy.id = -1;
+			dummy.title = "dummy";
+			dummy.artistName = "dummy Artist";
+			dummy.duration = 10;
 			return dummy;
 			
 		}
 		int& GetCurrentTrackPos() { return currentTrackPos; }
 		int GetCurrentTrackDuration() { return music ? Mix_MusicDuration(music) : 0; }
-		std::vector<Track> GetQueue() { return queue; }
+		std::vector<Track>& GetQueue() { return queue; }
 	
 
 		bool IsMusicPaused() { return static_cast<bool>(Mix_PausedMusic()); }
@@ -56,27 +59,13 @@ namespace Thingy {
 
 		void LoadMusic();
 
-		Mix_Music* LoadMusicFromMemory(const std::vector<uint8_t>& buffer) {
-			SDL_IOStream* ioStream = SDL_IOFromConstMem(buffer.data(), buffer.size());
-			if (!ioStream) {
-				SDL_Log("Failed to create IOStream: %s\n", SDL_GetError());
-				return nullptr;
-			}
+		Mix_Music* LoadMusicFromMemory(const std::vector<uint8_t>& buffer);
 
-			Mix_Music* music = Mix_LoadMUS_IO(ioStream, 1);
-			if (!music) {
-				SDL_Log("Failed to load music: %s\n", SDL_GetError());
-			}
-			return music;
-		}
+		void LoadMusicFromTrack(Track& track);
+		void LoadMusicFromQueue();
 
-		void LoadMusicFromTrack(Track& track) {
-			Mix_HaltMusic();
-			queue.clear();
-			queue.push_back(track);
-			m_NetworkManager->DownloadAudio(track.audioURL, musicBuffer);
-		}
-
+		void AddToQueue(const std::vector<Track>& tracks);
+		void PlayQueueFromStart();
 		void ClearQueue() {
 			queue.clear();
 		}
@@ -84,6 +73,7 @@ namespace Thingy {
 
 	private:
 		std::unique_ptr<NetworkManager>& m_NetworkManager;
+		std::unique_ptr<MessageManager>& m_MessageManager;
 
 		int audioOpen = 0;
 		SDL_AudioSpec spec;

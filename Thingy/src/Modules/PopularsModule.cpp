@@ -83,9 +83,7 @@ namespace Thingy {
 					ImGui::TableNextColumn();
 					ImGui::Image((ImTextureID)(intptr_t)textures[weeklyTracks[i].id].get(), imageSize);
 					if (ImGui::IsItemClicked()) {
-						m_AudioManager->LoadMusicFromTrack(weeklyTracks[i]);
-						m_AudioManager->ChangeMusic();
-						m_AudioManager->ResumeMusic();
+						m_MessageManager->Publish("startMusic", weeklyTracks[i]);
 					};
 					LimitedTextWrap(weeklyTracks[i].title.data(), width, 3);
 				}
@@ -130,9 +128,7 @@ namespace Thingy {
 					ImGui::TableNextColumn();
 					ImGui::Image((ImTextureID)(intptr_t)textures[monthlyTracks[i].id].get(), imageSize);
 					if (ImGui::IsItemClicked()) {
-						m_AudioManager->LoadMusicFromTrack(monthlyTracks[i]);
-						m_AudioManager->ChangeMusic();
-						m_AudioManager->ResumeMusic();
+						m_MessageManager->Publish("startMusic", monthlyTracks[i]);
 					};
 					LimitedTextWrap(monthlyTracks[i].title.data(), width, 3);
 				}
@@ -180,9 +176,7 @@ namespace Thingy {
 					ImGui::TableNextColumn();
 					ImGui::Image((ImTextureID)(intptr_t)textures[weeklyTracks[i].id].get(), imageSize);
 					if (ImGui::IsItemClicked()) {
-						m_AudioManager->LoadMusicFromTrack(weeklyTracks[i]);
-						m_AudioManager->ChangeMusic();
-						m_AudioManager->ResumeMusic();
+						m_MessageManager->Publish("startMusic", weeklyTracks[i]);
 					};
 					LimitedTextWrap(weeklyTracks[i].title.data(), width, 3);
 				}
@@ -223,9 +217,7 @@ namespace Thingy {
 					ImGui::TableNextColumn();
 					ImGui::Image((ImTextureID)(intptr_t)textures[monthlyTracks[i].id].get(), imageSize);
 					if (ImGui::IsItemClicked()) {
-						m_AudioManager->LoadMusicFromTrack(monthlyTracks[i]);
-						m_AudioManager->ChangeMusic();
-						m_AudioManager->ResumeMusic();
+						m_MessageManager->Publish("startMusic", monthlyTracks[i]);
 					};
 					LimitedTextWrap(monthlyTracks[i].title.data(), width, 3);
 				}

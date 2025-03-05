@@ -106,8 +106,8 @@ namespace Thingy {
 	void Application::SetupManagers() {
 		networkManager = std::make_unique<NetworkManager>();
 		imageManager = std::make_unique<ImageManager>(networkManager, renderer->GetRenderer());
-		audioManager = std::make_unique<AudioManager>(musicBuffer, networkManager);
 		messageManager = std::make_unique<MessageManager>();
+		audioManager = std::make_unique<AudioManager>(musicBuffer, networkManager, messageManager);
 		sceneManager = std::make_unique<SceneManager>(messageManager);
 	}
 

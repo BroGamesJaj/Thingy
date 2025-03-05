@@ -170,6 +170,7 @@
     <ClInclude Include="src\Modules\Modules.h" />
     <ClInclude Include="src\Modules\PlayerModule.h" />
     <ClInclude Include="src\Modules\PopularsModule.h" />
+    <ClInclude Include="src\Modules\QueueModule.h" />
     <ClInclude Include="src\Renderer\SDLRenderer.h" />
     <ClInclude Include="src\Scenes\AlbumScene.h" />
     <ClInclude Include="src\Scenes\ArtistScene.h" />
@@ -197,6 +198,7 @@
     <ClCompile Include="src\Modules\PlayerModule.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Modules\PopularsModule.cpp" />
+    <ClCompile Include="src\Modules\QueueModule.cpp" />
     <ClCompile Include="src\Renderer\SDLRenderer.cpp" />
     <ClCompile Include="src\Scenes\AlbumScene.cpp" />
     <ClCompile Include="src\Scenes\ArtistScene.cpp" />

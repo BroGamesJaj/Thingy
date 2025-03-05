@@ -29,6 +29,7 @@ namespace Thingy {
 
 		int curr = 0;
 		std::vector<Album> album;
+		int length = 0;
 		std::unique_ptr<MessageManager>& m_MessageManager;
 		std::unique_ptr<NetworkManager>& m_NetworkManager;
 		std::unique_ptr<AudioManager>& m_AudioManager;

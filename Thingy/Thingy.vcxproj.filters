@@ -38,6 +38,7 @@
     <ClInclude Include="src\Core\Fonts.h" />
     <ClInclude Include="src\Scenes\ArtistScene.h" />
     <ClInclude Include="src\Modules\ArtistModule.h" />
+    <ClInclude Include="src\Modules\QueueModule.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -68,5 +69,6 @@
     <ClCompile Include="src\Core\Fonts.cpp" />
     <ClCompile Include="src\Scenes\ArtistScene.cpp" />
     <ClCompile Include="src\Modules\ArtistModule.cpp" />
+    <ClCompile Include="src\Modules\QueueModule.cpp" />
   </ItemGroup>
 </Project>

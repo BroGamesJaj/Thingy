@@ -14,6 +14,7 @@ namespace Thingy {
 		if (currentTrackID != m_TrackID && currentTrackID != -1) {
 			
 			changed = true;
+			SetCurrentTrack(m_AudioManager->GetCurrentTrack());
 			m_TrackID = currentTrackID;
 
 			image = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTexture(m_AudioManager->GetCurrentTrack().imageURL));
@@ -47,7 +48,7 @@ namespace Thingy {
 		} else {
 			ImGui::Image((ImTextureID)(intptr_t)image.get(), {300.0f, 300.0f});
 		}
-		ImGui::Text("Thing name");
+		ImGui::Text(m_TrackName.data());
 		if (ImGui::Button("back", { 30.0f, 30.0f })) {
 			m_AudioManager->PrevTrack();
 		}
@@ -81,18 +82,18 @@ namespace Thingy {
 
 	uint16_t PlayerModule::OnRender() {
 		if (m_AudioManager->GetQueue().size() != 0) {
-		ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
-		Window();
-		ImGui::End();
-		if (upProps & BIT(0)) {
-			ImGui::BeginDisabled();
-			ImGui::Begin("floater", nullptr, defaultWindowFlags);
+			ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
 			Window();
-			ImGui::SetWindowPos({ ImGui::GetMousePos().x - (ImGui::FindWindowByName(GetModuleName().data())->Size.x / 2), ImGui::GetMousePos().y + 5 });
-			ImGui::SetWindowSize(ImGui::FindWindowByName(GetModuleName().data())->Size);
 			ImGui::End();
-			ImGui::EndDisabled();
-		}
+			if (upProps & BIT(0)) {
+				ImGui::BeginDisabled();
+				ImGui::Begin("floater", nullptr, defaultWindowFlags);
+				Window();
+				ImGui::SetWindowPos({ ImGui::GetMousePos().x - (ImGui::FindWindowByName(GetModuleName().data())->Size.x / 2), ImGui::GetMousePos().y + 5 });
+				ImGui::SetWindowSize(ImGui::FindWindowByName(GetModuleName().data())->Size);
+				ImGui::End();
+				ImGui::EndDisabled();
+			}
 		}
 		return upProps;
 	}

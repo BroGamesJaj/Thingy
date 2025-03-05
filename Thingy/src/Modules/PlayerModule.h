@@ -25,10 +25,11 @@ namespace Thingy {
 
 		int DefaultWidth() const override { return 400; }
 
-		void SetCurrentTrack( std::string trackName, std::string trackArtist, int trackDuration) {
-			m_TrackName = trackName;
-			m_TrackArtist = trackArtist;
-			m_TrackDuration = trackDuration;
+		void SetCurrentTrack(Track currTrack) {
+			m_TrackID = currTrack.id;
+			m_TrackName = currTrack.title;
+			m_TrackArtist = currTrack.artistName;
+			m_TrackDuration = currTrack.duration;
 		}
 
 

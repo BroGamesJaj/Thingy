@@ -20,7 +20,7 @@ namespace Thingy {
 					}
 					album.emplace_back(recAlbum);
 					curr = album.size() - 1;
-					std::cout << album[curr].toString() << std::endl;
+					T_INFO("{0}", album[curr].toString());
 				} else {
 					T_ERROR("AlbumModule: Invalid data type for openAlbum");
 				}
@@ -44,10 +44,13 @@ namespace Thingy {
 		if (std::holds_alternative<int>(moduleState)) {
 			T_ERROR("album got: {0}", std::get<int>(moduleState));
 		}
-		T_INFO("curr: {0}", curr);
 		if (!textures[album[curr].id]) 
 			textures[album[curr].id] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTexture(album[curr].imageURL));
-		
+
+		length = 0;
+		for (auto& track : album[curr].tracks) {
+			length += track.duration;
+		}
 	}
 	
 	void AlbumModule::OnUpdate() {
@@ -72,18 +75,21 @@ namespace Thingy {
 		ImGui::BeginGroup();
 		ImGui::Text(album[curr].name.data());
 		ImGui::Text(album[curr].artistName.data());
+		ImGui::Text("Release Date: %s", album[curr].releaseDate.data());
 		ImGui::Text("Track count: %zu", album[curr].tracks.size());
 		ImGui::SameLine();
-		ImGui::Text("length");
+		ImGui::Text("Album length: %s", SecondsToTimeString(length).data());
 		ImGui::EndGroup();
 		ImGui::BeginChild("Tracks", ImVec2(0,300), false, ImGuiWindowFlags_HorizontalScrollbar);
-		for (auto& track : album[curr].tracks) {
+		for (size_t i = 0; i < album[curr].tracks.size(); i++) {
+			Track& track = album[curr].tracks[i];
 			ImGui::BeginGroup();
 			ImGui::Image((ImTextureID)(intptr_t)textures[album[curr].id].get(), { 200.0f, 200.0f });
 			if (ImGui::IsItemClicked()) {
-				m_AudioManager->LoadMusicFromTrack(track);
-				m_AudioManager->ChangeMusic();
-				m_AudioManager->ResumeMusic();
+				std::vector<Track> tracks(album[curr].tracks.begin() + i, album[curr].tracks.end());
+				m_AudioManager->ClearQueue();
+				m_MessageManager->Publish("addToQueue", tracks);
+				m_MessageManager->Publish("startMusic", "");
 			};
 			LimitedTextWrap(track.title.data(), 180, 3);
 			ImGui::EndGroup();
