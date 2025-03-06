@@ -127,7 +127,7 @@ namespace Thingy {
 					}
 					
 					for (size_t i = 0; i < allResults.size() && i < 5; i++) {
-						std::string term = allResults[i].first + std::to_string(i);
+						std::string term = allResults[i].first;
 						if (ImGui::Selectable(term.data())) {
 							T_INFO("selected: {0}", term);
 							search = term;
