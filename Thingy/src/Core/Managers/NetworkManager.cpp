@@ -79,6 +79,8 @@ namespace Thingy {
 		URLSanitizer(url);
 		CURL* curl = curl_easy_init();
 		std::string response_string;
+		long response_code;
+
 		struct curl_slist* headers = NULL;
 		if (!curl)
 		{
@@ -104,12 +106,17 @@ namespace Thingy {
 
 
 		CURLcode status = curl_easy_perform(curl);
-		if (status != 0)
-		{
+		if (status != 0) {
 			std::cout << "Error: Request failed on URL : " << url << std::endl;
 			std::cout << "Error Code: " << status << " Error Detail : " << curl_easy_strerror(status) << std::endl;
 			CleanupGet(curl, headers);
 			return "curl error";
+		} else {
+			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+			if (response_code == 403) {
+				std::cout << "Received 403 Forbidden" << std::endl;
+				return "Received 403 Forbidden";
+			}
 		}
 
 		curl_easy_cleanup(curl);
@@ -236,7 +243,7 @@ namespace Thingy {
 			+ "&format=jsonpretty&limit=5&matchcount=1&prefix="
 			+ input;
 		std::string jsonData = GetRequest(url);
-		if (jsonData == "curl error" || jsonData.find("error code:") != std::string::npos) {
+		if (jsonData == "curl error" || jsonData.find("error code:") != std::string::npos || jsonData == "Received 403 Forbidden") {
 			T_ERROR("{0}", jsonData);
 			return std::unordered_map<std::string, std::vector<std::pair<std::string, int>>>();
 		}
@@ -245,7 +252,7 @@ namespace Thingy {
 		if (headers["status"] != "success") {
 			T_ERROR("{0}", jsonData);
 			T_ERROR("code: {0}", headers["code"].get<int>());
-			return json();
+			return std::unordered_map<std::string, std::vector<std::pair<std::string, int>>>();
 		}
 		json& results = parsedJsonData["results"];
 		std::vector<std::string> terms = { "tags", "tracks", "albums", "artists" };
@@ -254,7 +261,7 @@ namespace Thingy {
 			if (results.contains(term)) {
 				for (size_t i = 0; i < results[term].size(); i++) {
 					json& currTermResults = results[term][i];
-					termResults[term].push_back(std::make_pair(currTermResults["match"], currTermResults["count"]));
+					termResults[term].push_back(std::make_pair(currTermResults["match"].is_number() ? std::to_string(currTermResults["match"].get<int>()) : currTermResults["match"].get<std::string>(), currTermResults["count"]));
 				}
 			}
 		}

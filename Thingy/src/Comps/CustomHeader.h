@@ -30,8 +30,8 @@ namespace Thingy {
 		SDL_Window* m_Window;
 
 		bool autoCompleteOn = false;
-		bool futureProcessed = false;
-		bool futureAllProcessed = false;
+		bool futureProcessed = true;
+		bool futureAllProcessed = true;
 		int whichToggled = 0;
 		std::vector<std::string> buttons = { "all", "tags", "tracks", "albums", "artists" };
 		std::string& search;
@@ -40,6 +40,9 @@ namespace Thingy {
 		std::future<std::unordered_map<std::string, std::vector<std::pair<std::string, int>>>> futureAutoCompleteResults;
 		std::future<std::vector<std::pair<std::string, int>>> futureAllResults;
 		std::vector<std::pair<std::string, int>> allResults;
+
+		std::chrono::system_clock::time_point lastChange;
+		bool changed = false;
 	};
 
 }

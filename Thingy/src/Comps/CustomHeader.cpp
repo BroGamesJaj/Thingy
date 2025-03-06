@@ -105,24 +105,37 @@ namespace Thingy {
 			if (!ImGui::IsAnyItemActive() && !ImGui::IsWindowHovered())
 				autoCompleteOn = false;
 			ImGui::PushFont(Fonts::size25);
-			if (search.size() > 1) {
-				if (search != currTerm) {
-					currTerm = search;
+			std::string tempSearch = search;
+			tempSearch.erase(std::remove_if(tempSearch.begin(), tempSearch.end(), [](unsigned char c) { return std::isspace(c); }), tempSearch.end());
+			tempSearch.erase(std::remove(tempSearch.begin(), tempSearch.end(), '&'), tempSearch.end());
+			
+			if (tempSearch.size() > 1) {
+				
+				if (tempSearch != currTerm) {
+					currTerm = tempSearch;
+					lastChange = std::chrono::system_clock::now();
+					changed = true;
+				}
+				if (lastChange + std::chrono::milliseconds(250) < std::chrono::system_clock::now() && changed) {
+
 					futureAutoCompleteResults = std::async(std::launch::async, [this]() { return m_NetworkManager->GetAutoComplete(currTerm); });
 					futureAllResults = std::async(std::launch::async, [this]() { return AllTermResults(); });
 					futureProcessed = false;
-					
+					changed = false;
 					allResults.clear();
 				}
 				if(!futureProcessed && futureAutoCompleteResults.wait_for(std::chrono::seconds(0)) == std::future_status::ready){
-					autoCompleteResults = futureAutoCompleteResults.get();
+					autoCompleteResults.clear();
+					if (futureAutoCompleteResults.valid());
+						autoCompleteResults = futureAutoCompleteResults.get();
 					futureProcessed = true;
 					futureAllResults = std::async(std::launch::async, [this]() { return AllTermResults(); });
 					futureAllProcessed = false;
 				}
 				if (whichToggled == 0) {
 					if (!futureAllProcessed && futureAllResults.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-						allResults = futureAllResults.get();
+						if(futureAllResults.valid())
+							allResults = futureAllResults.get();
 						futureAllProcessed = true;
 					}
 					
@@ -155,7 +168,8 @@ namespace Thingy {
 		std::vector<std::pair<std::string, int>> sorted;
 		for (auto& termResults : autoCompleteResults) {
 			for (auto& result : termResults.second) {
-				sorted.push_back(result);
+				if(std::find(sorted.begin(), sorted.end(), result) == sorted.end())
+					sorted.push_back(result);
 			}
 		}
 		std::sort(sorted.begin(), sorted.end(), [](const auto& a, const auto& b) {
