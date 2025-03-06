@@ -5,7 +5,7 @@
 namespace Thingy {
 	static void URLSanitizer(std::string& url) {
 		url.erase(std::remove(url.begin(), url.end(), '\\'), url.end());
-		url.erase(std::remove_if(url.begin(), url.end(), ::isspace), url.end());
+		url.erase(std::remove_if(url.begin(), url.end(), [](unsigned char c) { return std::isspace(c); }), url.end());
 	}
 
 	NetworkManager::NetworkManager() {
@@ -227,5 +227,38 @@ namespace Thingy {
 			artists.push_back(artist);
 		}
 		return artists;
+	}
+
+	std::unordered_map<std::string, std::vector<std::pair<std::string, int>>>  NetworkManager::GetAutoComplete(std::string input) {
+		std::string url = 
+			"https://api.jamendo.com/v3.0/autocomplete/?client_id="
+			+ std::string(CLIENTID)
+			+ "&format=jsonpretty&limit=5&matchcount=1&prefix="
+			+ input;
+		std::string jsonData = GetRequest(url);
+		if (jsonData == "curl error" || jsonData.find("error code:") != std::string::npos) {
+			T_ERROR("{0}", jsonData);
+			return std::unordered_map<std::string, std::vector<std::pair<std::string, int>>>();
+		}
+		json parsedJsonData = json::parse(jsonData);
+		json& headers = parsedJsonData["headers"];
+		if (headers["status"] != "success") {
+			T_ERROR("{0}", jsonData);
+			T_ERROR("code: {0}", headers["code"].get<int>());
+			return json();
+		}
+		json& results = parsedJsonData["results"];
+		std::vector<std::string> terms = { "tags", "tracks", "albums", "artists" };
+		std::unordered_map<std::string, std::vector<std::pair<std::string, int>>> termResults;
+		for (auto& term : terms) {
+			if (results.contains(term)) {
+				for (size_t i = 0; i < results[term].size(); i++) {
+					json& currTermResults = results[term][i];
+					termResults[term].push_back(std::make_pair(currTermResults["match"], currTermResults["count"]));
+				}
+			}
+		}
+		return termResults;
+
 	}
 }

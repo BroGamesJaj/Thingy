@@ -3,14 +3,14 @@
 
 namespace Thingy {
 
-	CustomHeader::CustomHeader(std::unique_ptr<MessageManager>& messageManager, SDL_Window* window, std::string& searchField) : m_MessageManager(messageManager), m_Window(window), search(searchField) {
+	CustomHeader::CustomHeader(std::unique_ptr<MessageManager>& messageManager, std::unique_ptr<NetworkManager>& networkManager, SDL_Window* window, std::string& searchField) : m_MessageManager(messageManager), m_NetworkManager(networkManager), m_Window(window), search(searchField) {
 
 	}
 
 	void CustomHeader::OnRender() {
 		int w, h;
 		SDL_GetWindowSizeInPixels(m_Window, &w, &h);
-		ImGui::SetNextWindowSize({ static_cast<float>(w), static_cast<float>(h)});
+		ImGui::SetNextWindowSize({ static_cast<float>(w), static_cast<float>(h) });
 		ImGui::SetNextWindowPos({ 0.0f, 0.0f });
 		ImGui::Begin("Custom Header", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus);
 
@@ -47,11 +47,11 @@ namespace Thingy {
 				strcpy(search.data(), temp.c_str());
 				ImGui::CloseCurrentPopup();
 			}
-			
+
 			ImGui::EndPopup();
 		}
 		*/
-		if(ImGui::Button("Queue")) {
+		if (ImGui::Button("Queue")) {
 			m_MessageManager->Publish("changeQueueOpen", "");
 		};
 		ImGui::SetCursorPosX(winW - 15 - 40 - 5 - 40 - 5 - 40);
@@ -73,6 +73,8 @@ namespace Thingy {
 	}
 
 	void CustomHeader::AutoComplete() {
+		ImVec4 onColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+		ImVec4 offColor = ImVec4(0.8f, 0.2f, 0.2f, 1.0f);
 		if (autoCompleteOn) {
 			int w;
 			SDL_GetWindowSizeInPixels(m_Window, &w, NULL);
@@ -80,26 +82,87 @@ namespace Thingy {
 			float scale = std::clamp(winW / 1280, 1.0f, 2.0f);
 			int y;
 			SDL_GetWindowPosition(m_Window, NULL, &y);
-			ImGui::SetNextWindowSize({ 400.0f * scale, 0});
-			ImGui::SetNextWindowPos({ winW / 2 - std::clamp(200.0f * scale, 200.0f, 400.0f), 50});
+			ImGui::SetNextWindowSize({ 400.0f * scale, 0 });
+			ImGui::SetNextWindowPos({ winW / 2 - std::clamp(200.0f * scale, 200.0f, 400.0f), 50 });
 			ImGui::Begin("popup", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing);
+			
+			for (size_t i = 0; i < buttons.size(); i++) {
+				if (whichToggled == i) {
+					ImGui::PushStyleColor(ImGuiCol_Button, onColor);
+					ImGui::PushStyleColor(ImGuiCol_Text, offColor);
+				} else {
+					ImGui::PushStyleColor(ImGuiCol_Button, offColor);
+					ImGui::PushStyleColor(ImGuiCol_Text, onColor);
+				}
+				if(ImGui::Button(buttons[i].data())) {
+					whichToggled = i;
+				};
+				ImGui::PopStyleColor(2);
+				if (buttons.size() - 1 != i) {
+					ImGui::SameLine();
+				}
+			}
 			if (!ImGui::IsAnyItemActive() && !ImGui::IsWindowHovered())
 				autoCompleteOn = false;
 			ImGui::PushFont(Fonts::size25);
-			for (size_t i = 0; i < 5; i++) {
-				std::string term = search + std::to_string(i);
-				if (ImGui::Selectable(term.c_str())) {
-					T_INFO("selected: {0}", term);
-					search = term;
-					autoCompleteOn = false;
+			if (search.size() > 1) {
+				if (search != currTerm) {
+					currTerm = search;
+					futureAutoCompleteResults = std::async(std::launch::async, [this]() { return m_NetworkManager->GetAutoComplete(currTerm); });
+					futureAllResults = std::async(std::launch::async, [this]() { return AllTermResults(); });
+					futureProcessed = false;
+					
+					allResults.clear();
+				}
+				if(!futureProcessed && futureAutoCompleteResults.wait_for(std::chrono::seconds(0)) == std::future_status::ready){
+					autoCompleteResults = futureAutoCompleteResults.get();
+					futureProcessed = true;
+					futureAllResults = std::async(std::launch::async, [this]() { return AllTermResults(); });
+					futureAllProcessed = false;
+				}
+				if (whichToggled == 0) {
+					if (!futureAllProcessed && futureAllResults.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+						allResults = futureAllResults.get();
+						futureAllProcessed = true;
+					}
+					
+					for (size_t i = 0; i < allResults.size() && i < 5; i++) {
+						std::string term = allResults[i].first + std::to_string(i);
+						if (ImGui::Selectable(term.data())) {
+							T_INFO("selected: {0}", term);
+							search = term;
+							autoCompleteOn = false;
+						}
+					}
+				} else {
+					for (size_t i = 0; i < autoCompleteResults[buttons[whichToggled]].size(); i++) {
+						std::string term = autoCompleteResults[buttons[whichToggled]][i].first;
+						if (ImGui::Selectable(term.data())) {
+							T_INFO("selected: {0}", term);
+							search = term;
+							autoCompleteOn = false;
+						}
+					}	
 				}
 			}
-			ImGui::Text("helloooofdsaf");
-			ImGui::Text("helloo");
 			ImGui::PopFont();
 			ImGui::End();
 
 		}
+	}
+
+	std::vector<std::pair<std::string, int>> CustomHeader::AllTermResults() {
+		std::vector<std::pair<std::string, int>> sorted;
+		for (auto& termResults : autoCompleteResults) {
+			for (auto& result : termResults.second) {
+				sorted.push_back(result);
+			}
+		}
+		std::sort(sorted.begin(), sorted.end(), [](const auto& a, const auto& b) {
+			return a.second < b.second;
+			});
+
+		return sorted;
 	}
 
 }

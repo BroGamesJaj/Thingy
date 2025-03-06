@@ -6,13 +6,14 @@
 #include <imgui_stdlib.h>
 
 #include "Core\Managers\MessageManager.h"
+#include "Core\Managers\NetworkManager.h"
 #include "Core\Fonts.h"
 #include "Core\HelperFunctions.h"
 
 namespace Thingy {
 	class CustomHeader {
 	public:
-		CustomHeader(std::unique_ptr<MessageManager>& messageManager, SDL_Window* window, std::string& searchField);
+		CustomHeader(std::unique_ptr<MessageManager>& messageManager, std::unique_ptr<NetworkManager>& netwokrManager, SDL_Window* window, std::string& searchField);
 
 		void OnRender();
 
@@ -20,11 +21,25 @@ namespace Thingy {
 
 
 
+
 	private:
+		std::vector<std::pair<std::string, int>> AllTermResults();
+
 		std::unique_ptr<MessageManager>& m_MessageManager;
+		std::unique_ptr<NetworkManager>& m_NetworkManager;
 		SDL_Window* m_Window;
-		std::string& search;
+
 		bool autoCompleteOn = false;
+		bool futureProcessed = false;
+		bool futureAllProcessed = false;
+		int whichToggled = 0;
+		std::vector<std::string> buttons = { "all", "tags", "tracks", "albums", "artists" };
+		std::string& search;
+		std::string	currTerm = "";
+		std::unordered_map<std::string, std::vector<std::pair<std::string, int>>> autoCompleteResults;
+		std::future<std::unordered_map<std::string, std::vector<std::pair<std::string, int>>>> futureAutoCompleteResults;
+		std::future<std::vector<std::pair<std::string, int>>> futureAllResults;
+		std::vector<std::pair<std::string, int>> allResults;
 	};
 
 }

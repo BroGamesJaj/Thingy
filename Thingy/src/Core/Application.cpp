@@ -91,7 +91,7 @@ namespace Thingy {
 		int cursorHeight = GetSystemMetrics(SM_CYCURSOR);
 		customCursors.emplace("openHand", CreateCustomCursor("../assets/cursors/openHand.bmp", cursorWidth / 2, cursorHeight / 2));
 		customCursors.emplace("closedHand", CreateCustomCursor("../assets/cursors/closedHand.bmp", cursorWidth / 2, cursorHeight / 2));
-		customHeader = std::make_unique<CustomHeader>(messageManager, renderer->GetWindow(), searchTerm);
+		customHeader = std::make_unique<CustomHeader>(messageManager, networkManager, renderer->GetWindow(), searchTerm);
 		//for testing
 		//networkManager->DownloadFile("https:\/\/prod-1.storage.jamendo.com\/?trackid=1848357&format=mp31&from=app-devsite", musicBuffer);
 		//

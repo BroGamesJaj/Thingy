@@ -56,6 +56,8 @@ namespace Thingy {
 		std::vector<Artist> GetArtist(std::string url);
 		std::vector<Artist> GetArtistsWithTracks(std::string url);
 
+		std::unordered_map<std::string, std::vector<std::pair<std::string, int>>>  GetAutoComplete(std::string input);
+
 
 
 	private:
