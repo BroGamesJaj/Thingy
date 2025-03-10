@@ -65,10 +65,6 @@ namespace Thingy {
 		return customCursor;
 	}
 
-	
-
-	
-
 	Application::Application() {
 		begin = std::chrono::steady_clock::now();
 		renderer = std::unique_ptr<SDLRenderer>(SDLRenderer::Create());
@@ -104,11 +100,15 @@ namespace Thingy {
 	}
 
 	void Application::SetupManagers() {
-		networkManager = std::make_unique<NetworkManager>();
-		imageManager = std::make_unique<ImageManager>(networkManager, renderer->GetRenderer());
 		messageManager = std::make_unique<MessageManager>();
+		networkManager = std::make_unique<NetworkManager>(messageManager);
+		imageManager = std::make_unique<ImageManager>(networkManager, renderer->GetRenderer());
 		audioManager = std::make_unique<AudioManager>(musicBuffer, networkManager, messageManager);
 		sceneManager = std::make_unique<SceneManager>(messageManager);
+		authManager = std::make_unique<AuthManager>(networkManager, messageManager);
+
+		authManager->StoreToken("accessToken", "hi");
+		authManager->StoreToken("refreshToken", "what");
 	}
 
 	void Application::SetupScenes() {
@@ -118,21 +118,26 @@ namespace Thingy {
 		sceneManager->AddScene(std::make_shared<AlbumScene>(messageManager));
 		sceneManager->AddScene(std::make_shared<ArtistScene>(messageManager));
 		sceneManager->GetScenes();
+		storedModules.emplace("loginModule", std::make_shared<LoginModule>(messageManager, networkManager, authManager));
 		storedModules.emplace("popularsModule", std::make_shared<PopularsModule>(messageManager, networkManager, audioManager, imageManager, renderer->GetRenderer()));
 		storedModules.emplace("albumModule", std::make_shared<AlbumModule>(messageManager, audioManager, imageManager, networkManager));
 		storedModules.emplace("artistModule", std::make_shared<ArtistModule>(messageManager, audioManager, imageManager, networkManager));
 		storedModules.emplace("playerModule", std::make_shared<PlayerModule>(messageManager, audioManager, imageManager));
 		
+
 		sceneManager->GetScene("FrontPage")->PushModule(storedModules["popularsModule"]);
 		sceneManager->GetScene("FrontPage")->PushModule(storedModules["playerModule"]);
 		
+		sceneManager->GetScene("LoginScene")->PushModule(storedModules["loginModule"]);
+
 		sceneManager->GetScene("AlbumScene")->PushModule(storedModules["albumModule"]);
 		sceneManager->GetScene("AlbumScene")->PushModule(storedModules["playerModule"]);
 		
 		sceneManager->GetScene("ArtistScene")->PushModule(storedModules["artistModule"]);
 		sceneManager->GetScene("ArtistScene")->PushModule(storedModules["playerModule"]);
 		
-		messageManager->Publish("homeButton", std::string("FrontPage"));
+		//messageManager->Publish("homeButton", std::string("FrontPage"));
+		sceneManager->ChangeScene("LoginScene", OPEN);
 		sceneManager->GetScenes();
 
 		for (auto& module : storedModules) {

@@ -64,7 +64,7 @@ namespace Thingy {
 
 		}
 		std::unordered_map<uint32_t, std::future<Image>> images;
-		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();	
+		
 		for (auto& album : artists[curr].albums) {
 			if (!albumTextures[artists[curr].id][album.id]) {
 				std::string& url = album.imageURL;
@@ -83,8 +83,6 @@ namespace Thingy {
 				}
 			}
 		}
-		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-		T_INFO("full time = {0} [milliseconds]", std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
 
 	}
 

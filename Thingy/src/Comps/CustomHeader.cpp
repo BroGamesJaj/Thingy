@@ -118,7 +118,7 @@ namespace Thingy {
 				}
 				if (lastChange + std::chrono::milliseconds(250) < std::chrono::system_clock::now() && changed) {
 
-					futureAutoCompleteResults = std::async(std::launch::async, [this]() { return m_NetworkManager->GetAutoComplete(currTerm); });
+					futureAutoCompleteResults = std::async(	std::launch::async, [this]() { return m_NetworkManager->GetAutoComplete(currTerm); });
 					futureAllResults = std::async(std::launch::async, [this]() { return AllTermResults(); });
 					futureProcessed = false;
 					changed = false;

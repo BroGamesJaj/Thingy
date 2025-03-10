@@ -29,8 +29,6 @@ namespace Thingy {
 		void QueueView();
 		void PlayerView();
 
-		struct SDL_TDeleter { void operator()(SDL_Texture* p) { SDL_DestroyTexture(p); } };
-
 		uint16_t upProps = 0;
 
 		std::unique_ptr<MessageManager>& m_MessageManager;

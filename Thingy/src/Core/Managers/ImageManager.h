@@ -8,6 +8,8 @@
 
 
 namespace Thingy {
+	struct SDL_TDeleter { void operator()(SDL_Texture* p) { SDL_DestroyTexture(p); } };
+
 	class ImageManager {
 	public:
 		ImageManager(std::unique_ptr<NetworkManager>& networkManager, SDL_Renderer* renderer) : m_NetworkManager(networkManager), m_Renderer(renderer) {};

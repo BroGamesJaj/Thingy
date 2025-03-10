@@ -7,6 +7,8 @@
 #include "Core\Artist.h"
 #include <nlohmann\json.hpp>
 
+#include "MessageManager.h"
+
 using json = nlohmann::json;
 
 namespace Thingy {
@@ -23,7 +25,7 @@ namespace Thingy {
 
 	class NetworkManager {
 	public:
-		NetworkManager();
+		NetworkManager(std::unique_ptr<MessageManager>& messageManager);
 		~NetworkManager();
 
 		NetworkManager(const NetworkManager&) = delete;
@@ -35,6 +37,15 @@ namespace Thingy {
 			size_t totalSize = size * nmemb;
 			std::vector<uint8_t>* buffer = static_cast<std::vector<uint8_t>*>(userp);
 			buffer->insert(buffer->end(), static_cast<uint8_t*>(contents), static_cast<uint8_t*>(contents) + totalSize);
+			return totalSize;
+		}
+
+		static size_t WriteCallbackPost(void* contents, size_t size, size_t nmemb, void* userp) {
+			if (!contents || !userp) return 0;
+
+			size_t totalSize = size * nmemb;
+			auto* buffer = static_cast<std::string*>(userp);
+			buffer->append(static_cast<char*>(contents), totalSize);
 			return totalSize;
 		}
 
@@ -50,6 +61,9 @@ namespace Thingy {
 		void CleanupGet(CURL* curl, curl_slist* headers);
 
 		std::string GetRequest(std::string& url);
+		std::string GetRequestAuth(std::string& url, const std::string& token);
+
+		std::string PostRequest(std::string& url, json& data);
 
 		std::vector<Track> GetTrack(std::string url);
 		std::vector<Album> GetAlbum(std::string url);
@@ -61,5 +75,7 @@ namespace Thingy {
 
 
 	private:
+		std::unique_ptr<MessageManager>& m_MessageManager;
+
 	};
 }

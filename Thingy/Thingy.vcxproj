@@ -157,6 +157,7 @@
     <ClInclude Include="src\Core\HelperFunctions.h" />
     <ClInclude Include="src\Core\Managers\AudioManager.h" />
     <ClInclude Include="src\Core\Image.h" />
+    <ClInclude Include="src\Core\Managers\AuthManager.h" />
     <ClInclude Include="src\Core\Managers\ImageManager.h" />
     <ClInclude Include="src\Core\Log.h" />
     <ClInclude Include="src\Core\Managers\MessageManager.h" />
@@ -167,6 +168,7 @@
     <ClInclude Include="src\Core\Track.h" />
     <ClInclude Include="src\Modules\AlbumModule.h" />
     <ClInclude Include="src\Modules\ArtistModule.h" />
+    <ClInclude Include="src\Modules\LoginModule.h" />
     <ClInclude Include="src\Modules\Modules.h" />
     <ClInclude Include="src\Modules\PlayerModule.h" />
     <ClInclude Include="src\Modules\PopularsModule.h" />
@@ -186,6 +188,7 @@
     <ClCompile Include="src\Core\Fonts.cpp" />
     <ClCompile Include="src\Core\HelperFunctions.cpp" />
     <ClCompile Include="src\Core\Managers\AudioManager.cpp" />
+    <ClCompile Include="src\Core\Managers\AuthManager.cpp" />
     <ClCompile Include="src\Core\Managers\ImageManager.cpp" />
     <ClCompile Include="src\Core\Log.cpp" />
     <ClCompile Include="src\Core\Managers\MessageManager.cpp" />
@@ -195,6 +198,7 @@
     <ClCompile Include="src\Core\Managers\SceneManager.cpp" />
     <ClCompile Include="src\Modules\AlbumModule.cpp" />
     <ClCompile Include="src\Modules\ArtistModule.cpp" />
+    <ClCompile Include="src\Modules\LoginModule.cpp" />
     <ClCompile Include="src\Modules\PlayerModule.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Modules\PopularsModule.cpp" />

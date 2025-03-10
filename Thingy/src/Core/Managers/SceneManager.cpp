@@ -8,10 +8,9 @@ namespace Thingy {
 			
 			if (data.type() == typeid(std::string)){
 				std::string name = std::any_cast<std::string>(data);
-				if (name == "albumScene") {
-					
+				if (GetActiveScene()->GetSceneName() != name) {
+					ChangeScene(name, OPEN);
 				}
-				ChangeScene(name, OPEN);
 			} else {
 				T_ERROR("SceneManager: Invalid data type for scene name");
 			}
@@ -67,6 +66,8 @@ namespace Thingy {
 			}
 			
 			});
+
+
 	}
 	
 	SceneManager::~SceneManager() {

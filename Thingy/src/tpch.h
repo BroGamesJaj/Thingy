@@ -40,6 +40,7 @@
 //Windows 
 #ifdef T_PLATFORM_WINDOWS
 #include <Windows.h>
+#include <wincred.h>
 #endif
 
 #define BIT(x) (1 << x)

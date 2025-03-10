@@ -21,9 +21,6 @@ namespace Thingy {
 
 		MODULE_CLASS_NAME("artistModule")
 	private:
-
-		struct SDL_TDeleter { void operator()(SDL_Texture* p) { SDL_DestroyTexture(p); } };
-
 		uint16_t upProps = 0;
 
 		int curr = 0;

@@ -33,8 +33,6 @@ namespace Thingy {
 		MODULE_CLASS_NAME("PopularsModule")
 
 	private:
-		struct SDL_TDeleter { void operator()(SDL_Texture* p) { SDL_DestroyTexture(p); } };
-		
 		uint16_t upProps = 0;
 
 		SDL_Renderer* m_Renderer = nullptr;

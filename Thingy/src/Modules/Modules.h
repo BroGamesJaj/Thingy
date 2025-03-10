@@ -4,3 +4,4 @@
 #include "AlbumModule.h"
 #include "ArtistModule.h"
 #include "SearchModule.h"
+#include "LoginModule.h"

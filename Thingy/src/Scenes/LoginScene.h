@@ -20,7 +20,7 @@ namespace Thingy {
 		void UpdateLayout() override;
 		void SaveLayout() override;	
 
-		SCENE_CLASS_NAME("Login");
+		SCENE_CLASS_NAME("LoginScene");
 	private:
 		std::unique_ptr<MessageManager>& m_MessageManager;
 	};

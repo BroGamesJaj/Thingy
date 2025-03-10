@@ -8,6 +8,7 @@
 #include "Managers\ImageManager.h"
 #include "Managers\SceneManager.h"
 #include "Managers\MessageManager.h"
+#include "Managers\AuthManager.h"
 
 #include "Image.h"
 #include "Comps\CustomHeader.h"
@@ -41,6 +42,7 @@ namespace Thingy {
 		std::unique_ptr<ImageManager> imageManager = nullptr;
 		std::unique_ptr<SceneManager> sceneManager = nullptr;
 		std::unique_ptr<MessageManager> messageManager = nullptr;
+		std::unique_ptr<AuthManager> authManager = nullptr;
 
 		std::unordered_map<std::string, std::shared_ptr<Module>> storedModules;
 		std::unique_ptr<CustomHeader> customHeader = nullptr;

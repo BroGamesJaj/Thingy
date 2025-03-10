@@ -8,7 +8,7 @@ namespace Thingy {
 		url.erase(std::remove_if(url.begin(), url.end(), [](unsigned char c) { return std::isspace(c); }), url.end());
 	}
 
-	NetworkManager::NetworkManager() {
+	NetworkManager::NetworkManager(std::unique_ptr<MessageManager>& messageManager) : m_MessageManager(messageManager) {
 		if (curl_global_init(CURL_GLOBAL_ALL) != 0) {
 			fprintf(stderr, "curl_global_init() failed!\n");
 		}
@@ -78,15 +78,15 @@ namespace Thingy {
 	std::string NetworkManager::GetRequest(std::string& url) {
 		URLSanitizer(url);
 		CURL* curl = curl_easy_init();
-		std::string response_string;
-		long response_code;
+		std::string responseString;
+		long responseCode;
 
 		struct curl_slist* headers = NULL;
 		if (!curl)
 		{
 			std::cout << "ERROR : Curl initialization\n" << std::endl;
 			CleanupGet(curl, headers);
-			return NULL;
+			return "";
 		}
 
 		headers = curl_slist_append(headers, "User-Agent: libcurl-agent/1.0");
@@ -102,7 +102,7 @@ namespace Thingy {
 		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L);
 		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_callback);
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseString);
 
 
 		CURLcode status = curl_easy_perform(curl);
@@ -112,8 +112,8 @@ namespace Thingy {
 			CleanupGet(curl, headers);
 			return "curl error";
 		} else {
-			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
-			if (response_code == 403) {
+			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &responseCode);
+			if (responseCode == 403) {
 				std::cout << "Received 403 Forbidden" << std::endl;
 				return "Received 403 Forbidden";
 			}
@@ -122,7 +122,108 @@ namespace Thingy {
 		curl_easy_cleanup(curl);
 		curl_slist_free_all(headers);
 
-		return response_string;
+		return responseString;
+	}
+
+	std::string NetworkManager::GetRequestAuth(std::string& url, const std::string& token) {
+		URLSanitizer(url);
+		CURL* curl = curl_easy_init();
+		std::string responseString;
+		long responseCode;
+		
+		struct curl_slist* headers = NULL;
+		if (!curl) {
+			std::cout << "ERROR : Curl initialization\n" << std::endl;
+			CleanupGet(curl, headers);
+			return "";
+		}
+
+		headers = curl_slist_append(headers, "User-Agent: libcurl-agent/1.0");
+		headers = curl_slist_append(headers, "Content-Type: application/json");
+		headers = curl_slist_append(headers, "Cache-Control: no-cache");
+		headers = curl_slist_append(headers, ("Authorization: Bearer " + token).c_str());
+
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+
+		curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
+		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L);
+		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_callback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseString);
+
+
+		CURLcode status = curl_easy_perform(curl);
+		if (status != 0) {
+			std::cout << "Error: Request failed on URL : " << url << std::endl;
+			std::cout << "Error Code: " << status << " Error Detail : " << curl_easy_strerror(status) << std::endl;
+			CleanupGet(curl, headers);
+			return "curl error";
+		} else {
+			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &responseCode);
+
+			if (responseCode == 403) {
+				T_ERROR("Received 403 Forbidden.");
+				return "Received 403 Forbidden";
+			}
+			if (responseCode == 401) {
+				T_ERROR("Received 401 Unauthorized.");
+				if (url.find("auth/refresh") != std::string::npos){
+					m_MessageManager->Publish("changeScene", std::string("LoginScene"));
+				} else {
+					T_INFO("Token was expired.");
+					m_MessageManager->Publish("expiredToken", "");
+				};
+				return "Received 401 Unauthorized";
+			}
+
+
+		}
+
+		curl_easy_cleanup(curl);
+		curl_slist_free_all(headers);
+
+		return responseString;
+	}
+
+	std::string NetworkManager::PostRequest(std::string& url, json& data) {
+		URLSanitizer(url);
+		CURL* curl = curl_easy_init();
+		std::string response;
+		struct curl_slist* headers = nullptr;
+		long responseCode;
+
+		if (!curl) {
+			std::cout << "ERROR : Curl initialization\n" << std::endl;
+			CleanupGet(curl, headers);
+			return "";
+		}
+
+		headers = curl_slist_append(headers, "Content-Type: application/json");
+
+		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+		curl_easy_setopt(curl, CURLOPT_POST, 1L);
+		std::string json_str = data.dump();
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_str.c_str());
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallbackPost);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+
+		CURLcode res = curl_easy_perform(curl);
+		if (res != CURLE_OK) {
+			response = "Curl error: " + std::string(curl_easy_strerror(res));
+		} else {
+			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &responseCode);
+			if (responseCode == 401) {
+				return "Received 401 Unauthorized";
+			}
+		};
+		curl_easy_cleanup(curl);
+		curl_slist_free_all(headers);
+
+		return response;
 	}
 
 	std::vector<Track> NetworkManager::GetTrack(std::string url) {
