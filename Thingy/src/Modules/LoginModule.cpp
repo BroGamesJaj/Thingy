@@ -6,6 +6,7 @@ namespace Thingy{
 	void LoginModule::SetupSubscriptions() {}
 
 	void LoginModule::OnLoad(const std::variant<int, std::string> moduleState) {
+		reg = false;
 		email = "";
 		password = "";
 		username = "";
@@ -15,11 +16,18 @@ namespace Thingy{
 	void LoginModule::OnUpdate() {}
 
 	void LoginModule::Window() {
+		upProps = 0;
 		if (reg){
 			ImGui::Text("Sign-up");
-			ImGui::InputText("Email: ", &email, 0, ResizeCallback, (void*)&email);
-			ImGui::InputText("Username: ", &username, 0, ResizeCallback, (void*)&username);
-			ImGui::InputText("Password: ", &password, ImGuiInputTextFlags_Password, ResizeCallback, (void*)&password);
+			ImGui::Text("Email:");
+			ImGui::SameLine();
+			ImGui::InputText("##email", &email, 0, ResizeCallback, (void*)&email);
+			ImGui::Text("Username:");
+			ImGui::SameLine();
+			ImGui::InputText("##username", &username, 0, ResizeCallback, (void*)&username);
+			ImGui::Text("Password:");
+			ImGui::SameLine();
+			ImGui::InputText("##password", &password, ImGuiInputTextFlags_Password, ResizeCallback, (void*)&password);
 
 			if (ImGui::Button("Sign-up")) {
 				std::regex pattern(R"(^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$)");
@@ -46,26 +54,31 @@ namespace Thingy{
 						username = "";
 						password = "";
 						reg = false;
-					};
+					}
 				}
-				/*
-				if (response == "Received 401 Unauthorized") {
-					error = "Incorrect email or password!";
-				} else {
-					error = "";
-					json parsed = json::parse(response);
-					std::string accessToken = parsed["accessToken"];
-					std::string refreshToken = parsed["refreshToken"];
-					m_AuthManager->StoreToken(accessToken, "accessToken");
-					m_AuthManager->StoreToken(refreshToken, "refreshToken");
-				}
-				*/
-			};
+			}
+			ImGui::Text("You already have an account?");
+			ImGui::SameLine();
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.231f, 0.51f, 0.965f, 1.0f));
+
+			ImGui::Text("Login");
+			if (ImGui::IsItemHovered()) {
+				upProps |= BIT(3);
+			}
+			if (ImGui::IsItemClicked()) {
+				T_TRACE("clicked login");
+				reg = false;
+			}
+			ImGui::PopStyleColor();
 		} else {
 
 			ImGui::Text("Login");
-			ImGui::InputText("email", &email, 0, ResizeCallback, (void*)&email);
-			ImGui::InputText("password", &password, ImGuiInputTextFlags_Password, ResizeCallback, (void*)&password);
+			ImGui::Text("Email:");
+			ImGui::SameLine();
+			ImGui::InputText("##email", &email, 0, ResizeCallback, (void*)&email);
+			ImGui::Text("Password:");
+			ImGui::SameLine();
+			ImGui::InputText("##password", &password, ImGuiInputTextFlags_Password, ResizeCallback, (void*)&password);
 
 			if (ImGui::Button("Login")) {
 				std::string url = "http://localhost:3000/auth/login";
@@ -86,13 +99,17 @@ namespace Thingy{
 					m_MessageManager->Publish("loggedIn", true);
 					m_MessageManager->Publish("changeScene", std::string("FrontPage"));
 				}
-			};
+			}
 		
 
 			ImGui::Text("Don't have an account?");
 			ImGui::SameLine();
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.231f, 0.51f, 0.965f, 1.0f));
+			
 			ImGui::Text("Sign-up");
+			if (ImGui::IsItemHovered()) {
+				upProps |= BIT(3);
+			}
 			if (ImGui::IsItemClicked()) {
 				T_TRACE("clicked sign-up");
 				reg = true;
@@ -111,6 +128,6 @@ namespace Thingy{
 		ImGui::Begin(GetModuleName().data(), 0, defaultWindowFlags);
 		Window();
 		ImGui::End();
-		return 0;
+		return upProps;
 	}
 }

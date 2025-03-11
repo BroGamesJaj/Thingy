@@ -20,10 +20,12 @@ namespace Thingy {
 	}
 	
 	uint16_t LoginScene::OnRender() {
+		uint16_t sReturn = 0;
 		for (auto& module : modules) {
-			module.second->OnRender();
+			uint16_t mReturn = module.second->OnRender();
+			sReturn |= mReturn;
 		}
-		return 0;
+		return sReturn;
 	}
 
 	void LoginScene::BeforeSwitch() {

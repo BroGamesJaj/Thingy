@@ -224,6 +224,8 @@ namespace Thingy {
 				if (!SDL_SetCursor(customCursors["openHand"])) {
 					SDL_GetError();
 				}
+			} else if (upProps & BIT(3)) {
+				ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
 			} else {
 				SDL_SetCursor(SDL_GetDefaultCursor());
 			}

@@ -22,6 +22,7 @@ namespace Thingy {
 
 		MODULE_CLASS_NAME("loginModule")
 	private:
+		uint16_t upProps = 0;
 
 		std::unique_ptr<MessageManager>& m_MessageManager;
 		std::unique_ptr<NetworkManager>& m_NetworkManager;
