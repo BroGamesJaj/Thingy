@@ -5,29 +5,106 @@
 namespace Thingy{
 	void LoginModule::SetupSubscriptions() {}
 
-	void LoginModule::OnLoad(const std::variant<int, std::string> moduleState) {}
+	void LoginModule::OnLoad(const std::variant<int, std::string> moduleState) {
+		email = "";
+		password = "";
+		username = "";
+		error = "";
+	}
 
 	void LoginModule::OnUpdate() {}
 
 	void LoginModule::Window() {
-		ImGui::Text("Login");
-		ImGui::InputText("email", &email, 0, ResizeCallback, (void*)&email);
-		ImGui::InputText("password", &password, ImGuiInputTextFlags_Password, ResizeCallback, (void*)&password);
+		if (reg){
+			ImGui::Text("Sign-up");
+			ImGui::InputText("Email: ", &email, 0, ResizeCallback, (void*)&email);
+			ImGui::InputText("Username: ", &username, 0, ResizeCallback, (void*)&username);
+			ImGui::InputText("Password: ", &password, ImGuiInputTextFlags_Password, ResizeCallback, (void*)&password);
 
-		if (ImGui::Button("Login")) {
-			std::string url = "http://localhost:3000/auth/login";
-			json payload = {{ "Email", email}, { "Password", password}};
-			std::string response = m_NetworkManager->PostRequest(url, payload);
-			if (response == "Received 401 Unauthorized") {
-				T_ERROR("Bad email or password");
-			} else {
-				json parsed = json::parse(response);
-				std::string accessToken = parsed["accessToken"];
-				std::string refreshToken = parsed["refreshToken"];
-				m_AuthManager->StoreToken(accessToken, "accessToken");
-				m_AuthManager->StoreToken(refreshToken, "refreshToken");
+			if (ImGui::Button("Sign-up")) {
+				std::regex pattern(R"(^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$)");
+				if (email == "") {
+					error = "Email cannot be empty!";
+				} else if (username == "") {
+					error = "Username cannot be empty!";
+				} else if (password == "") {
+					error = "Password cannot be empty!";
+				} else if (!std::regex_match(email, pattern)) {
+					error = "Email must be an email address!";
+				} else {
+					std::string url = "http://localhost:3000/users/register";
+					json payload = { { "Email", email }, { "Username", username }, { "Password", password }};
+					std::string response = m_NetworkManager->PostRequest(url, payload);
+					T_TRACE("response: {0}", response);
+					if (response == "Email already in use") {
+						error = "Email already in use!";
+					} else if (response == "Username already in use") {
+						error = "Username is already in use!";
+					} else {
+						error = "";
+						email = "";
+						username = "";
+						password = "";
+						reg = false;
+					};
+				}
+				/*
+				if (response == "Received 401 Unauthorized") {
+					error = "Incorrect email or password!";
+				} else {
+					error = "";
+					json parsed = json::parse(response);
+					std::string accessToken = parsed["accessToken"];
+					std::string refreshToken = parsed["refreshToken"];
+					m_AuthManager->StoreToken(accessToken, "accessToken");
+					m_AuthManager->StoreToken(refreshToken, "refreshToken");
+				}
+				*/
+			};
+		} else {
+
+			ImGui::Text("Login");
+			ImGui::InputText("email", &email, 0, ResizeCallback, (void*)&email);
+			ImGui::InputText("password", &password, ImGuiInputTextFlags_Password, ResizeCallback, (void*)&password);
+
+			if (ImGui::Button("Login")) {
+				std::string url = "http://localhost:3000/auth/login";
+				json payload = {{ "Email", email}, { "Password", password}};
+				std::string response = m_NetworkManager->PostRequest(url, payload);
+				if (response == "Received 401 Unauthorized") {
+					error = "Incorrect email or password!";
+				} else {
+					error = "";
+					json parsed = json::parse(response);
+					std::string accessToken = parsed["accessToken"];
+					std::string refreshToken = parsed["refreshToken"];
+					m_AuthManager->StoreToken("accessToken", accessToken);
+					m_AuthManager->StoreToken("refreshToken", refreshToken);
+					email = "";
+					password = "";
+					username = "";
+					m_MessageManager->Publish("loggedIn", true);
+					m_MessageManager->Publish("changeScene", std::string("FrontPage"));
+				}
+			};
+		
+
+			ImGui::Text("Don't have an account?");
+			ImGui::SameLine();
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.231f, 0.51f, 0.965f, 1.0f));
+			ImGui::Text("Sign-up");
+			if (ImGui::IsItemClicked()) {
+				T_TRACE("clicked sign-up");
+				reg = true;
 			}
-		};
+			ImGui::PopStyleColor();
+		}
+
+		if (error != "") {
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+			ImGui::Text(error.data());
+			ImGui::PopStyleColor();
+		}
 	}
 
 	uint16_t LoginModule::OnRender() {

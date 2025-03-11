@@ -87,7 +87,7 @@ namespace Thingy {
 		int cursorHeight = GetSystemMetrics(SM_CYCURSOR);
 		customCursors.emplace("openHand", CreateCustomCursor("../assets/cursors/openHand.bmp", cursorWidth / 2, cursorHeight / 2));
 		customCursors.emplace("closedHand", CreateCustomCursor("../assets/cursors/closedHand.bmp", cursorWidth / 2, cursorHeight / 2));
-		customHeader = std::make_unique<CustomHeader>(messageManager, networkManager, renderer->GetWindow(), searchTerm);
+		customHeader = std::make_unique<CustomHeader>(messageManager, networkManager, imageManager, authManager, renderer->GetWindow(), searchTerm);
 		//for testing
 		//networkManager->DownloadFile("https:\/\/prod-1.storage.jamendo.com\/?trackid=1848357&format=mp31&from=app-devsite", musicBuffer);
 		//
@@ -106,19 +106,18 @@ namespace Thingy {
 		audioManager = std::make_unique<AudioManager>(musicBuffer, networkManager, messageManager);
 		sceneManager = std::make_unique<SceneManager>(messageManager);
 		authManager = std::make_unique<AuthManager>(networkManager, messageManager);
-
-		authManager->StoreToken("accessToken", "hi");
-		authManager->StoreToken("refreshToken", "what");
 	}
 
 	void Application::SetupScenes() {
 		
 		sceneManager->AddScene(std::make_shared<FrontPageScene>(messageManager));
 		sceneManager->AddScene(std::make_shared<LoginScene>(messageManager));
+		sceneManager->AddScene(std::make_shared<ProfileScene>(messageManager));
 		sceneManager->AddScene(std::make_shared<AlbumScene>(messageManager));
 		sceneManager->AddScene(std::make_shared<ArtistScene>(messageManager));
 		sceneManager->GetScenes();
 		storedModules.emplace("loginModule", std::make_shared<LoginModule>(messageManager, networkManager, authManager));
+		storedModules.emplace("profileModule", std::make_shared<ProfileModule>(messageManager, imageManager, networkManager, authManager));
 		storedModules.emplace("popularsModule", std::make_shared<PopularsModule>(messageManager, networkManager, audioManager, imageManager, renderer->GetRenderer()));
 		storedModules.emplace("albumModule", std::make_shared<AlbumModule>(messageManager, audioManager, imageManager, networkManager));
 		storedModules.emplace("artistModule", std::make_shared<ArtistModule>(messageManager, audioManager, imageManager, networkManager));
@@ -130,20 +129,20 @@ namespace Thingy {
 		
 		sceneManager->GetScene("LoginScene")->PushModule(storedModules["loginModule"]);
 
+		sceneManager->GetScene("ProfileScene")->PushModule(storedModules["profileModule"]);
+
 		sceneManager->GetScene("AlbumScene")->PushModule(storedModules["albumModule"]);
 		sceneManager->GetScene("AlbumScene")->PushModule(storedModules["playerModule"]);
 		
 		sceneManager->GetScene("ArtistScene")->PushModule(storedModules["artistModule"]);
 		sceneManager->GetScene("ArtistScene")->PushModule(storedModules["playerModule"]);
 		
-		//messageManager->Publish("homeButton", std::string("FrontPage"));
-		sceneManager->ChangeScene("LoginScene", OPEN);
+		messageManager->Publish("homeButton", std::string("FrontPage"));
 		sceneManager->GetScenes();
 
 		for (auto& module : storedModules) {
 			module.second->SetupSubscriptions();
 		}
-
 	}
 
 	void Application::StartSubscriptions() {
@@ -166,6 +165,8 @@ namespace Thingy {
 		SDL_Renderer* sdlRenderer = renderer->GetRenderer();
 		SDL_Window* sdlWindow = renderer->GetWindow();
 		Fonts::LoadFonts();
+
+		authManager->RefreshTokens();
 
 		SDL_ShowWindow(sdlWindow);
 		bool first = true;

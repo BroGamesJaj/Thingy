@@ -219,6 +219,9 @@ namespace Thingy {
 			if (responseCode == 401) {
 				return "Received 401 Unauthorized";
 			}
+			if (responseCode == 409) {
+				return json::parse(response)["message"];
+			}
 		};
 		curl_easy_cleanup(curl);
 		curl_slist_free_all(headers);

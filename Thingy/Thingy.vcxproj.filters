@@ -41,6 +41,10 @@
     <ClInclude Include="src\Modules\SearchModule.h" />
     <ClInclude Include="src\Core\Managers\AuthManager.h" />
     <ClInclude Include="src\Modules\LoginModule.h" />
+    <ClInclude Include="src\Modules\ProfileModule.h" />
+    <ClInclude Include="src\Scenes\ProfileScene.h" />
+    <ClInclude Include="src\Core\User.h" />
+    <ClInclude Include="src\Core\Playlist.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -74,5 +78,9 @@
     <ClCompile Include="src\Modules\SearchModule.cpp" />
     <ClCompile Include="src\Core\Managers\AuthManager.cpp" />
     <ClCompile Include="src\Modules\LoginModule.cpp" />
+    <ClCompile Include="src\Modules\ProfileModule.cpp" />
+    <ClCompile Include="src\Scenes\ProfileScene.cpp" />
+    <ClCompile Include="src\Core\User.cpp" />
+    <ClCompile Include="src\Core\Playlist.cpp" />
   </ItemGroup>
 </Project>

@@ -8,9 +8,38 @@ namespace Thingy {
 			RefreshTokens();
 			});
 
+		m_MessageManager->Subscribe("logout", "authManager", [this](MessageData data) {
+			StoreToken("accessToken", "-");
+			StoreToken("refreshToken", "-");
+			m_MessageManager->Publish("loggedIn", false);
+
+			});
+
+		m_MessageManager->Subscribe("loggedIn", "authManager", [this](MessageData data) {
+			if (data.type() == typeid(bool)) {
+				bool loggedIn = std::any_cast<bool>(data);
+				if (loggedIn) {
+					FetchUser();
+				} else {
+					user = User();
+				}
+			}
+			});
 	}
 
 	AuthManager::~AuthManager() {}
+
+	void AuthManager::FetchUser() {
+		std::string url = "http://localhost:3000/auth/profile";
+		std::string accessToken;
+		RetrieveToken("accessToken", accessToken);
+		std::string response = m_NetworkManager->GetRequestAuth(url, accessToken);
+		if (response.find("UserID") != std::string::npos) {
+			json userJson = json::parse(response);
+			from_json(userJson, user);
+		}
+
+	}
 
 	uint8_t AuthManager::StoreToken(const std::string& tokenName, const std::string& token) {
 		wchar_t* wtoken = new wchar_t[4096];
@@ -101,11 +130,13 @@ namespace Thingy {
 		std::string url = "http://localhost:3000/auth/refresh";
 		std::string refreshToken;
 		if(RetrieveToken("refreshToken", refreshToken) != 0){
+			m_MessageManager->Publish("loggedIn", false);
 			return;
 		};
 		std::string response = m_NetworkManager->GetRequestAuth(url, refreshToken);
 		if (response == "Received 401 Unauthorized") {
-			m_MessageManager->Publish("expiredToken", "");
+			m_MessageManager->Publish("changeScene", std::string("LoginScene"));
+			m_MessageManager->Publish("loggedIn", false);
 			return;
 		}
 		json parsedJSON = json::parse(response);
@@ -113,5 +144,6 @@ namespace Thingy {
 		StoreToken("accessToken", accessToken);
 		std::string newRefreshToken = parsedJSON["refreshToken"];
 		StoreToken("refreshToken", newRefreshToken);
+		m_MessageManager->Publish("loggedIn", true);
 	}
 }

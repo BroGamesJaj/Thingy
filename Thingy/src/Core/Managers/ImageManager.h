@@ -73,6 +73,7 @@ namespace Thingy {
 		}
 
 		SDL_Texture* GetDefaultArtistImage();
+		SDL_Texture* GetDefaultPlaylistImage();
 
 	private:
 		std::unique_ptr<NetworkManager>& m_NetworkManager;

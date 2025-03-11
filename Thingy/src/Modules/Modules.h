@@ -5,3 +5,4 @@
 #include "ArtistModule.h"
 #include "SearchModule.h"
 #include "LoginModule.h"
+#include "ProfileModule.h"

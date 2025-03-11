@@ -1,4 +1,5 @@
 #pragma once
+#include <regex>
 #include "Core\Module.h"
 #include "Core\HelperFunctions.h"
 
@@ -26,6 +27,10 @@ namespace Thingy {
 		std::unique_ptr<NetworkManager>& m_NetworkManager;
 		std::unique_ptr<AuthManager>& m_AuthManager;
 		std::string email = "";
+		std::string username = "";
 		std::string password = "";
+		std::string error = "";
+		bool reg = false;
+
 	};
 }

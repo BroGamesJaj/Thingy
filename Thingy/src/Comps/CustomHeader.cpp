@@ -3,8 +3,23 @@
 
 namespace Thingy {
 
-	CustomHeader::CustomHeader(std::unique_ptr<MessageManager>& messageManager, std::unique_ptr<NetworkManager>& networkManager, SDL_Window* window, std::string& searchField) : m_MessageManager(messageManager), m_NetworkManager(networkManager), m_Window(window), search(searchField) {
+	CustomHeader::CustomHeader(std::unique_ptr<MessageManager>& messageManager, std::unique_ptr<NetworkManager>& networkManager, std::unique_ptr<ImageManager>& imageManager, std::unique_ptr<AuthManager>& authManager, SDL_Window* window, std::string& searchField) : m_MessageManager(messageManager), m_NetworkManager(networkManager), m_ImageManager(imageManager), m_AuthManager(authManager), m_Window(window), search(searchField) {
+		m_MessageManager->Subscribe("loggedIn", "customHeader", [this](const MessageData data) {
+			if (data.type() == typeid(bool)) {
+				loggedIn = std::any_cast<bool>(data);
+				if (loggedIn) {
+					const User& user = m_AuthManager->GetUser();
+					if (user.pfpBuffer.empty()) {
+						pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetDefaultArtistImage());
+					} else {
+						pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTextureFromImage(Image(m_AuthManager->GetUser().pfpBuffer)));
+					}
+				} else {
+					pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetDefaultArtistImage());
+				}
 
+			}
+			});
 	}
 
 	void CustomHeader::OnRender() {
@@ -54,6 +69,28 @@ namespace Thingy {
 		if (ImGui::Button("Queue")) {
 			m_MessageManager->Publish("changeQueueOpen", "");
 		};
+		if (loggedIn) {
+			if(ImGui::ImageButton("##pfp", (ImTextureID)(intptr_t)pfpTexture.get(), ImVec2(40.0f, 40.0f))) {
+				ImGui::OpenPopup("profile");
+			};
+			
+			if (ImGui::BeginPopup("profile", ImGuiWindowFlags_NoMove)) {
+				if (ImGui::Button("Details")) {
+					m_MessageManager->Publish("changeScene", std::string("ProfileScene"));
+					ImGui::CloseCurrentPopup();
+				};
+				if (ImGui::Button("Logout")) {
+					T_INFO("Logout");
+					m_MessageManager->Publish("logout", "");
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
+		} else {
+			if (ImGui::Button("Login")) {
+				m_MessageManager->Publish("changeScene", std::string("LoginScene"));
+			}
+		}
 		ImGui::SetCursorPosX(winW - 15 - 40 - 5 - 40 - 5 - 40);
 		if (ImGui::Button("_", { 40.0f, 30.0f }))
 			m_MessageManager->Publish("minimize", 0);

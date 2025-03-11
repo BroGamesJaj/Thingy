@@ -44,4 +44,12 @@ namespace Thingy {
 		LoadTextureFromFile("../assets/images/defaultArtist.png", m_Renderer, &texture, &w, &h);
 		return texture;
 	}
+
+	SDL_Texture* ImageManager::GetDefaultPlaylistImage() {
+
+		SDL_Texture* texture;
+		int w, h;
+		LoadTextureFromFile("../assets/images/playlist_cover.png", m_Renderer, &texture, &w, &h);
+		return texture;
+	}
 }
