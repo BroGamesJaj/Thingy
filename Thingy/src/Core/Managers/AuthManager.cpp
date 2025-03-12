@@ -4,18 +4,18 @@
 
 namespace Thingy {
 	AuthManager::AuthManager(std::unique_ptr<NetworkManager>& networkManager, std::unique_ptr<MessageManager>& messageManager) : m_NetworkManager(networkManager), m_MessageManager(messageManager) {
-		m_MessageManager->Subscribe("expiredToken", "authManager", [this](MessageData data) {
+		m_MessageManager->Subscribe("expiredToken", "authManager", [this](const MessageData data) {
 			RefreshTokens();
 			});
 
-		m_MessageManager->Subscribe("logout", "authManager", [this](MessageData data) {
+		m_MessageManager->Subscribe("logout", "authManager", [this](const MessageData data) {
 			StoreToken("accessToken", "-");
 			StoreToken("refreshToken", "-");
 			m_MessageManager->Publish("loggedIn", false);
 
 			});
 
-		m_MessageManager->Subscribe("loggedIn", "authManager", [this](MessageData data) {
+		m_MessageManager->Subscribe("loggedIn", "authManager", [this](const MessageData data) {
 			if (data.type() == typeid(bool)) {
 				bool loggedIn = std::any_cast<bool>(data);
 				if (loggedIn) {
@@ -25,11 +25,16 @@ namespace Thingy {
 				}
 			}
 			});
+
+		m_MessageManager->Subscribe("updateUser", "authManager", [this](const MessageData data) {
+			FetchUser();
+			});
 	}
 
 	AuthManager::~AuthManager() {}
 
 	void AuthManager::FetchUser() {
+		user = User();
 		std::string url = "http://localhost:3000/auth/profile";
 		std::string accessToken;
 		RetrieveToken("accessToken", accessToken);
@@ -38,7 +43,7 @@ namespace Thingy {
 			json userJson = json::parse(response);
 			from_json(userJson, user);
 		}
-
+		m_MessageManager->Publish("userChanged", "");
 	}
 
 	uint8_t AuthManager::StoreToken(const std::string& tokenName, const std::string& token) {
@@ -46,7 +51,6 @@ namespace Thingy {
 		MultiByteToWideChar(CP_UTF8, 0, tokenName.c_str(), -1, wtoken, 4096);
 
 		if (CredDeleteW(wtoken, CRED_TYPE_GENERIC, 0)) {
-			T_INFO("Existing token for {0} deleted successfully.", tokenName);
 		} else {
 			DWORD error = GetLastError();
 			if (error != ERROR_NOT_FOUND) {
@@ -66,7 +70,6 @@ namespace Thingy {
 
 		if (CredWriteW(&cred, 0)) {
 			delete[] wtoken;
-			T_INFO("Successfully writen token to storage. {0}", tokenName);
 			return 0;
 		} else {
 			DWORD error = GetLastError();
@@ -99,7 +102,6 @@ namespace Thingy {
 			token = (char*)pcred->CredentialBlob;
 			CredFree(pcred);
 			delete[] wtoken;
-			T_INFO("Successfully retrieved token {0}.", tokenName);
 			return 0;
 		} else {
 			DWORD error = GetLastError();

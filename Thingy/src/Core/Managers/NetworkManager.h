@@ -65,6 +65,8 @@ namespace Thingy {
 
 		std::string PostRequest(std::string& url, json& data);
 
+		std::string UploadImage(std::string& url, const std::string& filePath, const std::string& token);
+
 		std::vector<Track> GetTrack(std::string url);
 		std::vector<Album> GetAlbum(std::string url);
 		std::vector<Artist> GetArtist(std::string url);

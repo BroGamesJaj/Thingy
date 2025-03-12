@@ -41,6 +41,7 @@
 #ifdef T_PLATFORM_WINDOWS
 #include <Windows.h>
 #include <wincred.h>
+#include <ShObjIdl.h>
 #endif
 
 #define BIT(x) (1 << x)

@@ -3,21 +3,32 @@
 
 namespace Thingy {
 
-	CustomHeader::CustomHeader(std::unique_ptr<MessageManager>& messageManager, std::unique_ptr<NetworkManager>& networkManager, std::unique_ptr<ImageManager>& imageManager, std::unique_ptr<AuthManager>& authManager, SDL_Window* window, std::string& searchField) : m_MessageManager(messageManager), m_NetworkManager(networkManager), m_ImageManager(imageManager), m_AuthManager(authManager), m_Window(window), search(searchField) {
+	CustomHeader::CustomHeader(std::unique_ptr<MessageManager>& messageManager, std::unique_ptr<NetworkManager>& networkManager, std::unique_ptr<ImageManager>& imageManager, std::unique_ptr<AuthManager>& authManager, SDL_Window* window, std::string& searchField) : m_MessageManager(messageManager), m_NetworkManager(networkManager), m_ImageManager(imageManager), m_AuthManager(authManager), user(authManager->GetUser()), m_Window(window), search(searchField) {
 		m_MessageManager->Subscribe("loggedIn", "customHeader", [this](const MessageData data) {
 			if (data.type() == typeid(bool)) {
 				loggedIn = std::any_cast<bool>(data);
 				if (loggedIn) {
-					const User& user = m_AuthManager->GetUser();
 					if (user.pfpBuffer.empty()) {
 						pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetDefaultArtistImage());
 					} else {
-						pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTextureFromImage(Image(m_AuthManager->GetUser().pfpBuffer)));
+						pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTextureFromImage(Image(user.pfpBuffer)));
 					}
 				} else {
 					pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetDefaultArtistImage());
 				}
 
+			}
+			});
+
+		m_MessageManager->Subscribe("userChanged", "customHeader", [this](const MessageData data) {
+			if (loggedIn) {
+				if (user.pfpBuffer.empty()) {
+					pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetDefaultArtistImage());
+				} else {
+					pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTextureFromImage(Image(user.pfpBuffer)));
+				}
+			} else {
+				pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetDefaultArtistImage());
 			}
 			});
 	}
@@ -32,17 +43,15 @@ namespace Thingy {
 		float winW = ImGui::GetWindowWidth();
 		float scale = std::clamp(winW / 1280, 1.0f, 2.0f);
 		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Horizontal;
-		ImGui::Button("image", { 40.0f, 40.0f });
-		if (ImGui::IsItemClicked()) {
+		if (ImGui::Button("image", { 40.0f, 40.0f })) {
 			m_MessageManager->Publish("homeButton", std::string("FrontPage"));
 		}
-		ImGui::Button("back", { 40.0f, 40.0f });
-		if (ImGui::IsItemClicked()) {
+		if (ImGui::Button("back", { 40.0f, 40.0f })) {
+
 			T_INFO("back");
 			m_MessageManager->Publish("previousScene", "");
 		}
-		ImGui::Button("next", { 40.0f, 40.0f });
-		if (ImGui::IsItemClicked()) {
+		if (ImGui::Button("next", { 40.0f, 40.0f })) {
 			T_INFO("next");
 			m_MessageManager->Publish("nextScene", "");
 		}
@@ -71,6 +80,11 @@ namespace Thingy {
 		};
 		if (loggedIn) {
 			if(ImGui::ImageButton("##pfp", (ImTextureID)(intptr_t)pfpTexture.get(), ImVec2(40.0f, 40.0f))) {
+				ImGui::OpenPopup("profile");
+			};
+			CircleImage((ImTextureID)(intptr_t)pfpTexture.get(), 40.0f);
+			if (ImGui::IsItemClicked()) {
+				T_INFO("pressed");
 				ImGui::OpenPopup("profile");
 			};
 			

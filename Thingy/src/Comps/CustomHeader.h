@@ -37,6 +37,7 @@ namespace Thingy {
 
 		SDL_Window* m_Window;
 		bool loggedIn = false;
+		const User& user;
 		std::unique_ptr<SDL_Texture, SDL_TDeleter> appTexture;
 		std::unique_ptr<SDL_Texture, SDL_TDeleter> pfpTexture;
 

@@ -125,6 +125,8 @@ namespace Thingy {
 		return responseString;
 	}
 
+
+
 	std::string NetworkManager::GetRequestAuth(std::string& url, const std::string& token) {
 		URLSanitizer(url);
 		CURL* curl = curl_easy_init();
@@ -221,6 +223,50 @@ namespace Thingy {
 			}
 			if (responseCode == 409) {
 				return json::parse(response)["message"];
+			}
+		};
+		curl_easy_cleanup(curl);
+		curl_slist_free_all(headers);
+
+		return response;
+	}
+
+	std::string NetworkManager::UploadImage(std::string& url, const std::string& filePath, const std::string& token){
+		URLSanitizer(url);
+		CURL* curl = curl_easy_init();
+		std::string response;
+		struct curl_slist* headers = nullptr;
+		long responseCode;
+
+		if (!curl) {
+			std::cout << "ERROR : Curl initialization\n" << std::endl;
+			CleanupGet(curl, headers);
+			return "";
+		}
+		struct curl_httppost* form = NULL;
+		struct curl_httppost* last = NULL;
+
+		curl_formadd(&form, &last,
+			CURLFORM_COPYNAME, "file",
+			CURLFORM_FILE, filePath.c_str(),
+			CURLFORM_END);
+		
+		headers = curl_slist_append(headers, ("Authorization: Bearer " + token).c_str());	
+
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+		curl_easy_setopt(curl, CURLOPT_HTTPPOST, form);
+		curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PATCH");
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+
+		CURLcode res = curl_easy_perform(curl);
+		if (res != CURLE_OK) {
+			std::cout << "Curl error: " << curl_easy_strerror(res) << std::endl;
+		} else {
+			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &responseCode);
+			if (responseCode == 401) {
+				return "Received 401 Unauthorized";
 			}
 		};
 		curl_easy_cleanup(curl);
