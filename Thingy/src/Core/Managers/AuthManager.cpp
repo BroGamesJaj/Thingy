@@ -29,6 +29,18 @@ namespace Thingy {
 		m_MessageManager->Subscribe("updateUser", "authManager", [this](const MessageData data) {
 			FetchUser();
 			});
+
+		m_MessageManager->Subscribe("changeDescription", "authManager", [this](const MessageData data) {
+			if (data.type() == typeid(std::string)) {
+				std::string newDesc = std::any_cast<std::string>(data);
+				json jsonData = { {"Description", newDesc} };
+				std::string url = "http://localhost:3000/users/" + std::to_string(user.userID);
+				std::string token = "";
+				RetrieveToken("accessToken", token);
+				m_NetworkManager->PatchRequestAuth(url, jsonData, token);
+				FetchUser();
+			}
+			});
 	}
 
 	AuthManager::~AuthManager() {}

@@ -20,10 +20,11 @@ namespace Thingy {
 	}
 
 	uint16_t ProfileScene::OnRender() {
+		uint16_t sReturn = 0;
 		for (auto& module : modules) {
-			module.second->OnRender();
+			sReturn |= module.second->OnRender();
 		}
-		return 0;
+		return sReturn;
 	}
 
 	void ProfileScene::BeforeSwitch() {

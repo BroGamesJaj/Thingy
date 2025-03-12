@@ -79,9 +79,6 @@ namespace Thingy {
 			m_MessageManager->Publish("changeQueueOpen", "");
 		};
 		if (loggedIn) {
-			if(ImGui::ImageButton("##pfp", (ImTextureID)(intptr_t)pfpTexture.get(), ImVec2(40.0f, 40.0f))) {
-				ImGui::OpenPopup("profile");
-			};
 			CircleImage((ImTextureID)(intptr_t)pfpTexture.get(), 40.0f);
 			if (ImGui::IsItemClicked()) {
 				T_INFO("pressed");

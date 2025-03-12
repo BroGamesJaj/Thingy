@@ -32,6 +32,9 @@ namespace Thingy {
 		std::unique_ptr<AuthManager>& m_AuthManager;
 
 		bool loggedIn = false;
+		bool editingDesc = false;
+		bool showDescChangePopup = false;
+		std::string newDescription = "";
 
 		const User& user;
 		std::unique_ptr<SDL_Texture, SDL_TDeleter> pfp;

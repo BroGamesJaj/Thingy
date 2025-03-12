@@ -53,7 +53,46 @@ namespace Thingy {
 			
 		}
 		ImGui::SameLine();
-		LimitedTextWrap(user.description.data(), 500.0f, 3);
+		if(editingDesc){
+			ImGui::SetKeyboardFocusHere();
+			ImGui::InputText("##newDesc", &newDescription, 0, ResizeCallback, (void*)&newDescription);
+			
+
+			if (ImGui::IsItemDeactivatedAfterEdit()) {
+				showDescChangePopup = true;
+			}
+
+			if (showDescChangePopup) {
+				if (!ImGui::IsPopupOpen("Save Changes?")) {
+					ImGui::OpenPopup("Save Changes?");
+				}
+				if (ImGui::BeginPopupModal("Save Changes?", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize)) {
+					ImGui::Button("Yes", ImVec2(50.0f, 30.0f));
+					if (ImGui::IsItemClicked()) {
+						m_MessageManager->Publish("changeDescription", newDescription);
+						editingDesc = false;
+						showDescChangePopup = false;
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::SameLine();
+					ImGui::Button("No", ImVec2(50.0f, 30.0f));
+					if (ImGui::IsItemClicked()) {
+						editingDesc = false;
+						showDescChangePopup = false;
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::EndPopup();
+				}
+			}
+		} else {
+
+			if(ImGui::Button("descChange", ImVec2(50.0f, 50.0f))){
+				editingDesc = true;
+				newDescription = user.description;
+			};
+			ImGui::SameLine();
+			LimitedTextWrap(user.description.data(), 500.0f, 3);
+		}
 		ImGui::EndGroup();
 
 		ImGui::BeginChild("Playlists", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);
