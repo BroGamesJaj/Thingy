@@ -8,7 +8,7 @@
 namespace Thingy {
 	class SearchModule : Module {
 	public:
-		SearchModule(std::unique_ptr<MessageManager>& messageManager, std::unique_ptr<NetworkManager>& networkManager, std::unique_ptr<ImageManager>& imageManager) : m_MessageManager(messageManager), m_NetworkManager(networkManager), m_ImageManager(imageManager) {};
+		SearchModule(MessageManager& messageManager, NetworkManager& networkManager, ImageManager& imageManager) : m_MessageManager(messageManager), m_NetworkManager(networkManager), m_ImageManager(imageManager) {};
 
 		void SetupSubscriptions() override;
 		void OnLoad(const std::variant<int, std::string> moduleState) override;
@@ -23,9 +23,9 @@ namespace Thingy {
 		MODULE_CLASS_NAME("SearchModule")
 	private:
 		
-		std::unique_ptr<MessageManager>& m_MessageManager;
-		std::unique_ptr<NetworkManager>& m_NetworkManager;
-		std::unique_ptr<ImageManager>& m_ImageManager;
+		MessageManager& m_MessageManager;
+		NetworkManager& m_NetworkManager;
+		ImageManager& m_ImageManager;
 
 		uint16_t upProps = 0;
 

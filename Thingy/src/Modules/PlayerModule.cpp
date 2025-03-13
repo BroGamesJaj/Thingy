@@ -3,15 +3,15 @@
 namespace Thingy {
 
 	void PlayerModule::SetupSubscriptions() {
-		m_MessageManager->Subscribe("openPlayer", GetModuleName(), [this](MessageData data) {
+		m_MessageManager.Subscribe("openPlayer", GetModuleName(), [this](MessageData data) {
 			open = true;
 			});
 
-		m_MessageManager->Subscribe("closePlayer", GetModuleName(), [this](MessageData data) {
+		m_MessageManager.Subscribe("closePlayer", GetModuleName(), [this](MessageData data) {
 			open = false;
 			});
 
-		m_MessageManager->Subscribe("changeQueueOpen", GetModuleName(), [this](MessageData data) {
+		m_MessageManager.Subscribe("changeQueueOpen", GetModuleName(), [this](MessageData data) {
 			isQueueOpen = !isQueueOpen;
 			});
 
@@ -22,14 +22,14 @@ namespace Thingy {
 	}
 
 	void PlayerModule::OnUpdate() {
-		int currentTrackID = m_AudioManager->GetCurrentTrack().id; 
+		int currentTrackID = m_AudioManager.GetCurrentTrack().id; 
 		if (isQueueOpen) {
 
 			std::unordered_map<uint32_t, std::future<Image>> images;
 			for (auto& track : queue) {
 				if (!queueTextures[track.albumID]) {
 					std::string& url = track.imageURL;
-					images.emplace(track.albumID, std::async(std::launch::async, [this, &url]() { return m_ImageManager->GetImage(url); }));
+					images.emplace(track.albumID, std::async(std::launch::async, [this, &url]() { return m_ImageManager.GetImage(url); }));
 				}
 
 			}
@@ -37,7 +37,7 @@ namespace Thingy {
 				for (auto it = images.begin(); it != images.end(); ) {
 					auto& image = it->second;
 					if (image.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-						queueTextures[it->first] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTextureFromImage(image.get()));
+						queueTextures[it->first] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(image.get()));
 						it = images.erase(it);
 					} else {
 						++it;
@@ -48,9 +48,9 @@ namespace Thingy {
 
 		if (currentTrackID != currentTrack.id && currentTrackID != -1) {
 			open = true;
-			currentTrack = m_AudioManager->GetCurrentTrack();
+			currentTrack = m_AudioManager.GetCurrentTrack();
 			if (!queueTextures[currentTrack.albumID]) {
-				queueTextures[currentTrack.albumID] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTexture(currentTrack.imageURL));
+				queueTextures[currentTrack.albumID] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTexture(currentTrack.imageURL));
 			}
 		}
 	}
@@ -81,7 +81,7 @@ namespace Thingy {
 	}
 
 	uint16_t PlayerModule::OnRender() {
-		if (m_AudioManager->GetQueue().size() != 0 && open) {
+		if (m_AudioManager.GetQueue().size() != 0 && open) {
 			ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
 			Window();
 			ImGui::End();
@@ -109,7 +109,7 @@ namespace Thingy {
 				ImGui::TableNextRow();
 
 				ImGui::TableSetColumnIndex(0);
-				ImGui::Image((ImTextureID)(intptr_t)queueTextures[track.albumID].get(), { 80.0f, 80.0f });
+				ImGui::Image(reinterpret_cast<ImTextureID>(queueTextures[track.albumID].get()), { 80.0f, 80.0f });
 
 				ImGui::TableSetColumnIndex(1);
 				std::string label = std::to_string(i);
@@ -130,39 +130,39 @@ namespace Thingy {
 	}
 
 	void PlayerModule::PlayerView() {
-		if (m_AudioManager->GetQueue().size() == 0) {
+		if (m_AudioManager.GetQueue().size() == 0) {
 			ImGui::Button("image", { 300.0f, 300.0f });
 		} else {
-			ImGui::Image((ImTextureID)(intptr_t)queueTextures[currentTrack.albumID].get(), {300.0f, 300.0f});
+			ImGui::Image(reinterpret_cast<ImTextureID>(queueTextures[currentTrack.albumID].get()), {300.0f, 300.0f});
 		}
 		ImGui::Text(currentTrack.title.data());
 		ImGui::Text(currentTrack.artistName.data());
 		if (ImGui::Button("back", { 30.0f, 30.0f })) {
-			m_AudioManager->PrevTrack();
+			m_AudioManager.PrevTrack();
 		}
 		ImGui::SameLine();
-		if (m_AudioManager->IsMusicPaused()) {
+		if (m_AudioManager.IsMusicPaused()) {
 			if (ImGui::Button("Play", { 30.0f, 30.0f })) {
-				m_AudioManager->ResumeMusic();
+				m_AudioManager.ResumeMusic();
 			}
 		} else {
 			if (ImGui::Button("Pause", { 30.0f, 30.0f })) {
-				m_AudioManager->PauseMusic();
+				m_AudioManager.PauseMusic();
 			}
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Forward", { 30.0f, 30.0f })) {
-			m_AudioManager->NextTrack();
+			m_AudioManager.NextTrack();
 		};
 		ImGui::Text("Current");
 		ImGui::SameLine();
-		ImGui::SliderInt("time", &m_AudioManager->GetCurrentTrackPos(), 0, m_AudioManager->GetCurrentTrackDuration());
+		ImGui::SliderInt("time", &m_AudioManager.GetCurrentTrackPos(), 0, m_AudioManager.GetCurrentTrackDuration());
 		if (ImGui::IsItemEdited()) {
-			m_AudioManager->ChangeMusicPos();
+			m_AudioManager.ChangeMusicPos();
 		}
 		ImGui::SliderInt("Volume", &m_AudioVolume, 0, MIX_MAX_VOLUME);
 		if (ImGui::IsItemEdited()) {
-			m_AudioManager->ChangeVolume();
+			m_AudioManager.ChangeVolume();
 		}
 	}
 }

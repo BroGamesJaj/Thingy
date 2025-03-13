@@ -3,8 +3,8 @@
 
 
 namespace Thingy {
-	SceneManager::SceneManager(std::unique_ptr<MessageManager>& messageManager) : m_MessageManager(messageManager) {
-		m_MessageManager->Subscribe("changeScene", "sceneManager", [this](const MessageData data) {
+	SceneManager::SceneManager(MessageManager& messageManager) : m_MessageManager(messageManager) {
+		m_MessageManager.Subscribe("changeScene", "sceneManager", [this](const MessageData data) {
 			
 			if (data.type() == typeid(std::string)){
 				std::string name = std::any_cast<std::string>(data);
@@ -17,13 +17,13 @@ namespace Thingy {
 				
 			});
 
-		m_MessageManager->Subscribe("homeButton", "sceneManager", [this](const MessageData data) {
+		m_MessageManager.Subscribe("homeButton", "sceneManager", [this](const MessageData data) {
 				if (data.type() == typeid(std::string)) {
 					std::string name = std::any_cast<std::string>(data);
 					if (GetActiveScene()) {
 						if (GetActiveScene()->GetSceneName() != name) {
 						
-							m_MessageManager->Publish("change" + GetActiveScene()->GetSceneName(), "OPEN");
+							m_MessageManager.Publish("change" + GetActiveScene()->GetSceneName(), "OPEN");
 							ChangeScene(name, OPEN);
 							T_INFO("Went to FrontPage");
 						} else {
@@ -38,25 +38,25 @@ namespace Thingy {
 			
 			});
 
-		m_MessageManager->Subscribe("previousScene", "sceneManager", [this](const MessageData data) {
+		m_MessageManager.Subscribe("previousScene", "sceneManager", [this](const MessageData data) {
 			if (history.size() < 2 || currentSceneIndex == 0) {
 				T_INFO("Can't go back.");
 				return;
 			}
-			m_MessageManager->Publish("change" + GetActiveScene()->GetSceneName(), "BACK");
+			m_MessageManager.Publish("change" + GetActiveScene()->GetSceneName(), "BACK");
 			ChangeScene(history[currentSceneIndex - 1].sceneName, BACK);
 			});
 
-		m_MessageManager->Subscribe("nextScene", "sceneManager", [this](const MessageData data) {
+		m_MessageManager.Subscribe("nextScene", "sceneManager", [this](const MessageData data) {
 			if (currentSceneIndex == history.size() - 1) {
 				T_INFO("Can't go Forward.");
 				return;
 			}
-			m_MessageManager->Publish("change" + GetActiveScene()->GetSceneName(), "NEXT");
+			m_MessageManager.Publish("change" + GetActiveScene()->GetSceneName(), "NEXT");
 			ChangeScene(history[currentSceneIndex + 1].sceneName, NEXT);
 			});
 
-		m_MessageManager->Subscribe("setHistory", "sceneManager", [this](const MessageData data) {
+		m_MessageManager.Subscribe("setHistory", "sceneManager", [this](const MessageData data) {
 			if (data.type() == typeid(std::unordered_map<std::string, std::variant<int, std::string>>)) {
 				std::unordered_map<std::string, std::variant<int, std::string>> moduleStates = std::any_cast<std::unordered_map<std::string, std::variant<int, std::string>>>(data);
 				history[currentSceneIndex].moduleState.clear();

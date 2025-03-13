@@ -18,8 +18,8 @@ namespace Thingy {
 
 			if (modules[i].first != dragged) {
 				if (!ImGui::FindWindowByName(modules[i].first.data())) break;
-				ImVec2 winSize = ImGui::FindWindowByName(modules[i].first.data())->Size;
-				ImVec2 winPos = ImGui::FindWindowByName(modules[i].first.data())->Pos;
+				const ImVec2 winSize = ImGui::FindWindowByName(modules[i].first.data())->Size;
+				const ImVec2 winPos = ImGui::FindWindowByName(modules[i].first.data())->Pos;
 				if (currentPos.x > winPos.x && currentPos.x < winPos.x + winSize.x && currentPos.y > winPos.y && currentPos.y < winPos.y + winSize.y) {
 
 					if (draggedModule != modules.end()) {
@@ -51,14 +51,14 @@ namespace Thingy {
 		virtual void BeforeSwitch() = 0;
 
 		virtual std::string GetSceneName() const = 0;
-		const Modules& GetModules() const { return modules; };
+		const Modules& GetModules() const noexcept { return modules; };
 		
 		virtual void PushModule(std::shared_ptr<Module> module) {
 			modules.push_back(std::make_pair(module->GetModuleName(),module));
 		}
 
 		virtual void PopModule(const std::string& moduleName) {
-			size_t beforeSize = modules.size();
+			const size_t beforeSize = modules.size();
 			modules.erase(std::remove_if(modules.begin(), modules.end(), [&moduleName](const std::pair<std::string,std::shared_ptr<Module>>& module) {
 				return module.first == moduleName;
 				}), modules.end());

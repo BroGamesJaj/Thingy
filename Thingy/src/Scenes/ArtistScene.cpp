@@ -2,8 +2,8 @@
 #include "ArtistScene.h"
 
 namespace Thingy {
-	ArtistScene::ArtistScene(std::unique_ptr<MessageManager>& messageManager) : m_MessageManager(messageManager) {
-		m_MessageManager->Subscribe("change" + GetSceneName(), GetSceneName(), [this](const MessageData data) {
+	ArtistScene::ArtistScene(MessageManager& messageManager) : m_MessageManager(messageManager) {
+		m_MessageManager.Subscribe("change" + GetSceneName(), GetSceneName(), [this](const MessageData data) {
 			BeforeSwitch();
 			});
 	};
@@ -17,7 +17,7 @@ namespace Thingy {
 			if (std::holds_alternative<std::string>(m.second))
 				std::cout << m.first << " " << std::get<std::string>(m.second) << std::endl;
 		}
-		m_MessageManager->Subscribe("saveModuleState", GetSceneName(), [this](const MessageData data) {
+		m_MessageManager.Subscribe("saveModuleState", GetSceneName(), [this](const MessageData data) {
 			T_ERROR("saveModuleState");
 			if (data.type() == typeid(std::pair<std::string, std::variant<int, std::string>>)) {
 				std::pair<std::string, std::variant<int, std::string>> pair = std::any_cast<std::pair<std::string, std::variant<int, std::string>>>(data);
@@ -63,7 +63,7 @@ namespace Thingy {
 
 	void ArtistScene::BeforeSwitch() {
 		for (auto& module : modules) {
-			m_MessageManager->Publish("beforeSwitch" + module.first, GetSceneName());
+			m_MessageManager.Publish("beforeSwitch" + module.first, GetSceneName());
 		}
 		for (auto& m : moduleStates) {
 			if (std::holds_alternative<int>(m.second))
@@ -71,8 +71,8 @@ namespace Thingy {
 			if (std::holds_alternative<std::string>(m.second))
 				std::cout << m.first << " " << std::get<std::string>(m.second) << std::endl;
 		}
-		m_MessageManager->Publish("setHistory", moduleStates);
-		m_MessageManager->UnSubscribe("saveModuleState", GetSceneName());
+		m_MessageManager.Publish("setHistory", moduleStates);
+		m_MessageManager.UnSubscribe("saveModuleState", GetSceneName());
 	}
 
 	void ArtistScene::LayoutChanged() {

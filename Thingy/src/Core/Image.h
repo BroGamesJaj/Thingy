@@ -29,10 +29,8 @@ namespace Thingy {
             return texture;
         }
 
-		
-
     private:
-        struct STB_Deleter { void operator()(unsigned char* p) { stbi_image_free(p); } };
+        struct STB_Deleter { void operator()(unsigned char* p) noexcept { stbi_image_free(p); } };
 
         int width, height;
         std::unique_ptr<unsigned char, STB_Deleter> pixels;

@@ -18,14 +18,14 @@ namespace Thingy {
 		static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
 			size_t totalSize = size * nmemb;
 			auto* mem = static_cast<MemoryChunk*>(userp);
-			mem->data.insert(mem->data.end(), (unsigned char*)contents, (unsigned char*)contents + totalSize);
+			mem->data.insert(mem->data.end(), static_cast<unsigned char*>(contents), static_cast<unsigned char*>(contents) + totalSize);
 			return totalSize;
 		}
 	};
 
 	class NetworkManager {
 	public:
-		NetworkManager(std::unique_ptr<MessageManager>& messageManager);
+		NetworkManager(MessageManager& messageManager);
 		~NetworkManager();
 
 		NetworkManager(const NetworkManager&) = delete;
@@ -43,14 +43,14 @@ namespace Thingy {
 		static size_t WriteCallbackPost(void* contents, size_t size, size_t nmemb, void* userp) {
 			if (!contents || !userp) return 0;
 
-			size_t totalSize = size * nmemb;
+			const size_t totalSize = size * nmemb;
 			auto* buffer = static_cast<std::string*>(userp);
 			buffer->append(static_cast<char*>(contents), totalSize);
 			return totalSize;
 		}
 
 		static size_t curl_callback(void* ptr, size_t size, size_t nmemb, std::string* data) {
-			data->append((char*)ptr, size * nmemb);
+			data->append(static_cast<char*>(ptr), size * nmemb);
 			return size * nmemb;
 		}
 
@@ -79,7 +79,7 @@ namespace Thingy {
 
 
 	private:
-		std::unique_ptr<MessageManager>& m_MessageManager;
+		MessageManager& m_MessageManager;
 
 	};
 }

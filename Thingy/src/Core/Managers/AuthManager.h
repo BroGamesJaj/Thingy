@@ -9,10 +9,10 @@
 namespace Thingy {
 	class AuthManager {
 	public:
-		AuthManager(std::unique_ptr<NetworkManager>& networkManager, std::unique_ptr<MessageManager>& messageManager);
+		AuthManager(NetworkManager& networkManager, MessageManager& messageManager);
 		~AuthManager();
 
-		const User& GetUser() {
+		const User& GetUser() noexcept {
 			return user; 
 		};
 
@@ -22,8 +22,8 @@ namespace Thingy {
 		void RefreshTokens();
 	private:
 		void FetchUser();
-		std::unique_ptr<NetworkManager>& m_NetworkManager;
-		std::unique_ptr<MessageManager>& m_MessageManager;
+		NetworkManager& m_NetworkManager;
+		MessageManager& m_MessageManager;
 
 		User user;
 

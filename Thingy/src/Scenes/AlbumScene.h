@@ -5,7 +5,7 @@
 namespace Thingy {
 	class AlbumScene : public Scene {
 	public:
-		AlbumScene(std::unique_ptr<MessageManager>& messageManager);
+		AlbumScene(MessageManager& messageManager);
 		~AlbumScene();
 
 		void OnSwitch(std::unordered_map<std::string, std::variant<int, std::string>> newModuleState) override;
@@ -19,7 +19,7 @@ namespace Thingy {
 
 		SCENE_CLASS_NAME("AlbumScene");
 	private:
-		std::unique_ptr<MessageManager>& m_MessageManager;
+		MessageManager& m_MessageManager;
 		std::unordered_map<std::string, std::variant<int, std::string>> moduleStates;
 	};
 }

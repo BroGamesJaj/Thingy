@@ -41,7 +41,7 @@ namespace Thingy {
 
 	void FrontPageScene::BeforeSwitch() {
 		for (auto& module : modules) {
-			m_MessageManager->Publish("beforeSwitch" + module.first, GetSceneName());
+			m_MessageManager.Publish("beforeSwitch" + module.first, GetSceneName());
 		}
 	}
 	
@@ -70,13 +70,7 @@ namespace Thingy {
 		}
 
 		for (size_t i = 0; i < modules.size(); i++) {
-			if (modules[i].first == "PlayerModule") {
-				ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(300, 500));
-			}
 			ImGui::DockBuilderDockWindow(modules[i].first.data(), docks[i]);
-			if (modules[i].first == "PlayerModule") {
-				ImGui::PopStyleVar();
-			}
 		}
 		ImGui::DockBuilderFinish(dockspace_id);
 

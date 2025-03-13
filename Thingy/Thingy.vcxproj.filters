@@ -45,6 +45,7 @@
     <ClInclude Include="src\Scenes\ProfileScene.h" />
     <ClInclude Include="src\Core\User.h" />
     <ClInclude Include="src\Core\Playlist.h" />
+    <ClInclude Include="src\Modules\PlaylistListModule.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -82,5 +83,6 @@
     <ClCompile Include="src\Scenes\ProfileScene.cpp" />
     <ClCompile Include="src\Core\User.cpp" />
     <ClCompile Include="src\Core\Playlist.cpp" />
+    <ClCompile Include="src\Modules\PlaylistListModule.cpp" />
   </ItemGroup>
 </Project>

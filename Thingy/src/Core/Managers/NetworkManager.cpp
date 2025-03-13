@@ -8,7 +8,7 @@ namespace Thingy {
 		url.erase(std::remove_if(url.begin(), url.end(), [](unsigned char c) { return std::isspace(c); }), url.end());
 	}
 
-	NetworkManager::NetworkManager(std::unique_ptr<MessageManager>& messageManager) : m_MessageManager(messageManager) {
+	NetworkManager::NetworkManager(MessageManager& messageManager) : m_MessageManager(messageManager) {
 		if (curl_global_init(CURL_GLOBAL_ALL) != 0) {
 			fprintf(stderr, "curl_global_init() failed!\n");
 		}
@@ -173,10 +173,10 @@ namespace Thingy {
 			if (responseCode == 401) {
 				T_ERROR("Received 401 Unauthorized.");
 				if (url.find("auth/refresh") != std::string::npos){
-					m_MessageManager->Publish("changeScene", std::string("LoginScene"));
+					m_MessageManager.Publish("changeScene", std::string("LoginScene"));
 				} else {
 					T_INFO("Token was expired.");
-					m_MessageManager->Publish("expiredToken", "");
+					m_MessageManager.Publish("expiredToken", "");
 				};
 				return "Received 401 Unauthorized";
 			}

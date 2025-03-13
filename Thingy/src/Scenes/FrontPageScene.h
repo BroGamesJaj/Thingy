@@ -4,8 +4,8 @@
 namespace Thingy {
 	class FrontPageScene : public Scene {
 	public:
-		FrontPageScene(std::unique_ptr<MessageManager>& messageManager) : m_MessageManager(messageManager) {
-			m_MessageManager->Subscribe("change" + GetSceneName(), GetSceneName(), [this](const MessageData data) {
+		FrontPageScene(MessageManager& messageManager) : m_MessageManager(messageManager) {
+			m_MessageManager.Subscribe("change" + GetSceneName(), GetSceneName(), [this](const MessageData data) {
 				BeforeSwitch();
 				});
 		};
@@ -22,6 +22,6 @@ namespace Thingy {
 
 		SCENE_CLASS_NAME("FrontPage");
 	private:
-		std::unique_ptr<MessageManager>& m_MessageManager;
+		MessageManager& m_MessageManager;
 	};
 }

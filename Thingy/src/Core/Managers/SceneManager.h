@@ -24,7 +24,7 @@ namespace Thingy {
 
 	class SceneManager {
 	public:
-		SceneManager(std::unique_ptr<MessageManager>& messageManager);
+		SceneManager(MessageManager& messageManager);
 		~SceneManager();
 
 		SceneManager(const SceneManager&) = delete;
@@ -67,7 +67,7 @@ namespace Thingy {
 		std::unordered_map<std::string,std::shared_ptr<Scene>> scenes;
 		std::shared_ptr<Scene> activeScene;
 
-		std::unique_ptr<MessageManager>& m_MessageManager;
+		MessageManager& m_MessageManager;
 
 		std::vector<SceneState> history;
 		int currentSceneIndex = 0;

@@ -42,7 +42,7 @@ namespace Thingy{
 				} else {
 					std::string url = "http://localhost:3000/users/register";
 					json payload = { { "Email", email }, { "Username", username }, { "Password", password }};
-					std::string response = m_NetworkManager->PostRequest(url, payload);
+					std::string response = m_NetworkManager.PostRequest(url, payload);
 					T_TRACE("response: {0}", response);
 					if (response == "Email already in use") {
 						error = "Email already in use!";
@@ -83,7 +83,7 @@ namespace Thingy{
 			if (ImGui::Button("Login")) {
 				std::string url = "http://localhost:3000/auth/login";
 				json payload = {{ "Email", email}, { "Password", password}};
-				std::string response = m_NetworkManager->PostRequest(url, payload);
+				std::string response = m_NetworkManager.PostRequest(url, payload);
 				if (response == "Received 401 Unauthorized") {
 					error = "Incorrect email or password!";
 				} else {
@@ -91,13 +91,13 @@ namespace Thingy{
 					json parsed = json::parse(response);
 					std::string accessToken = parsed["accessToken"];
 					std::string refreshToken = parsed["refreshToken"];
-					m_AuthManager->StoreToken("accessToken", accessToken);
-					m_AuthManager->StoreToken("refreshToken", refreshToken);
+					m_AuthManager.StoreToken("accessToken", accessToken);
+					m_AuthManager.StoreToken("refreshToken", refreshToken);
 					email = "";
 					password = "";
 					username = "";
-					m_MessageManager->Publish("loggedIn", true);
-					m_MessageManager->Publish("changeScene", std::string("FrontPage"));
+					m_MessageManager.Publish("loggedIn", true);
+					m_MessageManager.Publish("changeScene", std::string("FrontPage"));
 				}
 			}
 		

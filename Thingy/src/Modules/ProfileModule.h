@@ -10,7 +10,7 @@
 namespace Thingy {
 	class ProfileModule : public Module {
 	public:
-		ProfileModule(std::unique_ptr<MessageManager>& messageManager, std::unique_ptr<ImageManager>& imageManager, std::unique_ptr<NetworkManager>& networkManager, std::unique_ptr<AuthManager>& authManager) : m_MessageManager(messageManager), m_ImageManager(imageManager), m_NetworkManager(networkManager), m_AuthManager(authManager), user(authManager->GetUser()) {}
+		ProfileModule(MessageManager& messageManager, ImageManager& imageManager, NetworkManager& networkManager, AuthManager& authManager) : m_MessageManager(messageManager), m_ImageManager(imageManager), m_NetworkManager(networkManager), m_AuthManager(authManager), user(authManager.GetUser()) {}
 		void SetupSubscriptions() override;
 		void OnLoad(const std::variant<int, std::string> moduleState) override;
 		void OnUpdate() override;
@@ -26,10 +26,10 @@ namespace Thingy {
 
 		uint16_t upProps = 0;
 
-		std::unique_ptr<MessageManager>& m_MessageManager;
-		std::unique_ptr<NetworkManager>& m_NetworkManager;
-		std::unique_ptr<ImageManager>& m_ImageManager;
-		std::unique_ptr<AuthManager>& m_AuthManager;
+		MessageManager& m_MessageManager;
+		NetworkManager& m_NetworkManager;
+		ImageManager& m_ImageManager;
+		AuthManager& m_AuthManager;
 
 		bool loggedIn = false;
 		bool editingDesc = false;

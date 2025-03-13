@@ -13,7 +13,7 @@ namespace Thingy {
 		unsigned int Width;
 		unsigned int Height;
 
-		WindowProps(const std::string& title = "Thingy", unsigned int width = 1280, unsigned int height = 720)
+		WindowProps(const std::string& title = "Thingy", unsigned int width = 1280, unsigned int height = 720) noexcept
 			: Title(title), Width(width), Height(height) {
 		}
 	};
@@ -41,8 +41,8 @@ namespace Thingy {
 
 		void ChangeHitTest(bool on);
 
-		SDL_Window* GetWindow() { return window; }
-		SDL_Renderer* GetRenderer() { return renderer; }
+		SDL_Window* GetWindow() noexcept { return window; }
+		SDL_Renderer* GetRenderer() noexcept { return renderer; }
 
 	private:
 		Uint32 windowFlags = 0;

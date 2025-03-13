@@ -13,7 +13,7 @@ namespace Thingy {
 	class PopularsModule : public Module {
 	public:
 
-		PopularsModule(std::unique_ptr<MessageManager>& messageManager, std::unique_ptr<NetworkManager>& networkManager, std::unique_ptr<AudioManager>& audioManager, std::unique_ptr<ImageManager>& imageManager, SDL_Renderer* renderer) : m_MessageManager(messageManager), m_NetworkManager(networkManager), m_AudioManager(audioManager), m_ImageManager(imageManager), m_Renderer(renderer){
+		PopularsModule(MessageManager& messageManager, NetworkManager& networkManager, AudioManager& audioManager, ImageManager& imageManager, SDL_Renderer* renderer) : m_MessageManager(messageManager), m_NetworkManager(networkManager), m_AudioManager(audioManager), m_ImageManager(imageManager), m_Renderer(renderer){
 		};
 
 		void SetupSubscriptions() override;
@@ -37,10 +37,10 @@ namespace Thingy {
 
 		SDL_Renderer* m_Renderer = nullptr;
 
-		std::unique_ptr<MessageManager>& m_MessageManager;
-		std::unique_ptr<NetworkManager>& m_NetworkManager;
-		std::unique_ptr<AudioManager>& m_AudioManager;
-		std::unique_ptr<ImageManager>& m_ImageManager;
+		MessageManager& m_MessageManager;
+		NetworkManager& m_NetworkManager;
+		AudioManager& m_AudioManager;
+		ImageManager& m_ImageManager;
 		std::unordered_map<uint32_t, std::unique_ptr<SDL_Texture, SDL_TDeleter>> textures;
 		std::vector<Track> weeklyTracks;
 		std::vector<Track> monthlyTracks;

@@ -30,7 +30,7 @@ namespace Thingy {
 
 	void LoginScene::BeforeSwitch() {
 		for (auto& module : modules) {
-			m_MessageManager->Publish("beforeSwitch" + module.first, GetSceneName());
+			m_MessageManager.Publish("beforeSwitch" + module.first, GetSceneName());
 		}
 	}
 	

@@ -4,7 +4,7 @@
 namespace Thingy {
 
 	void AlbumModule::SetupSubscriptions() {
-		m_MessageManager->Subscribe("openAlbum", GetModuleName(), [this](const MessageData data) {
+		m_MessageManager.Subscribe("openAlbum", GetModuleName(), [this](const MessageData data) {
 			
 				if (data.type() == typeid(Album)) {
 					Album recAlbum = std::any_cast<Album>(data);
@@ -16,7 +16,7 @@ namespace Thingy {
 						}
 					}
 					if (recAlbum.tracks.empty()) {
-						recAlbum.tracks = m_NetworkManager->GetTrack("https://api.jamendo.com/v3.0/tracks/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&limit=200&album_id=2442");
+						recAlbum.tracks = m_NetworkManager.GetTrack("https://api.jamendo.com/v3.0/tracks/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&limit=200&album_id=2442");
 					}
 					album.emplace_back(recAlbum);
 					curr = album.size() - 1;
@@ -26,8 +26,8 @@ namespace Thingy {
 				}
 			});
 
-		m_MessageManager->Subscribe("beforeSwitch" + GetModuleName(), GetModuleName(), [this](const MessageData data) {
-			m_MessageManager->Publish("saveModuleState", std::make_pair<std::string, std::variant<int, std::string>>(GetModuleName(), album[curr].name));
+		m_MessageManager.Subscribe("beforeSwitch" + GetModuleName(), GetModuleName(), [this](const MessageData data) {
+			m_MessageManager.Publish("saveModuleState", std::make_pair<std::string, std::variant<int, std::string>>(GetModuleName(), album[curr].name));
 			});
 		
 	}
@@ -45,7 +45,7 @@ namespace Thingy {
 			T_ERROR("album got: {0}", std::get<int>(moduleState));
 		}
 		if (!textures[album[curr].id]) 
-			textures[album[curr].id] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTexture(album[curr].imageURL));
+			textures[album[curr].id] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTexture(album[curr].imageURL));
 
 		length = 0;
 		for (auto& track : album[curr].tracks) {
@@ -70,7 +70,7 @@ namespace Thingy {
 		}
 		ImGui::GetWindowDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 0, 0, 255), 0.0f, 0, 5.0f);
 
-		ImGui::Image((ImTextureID)(intptr_t)textures[album[curr].id].get(), {300.0f, 300.0f});
+		ImGui::Image(reinterpret_cast<ImTextureID>(textures[album[curr].id].get()), {300.0f, 300.0f});
 		ImGui::SameLine();
 		ImGui::BeginGroup();
 		ImGui::Text(album[curr].name.data());
@@ -84,12 +84,12 @@ namespace Thingy {
 		for (size_t i = 0; i < album[curr].tracks.size(); i++) {
 			Track& track = album[curr].tracks[i];
 			ImGui::BeginGroup();
-			ImGui::Image((ImTextureID)(intptr_t)textures[album[curr].id].get(), { 200.0f, 200.0f });
+			ImGui::Image(reinterpret_cast<ImTextureID>(textures[album[curr].id].get()), { 200.0f, 200.0f });
 			if (ImGui::IsItemClicked()) {
 				std::vector<Track> tracks(album[curr].tracks.begin() + i, album[curr].tracks.end());
-				m_AudioManager->ClearQueue();
-				m_MessageManager->Publish("addToQueue", tracks);
-				m_MessageManager->Publish("startMusic", "");
+				m_AudioManager.ClearQueue();
+				m_MessageManager.Publish("addToQueue", tracks);
+				m_MessageManager.Publish("startMusic", "");
 			};
 			LimitedTextWrap(track.title.data(), 180, 3);
 			ImGui::EndGroup();

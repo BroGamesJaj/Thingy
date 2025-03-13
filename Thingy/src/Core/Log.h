@@ -14,7 +14,7 @@ namespace Thingy {
 	public:
 		static void Init();
 
-		inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
+		inline static std::shared_ptr<spdlog::logger>& GetClientLogger() noexcept { return s_ClientLogger; }
 	};
 }
 //log macros

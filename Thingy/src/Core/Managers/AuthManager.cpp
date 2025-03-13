@@ -3,19 +3,19 @@
 #include "AuthManager.h"
 
 namespace Thingy {
-	AuthManager::AuthManager(std::unique_ptr<NetworkManager>& networkManager, std::unique_ptr<MessageManager>& messageManager) : m_NetworkManager(networkManager), m_MessageManager(messageManager) {
-		m_MessageManager->Subscribe("expiredToken", "authManager", [this](const MessageData data) {
+	AuthManager::AuthManager(NetworkManager& networkManager, MessageManager& messageManager) : m_NetworkManager(networkManager), m_MessageManager(messageManager) {
+		m_MessageManager.Subscribe("expiredToken", "authManager", [this](const MessageData data) {
 			RefreshTokens();
 			});
 
-		m_MessageManager->Subscribe("logout", "authManager", [this](const MessageData data) {
+		m_MessageManager.Subscribe("logout", "authManager", [this](const MessageData data) {
 			StoreToken("accessToken", "-");
 			StoreToken("refreshToken", "-");
-			m_MessageManager->Publish("loggedIn", false);
+			m_MessageManager.Publish("loggedIn", false);
 
 			});
 
-		m_MessageManager->Subscribe("loggedIn", "authManager", [this](const MessageData data) {
+		m_MessageManager.Subscribe("loggedIn", "authManager", [this](const MessageData data) {
 			if (data.type() == typeid(bool)) {
 				bool loggedIn = std::any_cast<bool>(data);
 				if (loggedIn) {
@@ -26,18 +26,18 @@ namespace Thingy {
 			}
 			});
 
-		m_MessageManager->Subscribe("updateUser", "authManager", [this](const MessageData data) {
+		m_MessageManager.Subscribe("updateUser", "authManager", [this](const MessageData data) {
 			FetchUser();
 			});
 
-		m_MessageManager->Subscribe("changeDescription", "authManager", [this](const MessageData data) {
+		m_MessageManager.Subscribe("changeDescription", "authManager", [this](const MessageData data) {
 			if (data.type() == typeid(std::string)) {
 				std::string newDesc = std::any_cast<std::string>(data);
 				json jsonData = { {"Description", newDesc} };
 				std::string url = "http://localhost:3000/users/" + std::to_string(user.userID);
 				std::string token = "";
 				RetrieveToken("accessToken", token);
-				m_NetworkManager->PatchRequestAuth(url, jsonData, token);
+				m_NetworkManager.PatchRequestAuth(url, jsonData, token);
 				FetchUser();
 			}
 			});
@@ -50,12 +50,12 @@ namespace Thingy {
 		std::string url = "http://localhost:3000/auth/profile";
 		std::string accessToken;
 		RetrieveToken("accessToken", accessToken);
-		std::string response = m_NetworkManager->GetRequestAuth(url, accessToken);
+		std::string response = m_NetworkManager.GetRequestAuth(url, accessToken);
 		if (response.find("UserID") != std::string::npos) {
 			json userJson = json::parse(response);
 			from_json(userJson, user);
 		}
-		m_MessageManager->Publish("userChanged", "");
+		m_MessageManager.Publish("userChanged", "");
 	}
 
 	uint8_t AuthManager::StoreToken(const std::string& tokenName, const std::string& token) {
@@ -144,13 +144,13 @@ namespace Thingy {
 		std::string url = "http://localhost:3000/auth/refresh";
 		std::string refreshToken;
 		if(RetrieveToken("refreshToken", refreshToken) != 0){
-			m_MessageManager->Publish("loggedIn", false);
+			m_MessageManager.Publish("loggedIn", false);
 			return;
 		};
-		std::string response = m_NetworkManager->GetRequestAuth(url, refreshToken);
+		std::string response = m_NetworkManager.GetRequestAuth(url, refreshToken);
 		if (response == "Received 401 Unauthorized") {
-			m_MessageManager->Publish("changeScene", std::string("LoginScene"));
-			m_MessageManager->Publish("loggedIn", false);
+			m_MessageManager.Publish("changeScene", std::string("LoginScene"));
+			m_MessageManager.Publish("loggedIn", false);
 			return;
 		}
 		json parsedJSON = json::parse(response);
@@ -158,6 +158,6 @@ namespace Thingy {
 		StoreToken("accessToken", accessToken);
 		std::string newRefreshToken = parsedJSON["refreshToken"];
 		StoreToken("refreshToken", newRefreshToken);
-		m_MessageManager->Publish("loggedIn", true);
+		m_MessageManager.Publish("loggedIn", true);
 	}
 }

@@ -2,7 +2,7 @@
 
 namespace Thingy {
 	void SearchModule::SetupSubscriptions() {
-		m_MessageManager->Subscribe("openSearch", GetModuleName(), [this](MessageData data) {
+		m_MessageManager.Subscribe("openSearch", GetModuleName(), [this](MessageData data) {
 			
 			});
 	}
@@ -13,7 +13,7 @@ namespace Thingy {
 			for (auto it = images.begin(); it != images.end(); ) {
 				auto& image = it->second;
 				if (image.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-					textures[0101] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTextureFromImage(image.get()));
+					textures[0101] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(image.get()));
 					it = images.erase(it);
 				} else {
 					++it;

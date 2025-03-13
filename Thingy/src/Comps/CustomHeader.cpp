@@ -3,32 +3,32 @@
 
 namespace Thingy {
 
-	CustomHeader::CustomHeader(std::unique_ptr<MessageManager>& messageManager, std::unique_ptr<NetworkManager>& networkManager, std::unique_ptr<ImageManager>& imageManager, std::unique_ptr<AuthManager>& authManager, SDL_Window* window, std::string& searchField) : m_MessageManager(messageManager), m_NetworkManager(networkManager), m_ImageManager(imageManager), m_AuthManager(authManager), user(authManager->GetUser()), m_Window(window), search(searchField) {
-		m_MessageManager->Subscribe("loggedIn", "customHeader", [this](const MessageData data) {
+	CustomHeader::CustomHeader(MessageManager& messageManager, NetworkManager& networkManager, ImageManager& imageManager, AuthManager& authManager, SDL_Window* window, std::string& searchField) : m_MessageManager(messageManager), m_NetworkManager(networkManager), m_ImageManager(imageManager), m_AuthManager(authManager), user(authManager.GetUser()), m_Window(window), search(searchField) {
+		m_MessageManager.Subscribe("loggedIn", "customHeader", [this](const MessageData data) {
 			if (data.type() == typeid(bool)) {
 				loggedIn = std::any_cast<bool>(data);
 				if (loggedIn) {
 					if (user.pfpBuffer.empty()) {
-						pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetDefaultArtistImage());
+						pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultArtistImage());
 					} else {
-						pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTextureFromImage(Image(user.pfpBuffer)));
+						pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(Image(user.pfpBuffer)));
 					}
 				} else {
-					pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetDefaultArtistImage());
+					pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultArtistImage());
 				}
 
 			}
 			});
 
-		m_MessageManager->Subscribe("userChanged", "customHeader", [this](const MessageData data) {
+		m_MessageManager.Subscribe("userChanged", "customHeader", [this](const MessageData data) {
 			if (loggedIn) {
 				if (user.pfpBuffer.empty()) {
-					pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetDefaultArtistImage());
+					pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultArtistImage());
 				} else {
-					pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetTextureFromImage(Image(user.pfpBuffer)));
+					pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(Image(user.pfpBuffer)));
 				}
 			} else {
-				pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager->GetDefaultArtistImage());
+				pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultArtistImage());
 			}
 			});
 	}
@@ -40,25 +40,25 @@ namespace Thingy {
 		ImGui::SetNextWindowPos({ 0.0f, 0.0f });
 		ImGui::Begin("Custom Header", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus);
 
-		float winW = ImGui::GetWindowWidth();
-		float scale = std::clamp(winW / 1280, 1.0f, 2.0f);
+		const float winW = ImGui::GetWindowWidth();
+		const float scale = std::clamp(winW / 1280, 1.0f, 2.0f);
 		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Horizontal;
 		if (ImGui::Button("image", { 40.0f, 40.0f })) {
-			m_MessageManager->Publish("homeButton", std::string("FrontPage"));
+			m_MessageManager.Publish("homeButton", std::string("FrontPage"));
 		}
 		if (ImGui::Button("back", { 40.0f, 40.0f })) {
 
 			T_INFO("back");
-			m_MessageManager->Publish("previousScene", "");
+			m_MessageManager.Publish("previousScene", "");
 		}
 		if (ImGui::Button("next", { 40.0f, 40.0f })) {
 			T_INFO("next");
-			m_MessageManager->Publish("nextScene", "");
+			m_MessageManager.Publish("nextScene", "");
 		}
 		ImGui::SetCursorPosX(winW / 2 - std::clamp(200.0f * scale, 200.0f, 400.0f));
 		ImGui::SetNextItemWidth(400.0f * scale);
 		ImGui::PushFont(Fonts::size30);
-		ImGui::InputText("##search", &search, 0, ResizeCallback, (void*)&search);
+		ImGui::InputText("##search", &search, 0, ResizeCallback, static_cast<void*>(&search));
 		if (ImGui::IsItemFocused()) {
 			autoCompleteOn = true;
 		}
@@ -76,10 +76,10 @@ namespace Thingy {
 		}
 		*/
 		if (ImGui::Button("Queue")) {
-			m_MessageManager->Publish("changeQueueOpen", "");
+			m_MessageManager.Publish("changeQueueOpen", "");
 		};
 		if (loggedIn) {
-			CircleImage((ImTextureID)(intptr_t)pfpTexture.get(), 40.0f);
+			CircleImage(reinterpret_cast<ImTextureID>(pfpTexture.get()), 40.0f);
 			if (ImGui::IsItemClicked()) {
 				T_INFO("pressed");
 				ImGui::OpenPopup("profile");
@@ -87,32 +87,32 @@ namespace Thingy {
 			
 			if (ImGui::BeginPopup("profile", ImGuiWindowFlags_NoMove)) {
 				if (ImGui::Button("Details")) {
-					m_MessageManager->Publish("changeScene", std::string("ProfileScene"));
+					m_MessageManager.Publish("changeScene", std::string("ProfileScene"));
 					ImGui::CloseCurrentPopup();
 				};
 				if (ImGui::Button("Logout")) {
 					T_INFO("Logout");
-					m_MessageManager->Publish("logout", "");
+					m_MessageManager.Publish("logout", "");
 					ImGui::CloseCurrentPopup();
 				}
 				ImGui::EndPopup();
 			}
 		} else {
 			if (ImGui::Button("Login")) {
-				m_MessageManager->Publish("changeScene", std::string("LoginScene"));
+				m_MessageManager.Publish("changeScene", std::string("LoginScene"));
 			}
 		}
 		ImGui::SetCursorPosX(winW - 15 - 40 - 5 - 40 - 5 - 40);
 		if (ImGui::Button("_", { 40.0f, 30.0f }))
-			m_MessageManager->Publish("minimize", 0);
+			m_MessageManager.Publish("minimize", 0);
 
 		//ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 10 - 40 - 5 - 40); // 10 padding right, width of X button, padding between buttons, width of button
 		if (ImGui::Button("[]", { 40.0f, 30.0f })) {
-			m_MessageManager->Publish("changeFullscreen", 0);
+			m_MessageManager.Publish("changeFullscreen", 0);
 		}
 		//ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 10 - 40); // 10 padding right, width of button
 		if (ImGui::Button("X", { 40.0f, 30.0f }))
-			m_MessageManager->Publish("closeWindow", 0);
+			m_MessageManager.Publish("closeWindow", 0);
 
 		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Vertical;
 		ImGui::End();
@@ -121,13 +121,13 @@ namespace Thingy {
 	}
 
 	void CustomHeader::AutoComplete() {
-		ImVec4 onColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-		ImVec4 offColor = ImVec4(0.8f, 0.2f, 0.2f, 1.0f);
+		const ImVec4 onColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+		const ImVec4 offColor = ImVec4(0.8f, 0.2f, 0.2f, 1.0f);
 		if (autoCompleteOn) {
 			int w;
 			SDL_GetWindowSizeInPixels(m_Window, &w, NULL);
-			float winW = static_cast<float>(w);
-			float scale = std::clamp(winW / 1280, 1.0f, 2.0f);
+			const float winW = static_cast<float>(w);
+			const float scale = std::clamp(winW / 1280, 1.0f, 2.0f);
 			int y;
 			SDL_GetWindowPosition(m_Window, NULL, &y);
 			ImGui::SetNextWindowSize({ 400.0f * scale, 0 });
@@ -154,7 +154,7 @@ namespace Thingy {
 				autoCompleteOn = false;
 			ImGui::PushFont(Fonts::size25);
 			std::string tempSearch = search;
-			tempSearch.erase(std::remove_if(tempSearch.begin(), tempSearch.end(), [](unsigned char c) { return std::isspace(c); }), tempSearch.end());
+			tempSearch.erase(std::remove_if(tempSearch.begin(), tempSearch.end(), [](unsigned char c) noexcept { return std::isspace(c); }), tempSearch.end());
 			tempSearch.erase(std::remove(tempSearch.begin(), tempSearch.end(), '&'), tempSearch.end());
 			
 			if (tempSearch.size() > 1) {
@@ -166,7 +166,7 @@ namespace Thingy {
 				}
 				if (lastChange + std::chrono::milliseconds(250) < std::chrono::system_clock::now() && changed) {
 
-					futureAutoCompleteResults = std::async(	std::launch::async, [this]() { return m_NetworkManager->GetAutoComplete(currTerm); });
+					futureAutoCompleteResults = std::async(	std::launch::async, [this]() { return m_NetworkManager.GetAutoComplete(currTerm); });
 					futureAllResults = std::async(std::launch::async, [this]() { return AllTermResults(); });
 					futureProcessed = false;
 					changed = false;

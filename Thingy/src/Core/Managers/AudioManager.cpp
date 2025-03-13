@@ -3,7 +3,7 @@
 
 namespace Thingy {
 
-	AudioManager::AudioManager(std::vector<uint8_t>& buffer, std::unique_ptr<NetworkManager>& networkManager, std::unique_ptr<MessageManager>& messageManager) : musicBuffer(buffer), m_NetworkManager(networkManager), m_MessageManager(messageManager) {
+	AudioManager::AudioManager(std::vector<uint8_t>& buffer, NetworkManager& networkManager, MessageManager& messageManager) : musicBuffer(buffer), m_NetworkManager(networkManager), m_MessageManager(messageManager) {
 		SDL_Log("Audio Manager Constructor");
 		spec.freq = MIX_DEFAULT_FREQUENCY;
 		spec.format = MIX_DEFAULT_FORMAT;
@@ -22,7 +22,7 @@ namespace Thingy {
 		
 		Mix_VolumeMusic(volume);
 
-		m_MessageManager->Subscribe("startMusic", "audioManager", [this](MessageData data) {
+		m_MessageManager.Subscribe("startMusic", "audioManager", [this](MessageData data) {
 			if (data.type() == typeid(Track)) {
 				Track track = std::any_cast<Track>(data);
 				LoadMusicFromTrack(track);
@@ -33,7 +33,7 @@ namespace Thingy {
 			}
 			});
 
-		m_MessageManager->Subscribe("addToQueue", "audioManager", [this](MessageData data) {
+		m_MessageManager.Subscribe("addToQueue", "audioManager", [this](MessageData data) {
 			if (data.type() == typeid(std::vector<Track>)) {
 				std::vector<Track> tracks = std::any_cast<std::vector<Track>>(data);
 				AddToQueue(tracks);
@@ -156,12 +156,12 @@ namespace Thingy {
 		Mix_HaltMusic();
 		queue.clear();
 		queue.push_back(track);
-		m_NetworkManager->DownloadAudio(track.audioURL, musicBuffer);
+		m_NetworkManager.DownloadAudio(track.audioURL, musicBuffer);
 	}
 
 	void AudioManager::LoadMusicFromQueue() {
 		Mix_HaltMusic();
-		m_NetworkManager->DownloadAudio(queue[currentTrackNum].audioURL, musicBuffer);
+		m_NetworkManager.DownloadAudio(queue[currentTrackNum].audioURL, musicBuffer);
 	}
 
 	void AudioManager::AddToQueue(const std::vector<Track>& tracks) {

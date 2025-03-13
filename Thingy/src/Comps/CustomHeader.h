@@ -16,7 +16,7 @@ namespace Thingy {
 
 	class CustomHeader {
 	public:
-		CustomHeader(std::unique_ptr<MessageManager>& messageManager, std::unique_ptr<NetworkManager>& netwokrManager, std::unique_ptr<ImageManager>& imageManager, std::unique_ptr<AuthManager>& authManager, SDL_Window* window, std::string& searchField);
+		CustomHeader(MessageManager& messageManager, NetworkManager& networkManager, ImageManager& imageManager, AuthManager& authManager, SDL_Window* window, std::string& searchField);
 
 		void OnRender();
 
@@ -26,14 +26,12 @@ namespace Thingy {
 
 
 	private:
-		struct SDL_TDeleter { void operator()(SDL_Texture* p) { SDL_DestroyTexture(p); } };
-
 		std::vector<std::pair<std::string, int>> AllTermResults();
 
-		std::unique_ptr<MessageManager>& m_MessageManager;
-		std::unique_ptr<NetworkManager>& m_NetworkManager;
-		std::unique_ptr<ImageManager>& m_ImageManager;
-		std::unique_ptr<AuthManager>& m_AuthManager;
+		MessageManager& m_MessageManager;
+		NetworkManager& m_NetworkManager;
+		ImageManager& m_ImageManager;
+		AuthManager& m_AuthManager;
 
 		SDL_Window* m_Window;
 		bool loggedIn = false;

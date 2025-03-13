@@ -87,7 +87,7 @@ namespace Thingy {
 		int cursorHeight = GetSystemMetrics(SM_CYCURSOR);
 		customCursors.emplace("openHand", CreateCustomCursor("../assets/cursors/openHand.bmp", cursorWidth / 2, cursorHeight / 2));
 		customCursors.emplace("closedHand", CreateCustomCursor("../assets/cursors/closedHand.bmp", cursorWidth / 2, cursorHeight / 2));
-		customHeader = std::make_unique<CustomHeader>(messageManager, networkManager, imageManager, authManager, renderer->GetWindow(), searchTerm);
+		customHeader = std::make_unique<CustomHeader>(*messageManager, *networkManager, *imageManager, *authManager, renderer->GetWindow(), searchTerm);
 		//for testing
 		//networkManager->DownloadFile("https:\/\/prod-1.storage.jamendo.com\/?trackid=1848357&format=mp31&from=app-devsite", musicBuffer);
 		//
@@ -101,29 +101,31 @@ namespace Thingy {
 
 	void Application::SetupManagers() {
 		messageManager = std::make_unique<MessageManager>();
-		networkManager = std::make_unique<NetworkManager>(messageManager);
-		imageManager = std::make_unique<ImageManager>(networkManager, renderer->GetRenderer());
-		audioManager = std::make_unique<AudioManager>(musicBuffer, networkManager, messageManager);
-		sceneManager = std::make_unique<SceneManager>(messageManager);
-		authManager = std::make_unique<AuthManager>(networkManager, messageManager);
+		networkManager = std::make_unique<NetworkManager>(*messageManager);
+		imageManager = std::make_unique<ImageManager>(*networkManager, renderer->GetRenderer());
+		audioManager = std::make_unique<AudioManager>(musicBuffer, *networkManager, *messageManager);
+		sceneManager = std::make_unique<SceneManager>(*messageManager);
+		authManager = std::make_unique<AuthManager>(*networkManager, *messageManager);
 	}
 
 	void Application::SetupScenes() {
 		
-		sceneManager->AddScene(std::make_shared<FrontPageScene>(messageManager));
-		sceneManager->AddScene(std::make_shared<LoginScene>(messageManager));
-		sceneManager->AddScene(std::make_shared<ProfileScene>(messageManager));
-		sceneManager->AddScene(std::make_shared<AlbumScene>(messageManager));
-		sceneManager->AddScene(std::make_shared<ArtistScene>(messageManager));
+		sceneManager->AddScene(std::make_shared<FrontPageScene>(*messageManager));
+		sceneManager->AddScene(std::make_shared<LoginScene>(*messageManager));
+		sceneManager->AddScene(std::make_shared<ProfileScene>(*messageManager));
+		sceneManager->AddScene(std::make_shared<AlbumScene>(*messageManager));
+		sceneManager->AddScene(std::make_shared<ArtistScene>(*messageManager));
 		sceneManager->GetScenes();
-		storedModules.emplace("loginModule", std::make_shared<LoginModule>(messageManager, networkManager, authManager));
-		storedModules.emplace("profileModule", std::make_shared<ProfileModule>(messageManager, imageManager, networkManager, authManager));
-		storedModules.emplace("popularsModule", std::make_shared<PopularsModule>(messageManager, networkManager, audioManager, imageManager, renderer->GetRenderer()));
-		storedModules.emplace("albumModule", std::make_shared<AlbumModule>(messageManager, audioManager, imageManager, networkManager));
-		storedModules.emplace("artistModule", std::make_shared<ArtistModule>(messageManager, audioManager, imageManager, networkManager));
-		storedModules.emplace("playerModule", std::make_shared<PlayerModule>(messageManager, audioManager, imageManager));
+		storedModules.emplace("loginModule", std::make_shared<LoginModule>(*messageManager, *networkManager, *authManager));
+		storedModules.emplace("profileModule", std::make_shared<ProfileModule>(*messageManager, *imageManager, *networkManager, *authManager));
+		storedModules.emplace("popularsModule", std::make_shared<PopularsModule>(*messageManager, *networkManager, *audioManager, *imageManager, renderer->GetRenderer()));
+		storedModules.emplace("albumModule", std::make_shared<AlbumModule>(*messageManager, *audioManager, *imageManager, *networkManager));
+		storedModules.emplace("artistModule", std::make_shared<ArtistModule>(*messageManager, *audioManager, *imageManager, *networkManager));
+		storedModules.emplace("playerModule", std::make_shared<PlayerModule>(*messageManager, *audioManager, *imageManager));
+		storedModules.emplace("playlistListModule", std::make_shared<PlaylistListModule>(*messageManager, *imageManager, *networkManager, *authManager));
 		
 
+		sceneManager->GetScene("FrontPage")->PushModule(storedModules["playlistListModule"]);
 		sceneManager->GetScene("FrontPage")->PushModule(storedModules["popularsModule"]);
 		sceneManager->GetScene("FrontPage")->PushModule(storedModules["playerModule"]);
 		
@@ -131,9 +133,11 @@ namespace Thingy {
 
 		sceneManager->GetScene("ProfileScene")->PushModule(storedModules["profileModule"]);
 
+		sceneManager->GetScene("AlbumScene")->PushModule(storedModules["playlistListModule"]);
 		sceneManager->GetScene("AlbumScene")->PushModule(storedModules["albumModule"]);
 		sceneManager->GetScene("AlbumScene")->PushModule(storedModules["playerModule"]);
 		
+		sceneManager->GetScene("ArtistScene")->PushModule(storedModules["playlistListModule"]);
 		sceneManager->GetScene("ArtistScene")->PushModule(storedModules["artistModule"]);
 		sceneManager->GetScene("ArtistScene")->PushModule(storedModules["playerModule"]);
 		

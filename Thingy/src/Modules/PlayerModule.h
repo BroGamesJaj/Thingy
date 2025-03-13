@@ -10,7 +10,7 @@
 namespace Thingy {
 	class PlayerModule : public Module {
 	public:
-		PlayerModule(std::unique_ptr<MessageManager>& messageManager, std::unique_ptr<AudioManager>& audioManager, std::unique_ptr<ImageManager>& imageManager) : m_MessageManager(messageManager), m_AudioManager(audioManager), m_ImageManager(imageManager), m_CurrentTime(audioManager->GetCurrentTrackPos()), m_AudioVolume(audioManager->GetVolume()), queue(audioManager->GetQueue()) {
+		PlayerModule(MessageManager& messageManager, AudioManager& audioManager, ImageManager& imageManager) : m_MessageManager(messageManager), m_AudioManager(audioManager), m_ImageManager(imageManager), m_CurrentTime(audioManager.GetCurrentTrackPos()), m_AudioVolume(audioManager.GetVolume()), queue(audioManager.GetQueue()) {
 			currentTrack = Track();
 		}
 
@@ -31,9 +31,9 @@ namespace Thingy {
 
 		uint16_t upProps = 0;
 
-		std::unique_ptr<MessageManager>& m_MessageManager;
-		std::unique_ptr<AudioManager>& m_AudioManager;
-		std::unique_ptr<ImageManager>& m_ImageManager;
+		MessageManager& m_MessageManager;
+		AudioManager& m_AudioManager;
+		ImageManager& m_ImageManager;
 
 		bool open = true;
 		bool isQueueOpen = false;

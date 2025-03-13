@@ -173,6 +173,7 @@
     <ClInclude Include="src\Modules\LoginModule.h" />
     <ClInclude Include="src\Modules\Modules.h" />
     <ClInclude Include="src\Modules\PlayerModule.h" />
+    <ClInclude Include="src\Modules\PlaylistListModule.h" />
     <ClInclude Include="src\Modules\PopularsModule.h" />
     <ClInclude Include="src\Modules\ProfileModule.h" />
     <ClInclude Include="src\Modules\SearchModule.h" />
@@ -207,6 +208,7 @@
     <ClCompile Include="src\Modules\LoginModule.cpp" />
     <ClCompile Include="src\Modules\PlayerModule.cpp" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Modules\PlaylistListModule.cpp" />
     <ClCompile Include="src\Modules\PopularsModule.cpp" />
     <ClCompile Include="src\Modules\ProfileModule.cpp" />
     <ClCompile Include="src\Modules\SearchModule.cpp" />

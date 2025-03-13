@@ -4,8 +4,8 @@
 namespace Thingy {
 	class LoginScene : public Scene {
 	public:
-		LoginScene(std::unique_ptr<MessageManager>& messageManager) : m_MessageManager(messageManager) {
-			m_MessageManager->Subscribe("change" + GetSceneName(), GetSceneName(), [this](const MessageData data) {
+		LoginScene(MessageManager& messageManager) : m_MessageManager(messageManager) {
+			m_MessageManager.Subscribe("change" + GetSceneName(), GetSceneName(), [this](const MessageData data) {
 				BeforeSwitch();
 				});
 		};
@@ -22,6 +22,6 @@ namespace Thingy {
 
 		SCENE_CLASS_NAME("LoginScene");
 	private:
-		std::unique_ptr<MessageManager>& m_MessageManager;
+		MessageManager& m_MessageManager;
 	};
 }

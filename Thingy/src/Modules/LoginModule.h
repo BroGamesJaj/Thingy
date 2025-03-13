@@ -10,7 +10,7 @@
 namespace Thingy {
 	class LoginModule : public Module {
 	public:
-		LoginModule(std::unique_ptr<MessageManager>& messageManager, std::unique_ptr<NetworkManager>& networkManager, std::unique_ptr<AuthManager>& authManager) : m_MessageManager(messageManager), m_NetworkManager(networkManager), m_AuthManager(authManager) {};
+		LoginModule(MessageManager& messageManager, NetworkManager& networkManager, AuthManager& authManager) : m_MessageManager(messageManager), m_NetworkManager(networkManager), m_AuthManager(authManager) {};
 
 		void SetupSubscriptions() override;
 		void OnLoad(const std::variant<int, std::string> moduleState) override;
@@ -24,9 +24,9 @@ namespace Thingy {
 	private:
 		uint16_t upProps = 0;
 
-		std::unique_ptr<MessageManager>& m_MessageManager;
-		std::unique_ptr<NetworkManager>& m_NetworkManager;
-		std::unique_ptr<AuthManager>& m_AuthManager;
+		MessageManager& m_MessageManager;
+		NetworkManager& m_NetworkManager;
+		AuthManager& m_AuthManager;
 		std::string email = "";
 		std::string username = "";
 		std::string password = "";
