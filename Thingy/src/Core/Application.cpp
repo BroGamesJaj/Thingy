@@ -121,7 +121,7 @@ namespace Thingy {
 		storedModules.emplace("popularsModule", std::make_shared<PopularsModule>(*messageManager, *networkManager, *audioManager, *imageManager, renderer->GetRenderer()));
 		storedModules.emplace("albumModule", std::make_shared<AlbumModule>(*messageManager, *audioManager, *imageManager, *networkManager));
 		storedModules.emplace("artistModule", std::make_shared<ArtistModule>(*messageManager, *audioManager, *imageManager, *networkManager));
-		storedModules.emplace("playerModule", std::make_shared<PlayerModule>(*messageManager, *audioManager, *imageManager));
+		storedModules.emplace("playerModule", std::make_shared<PlayerModule>(*messageManager, *audioManager, *imageManager, *authManager));
 		storedModules.emplace("playlistListModule", std::make_shared<PlaylistListModule>(*messageManager, *imageManager, *networkManager, *authManager));
 		
 
@@ -203,7 +203,7 @@ namespace Thingy {
 			main_viewport->WorkPos = ImVec2(10, 50);
 			main_viewport->WorkSize = ImVec2(windowWidth - 20, windowHeight - 60);
 			ImGuiID dockspace_id = ImGui::GetID("DockSpace");
-			ImGuiDockNodeFlags dockSpaceFlags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoResizeY | ImGuiDockNodeFlags_AutoHideTabBar | ImGuiDockNodeFlags_NoTabBar;
+			ImGuiDockNodeFlags dockSpaceFlags = ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_NoResize | ImGuiDockNodeFlags_AutoHideTabBar | ImGuiDockNodeFlags_NoTabBar;
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(100, 0.0f));
 			ImGui::DockSpaceOverViewport(dockspace_id, main_viewport, dockSpaceFlags);
 			ImGui::PopStyleVar();

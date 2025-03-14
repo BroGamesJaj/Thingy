@@ -53,6 +53,9 @@ namespace Thingy {
 			
 		}
 		ImGui::SameLine();
+		ImGui::BeginGroup();
+		ImGui::Text(user.username.data());
+		ImGui::Text(user.email.data());
 		if(editingDesc){
 			ImGui::SetKeyboardFocusHere();
 			ImGui::InputText("##newDesc", &newDescription, 0, ResizeCallback, (void*)&newDescription);
@@ -66,7 +69,7 @@ namespace Thingy {
 				if (!ImGui::IsPopupOpen("Save Changes?")) {
 					ImGui::OpenPopup("Save Changes?");
 				}
-				if (ImGui::BeginPopupModal("Save Changes?", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize)) {
+				if (ImGui::BeginPopupModal("Save Changes?", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove)) {
 					ImGui::Button("Yes", ImVec2(50.0f, 30.0f));
 					if (ImGui::IsItemClicked()) {
 						m_MessageManager.Publish("changeDescription", newDescription);
@@ -93,6 +96,7 @@ namespace Thingy {
 			ImGui::SameLine();
 			LimitedTextWrap(user.description.data(), 500.0f, 3);
 		}
+		ImGui::EndGroup();
 		ImGui::EndGroup();
 
 		ImGui::BeginChild("Playlists", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);

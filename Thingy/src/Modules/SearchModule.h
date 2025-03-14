@@ -17,9 +17,7 @@ namespace Thingy {
 
 		uint16_t OnRender() override;
 
-
-		int DefaultWidth() const override { return 1280; }
-
+		const int DefaultSize() const override { return 4; }
 		MODULE_CLASS_NAME("SearchModule")
 	private:
 		

@@ -26,15 +26,13 @@ namespace Thingy {
 
 		virtual std::string GetModuleName() const = 0;
 
-		virtual int DefaultWidth() const = 0;
-
-		int CurrentWidth() const { return (ImGui::FindWindowByName(GetModuleName().data())) ? ImGui::FindWindowByName(GetModuleName().data())->Size.x : DefaultWidth(); };
+		virtual const int DefaultSize() const = 0;
 
 		ImVec2 GetSize() const { return ImGui::FindWindowByName(GetModuleName().data())->Size; };
 		ImVec2 GetPos() const { return ImGui::FindWindowByName(GetModuleName().data())->Pos; };
 
 
 	protected:
-		ImGuiWindowFlags defaultWindowFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar;
+		ImGuiWindowFlags defaultWindowFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize;
 	};
 }

@@ -85,25 +85,19 @@ namespace Thingy {
 		ImGui::DockBuilderAddNode(dockspace_id);
 		ImVec2 viewport_size = ImGui::GetMainViewport()->Size;
 		ImGui::DockBuilderSetNodeSize(dockspace_id, viewport_size);
-		float sum = 0;
-		for (auto& module : modules) {
-			sum += module.second->CurrentWidth();
-		}
-		float scale = viewport_size.x / sum;
+
 		std::vector<ImGuiID> docks;
-		for (auto& module : modules) {
-			float ratio = module.second->CurrentWidth() * scale / viewport_size.x;
+		for (size_t i = 0; i < modules.size(); i++) {
+			float sum = 0;
+			for (size_t j = i; j < modules.size(); j++) {
+				sum += modules[j].second->DefaultSize();
+			}
+			const float ratio = modules[i].second->DefaultSize() / sum;
 			docks.push_back(ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, ratio, nullptr, &dockspace_id));
 		}
 
 		for (size_t i = 0; i < modules.size(); i++) {
-			if (modules[i].first == "PlayerModule") {
-				ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(300, 500));
-			}
 			ImGui::DockBuilderDockWindow(modules[i].first.data(), docks[i]);
-			if (modules[i].first == "PlayerModule") {
-				ImGui::PopStyleVar();
-			}
 		}
 		ImGui::DockBuilderFinish(dockspace_id);
 
@@ -119,27 +113,22 @@ namespace Thingy {
 		ImGui::DockBuilderAddNode(dockspace_id);
 		ImVec2 viewport_size = ImGui::GetMainViewport()->Size;
 		ImGui::DockBuilderSetNodeSize(dockspace_id, viewport_size);
-		float sum = 0;
-		for (auto& module : modules) {
-			sum += module.second->CurrentWidth();
-		}
-		float scale = viewport_size.x / sum;
+
 		std::vector<ImGuiID> docks;
-		for (auto& module : modules) {
-			float ratio = module.second->CurrentWidth() * scale / viewport_size.x;
+		for (size_t i = 0; i < modules.size(); i++) {
+			float sum = 0;
+			for (size_t j = i; j < modules.size(); j++) {
+				sum += modules[j].second->DefaultSize();
+			}
+			const float ratio = modules[i].second->DefaultSize() / sum;
 			docks.push_back(ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, ratio, nullptr, &dockspace_id));
 		}
 
 		for (size_t i = 0; i < modules.size(); i++) {
-			if (modules[i].first == "PlayerModule") {
-				ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(300, 500));
-			}
 			ImGui::DockBuilderDockWindow(modules[i].first.data(), docks[i]);
-			if (modules[i].first == "PlayerModule") {
-				ImGui::PopStyleVar();
-			}
 		}
 		ImGui::DockBuilderFinish(dockspace_id);
+
 	}
 
 	void ArtistScene::SaveLayout() {}

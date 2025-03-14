@@ -69,6 +69,8 @@ namespace Thingy {
 
 		std::string UploadImage(std::string& url, const std::string& filePath, const std::string& token);
 
+		std::string AddPlaylist(std::string& url, const std::string& playlistName, const std::string& desc, const bool& isPrivate, const std::string& filePath, const std::string& token);
+
 		std::vector<Track> GetTrack(std::string url);
 		std::vector<Album> GetAlbum(std::string url);
 		std::vector<Artist> GetArtist(std::string url);

@@ -37,6 +37,13 @@ namespace Thingy {
 		return texture;
 	}
 
+	SDL_Texture* ImageManager::GetTextureFromFile(const char* filePath) {
+		SDL_Texture* texture;
+		int w, h;
+		LoadTextureFromFile(filePath, m_Renderer, &texture, &w, &h);
+		return texture;
+	}
+
 	SDL_Texture* ImageManager::GetDefaultArtistImage() {
 
 		SDL_Texture* texture;
