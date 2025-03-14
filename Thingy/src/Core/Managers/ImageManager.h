@@ -24,6 +24,7 @@ namespace Thingy {
 		SDL_Texture* GetTexture(std::string url);
 		SDL_Surface* GetSurface(std::string& url);
 		SDL_Texture* GetTextureFromSurface(SDL_Surface* surface);
+		SDL_Texture* GetTextureFromFile(const char* filePath);
 
 		bool LoadTextureFromMemory(const void* data, size_t data_size, SDL_Renderer* renderer, SDL_Texture** out_texture, int* out_width, int* out_height) noexcept {
 			int image_width = 0;

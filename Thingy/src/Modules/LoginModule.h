@@ -18,8 +18,7 @@ namespace Thingy {
 		void Window() override;
 		uint16_t OnRender() override;
 
-		int DefaultWidth() const override { return 1280; }
-
+		const int DefaultSize() const override { return 1; }
 		MODULE_CLASS_NAME("loginModule")
 	private:
 		uint16_t upProps = 0;

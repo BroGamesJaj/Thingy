@@ -15,6 +15,9 @@ namespace Thingy {
 			isQueueOpen = !isQueueOpen;
 			});
 
+		m_MessageManager.Subscribe("userChanged", GetModuleName(), [this](const MessageData data) {
+			UserInfoChanged();
+			});
 	}
 
 	void PlayerModule::OnLoad(const std::variant<int, std::string> moduleState) {
@@ -154,6 +157,18 @@ namespace Thingy {
 		if (ImGui::Button("Forward", { 30.0f, 30.0f })) {
 			m_AudioManager.NextTrack();
 		};
+		ImGui::SameLine();
+		if (ImGui::Button("Add to playlists")) {
+			selectedPlaylists.clear();
+			for (auto& playlist : user.playlists) {
+				if (std::find(playlist.trackIDs.begin(), playlist.trackIDs.end(), currentTrack.id) != playlist.trackIDs.end()) {
+					selectedPlaylists[playlist.playlistID] = true;
+				} else {
+					selectedPlaylists[playlist.playlistID] = false;
+				}
+			}
+			ImGui::OpenPopup("Add to playlists");
+		}
 		ImGui::Text("Current");
 		ImGui::SameLine();
 		ImGui::SliderInt("time", &m_AudioManager.GetCurrentTrackPos(), 0, m_AudioManager.GetCurrentTrackDuration());
@@ -163,6 +178,59 @@ namespace Thingy {
 		ImGui::SliderInt("Volume", &m_AudioVolume, 0, MIX_MAX_VOLUME);
 		if (ImGui::IsItemEdited()) {
 			m_AudioManager.ChangeVolume();
+		}
+
+		PlaylistModal();
+	}
+
+	void PlayerModule::PlaylistModal() {
+		
+		ImVec2 center = ImVec2(ImGui::GetIO().DisplaySize.x * 0.5f, ImGui::GetIO().DisplaySize.y * 0.5f);
+		ImVec2 modalSize = ImVec2(310.0f, 600.0f);
+		ImVec2 modalPos = ImVec2(center.x - modalSize.x * 0.5f, center.y - modalSize.y * 0.5f);
+		ImGui::SetNextWindowPos(modalPos);
+		ImGui::SetNextWindowSize(modalSize);
+		if (ImGui::BeginPopupModal("Add to playlists", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
+			if (ImGui::BeginTable("AddToPlaylistsTable", 3, ImGuiTableFlags_ScrollY, ImVec2(300.0f, 500.0f))) {
+				ImGui::TableSetupColumn("Cover", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+				ImGui::TableSetupColumn("Info", ImGuiTableColumnFlags_WidthFixed, 150.0f);
+				ImGui::TableSetupColumn("Check");
+
+				int i = 0;
+				for (auto& playlist : user.playlists) {
+					if (!selectedPlaylists[playlist.playlistID])
+						selectedPlaylists[playlist.playlistID] = false;
+					ImGui::TableNextRow();
+					ImGui::TableSetColumnIndex(0);
+					ImGui::Image(reinterpret_cast<ImTextureID>(playlistTextures[playlist.playlistID].get()), { 80.0f, 80.0f });
+					ImGui::TableSetColumnIndex(1);
+					ImGui::SameLine();
+					ImGui::BeginGroup();
+					ImGui::Text(playlist.playlistName.data());
+					ImGui::TableSetColumnIndex(2);
+					ImGui::Checkbox(std::string("##" + std::to_string(playlist.playlistID)).data(), &selectedPlaylists[playlist.playlistID]);
+					
+					ImGui::EndGroup();
+					i++;
+				}
+
+				ImGui::EndTable();
+				if (ImGui::Button("done")) {
+					ImGui::CloseCurrentPopup();
+				}
+			}
+			ImGui::EndPopup();
+		}
+	}
+
+	void PlayerModule::UserInfoChanged() {
+		for (size_t i = 0; i < user.playlists.size(); i++) {
+			const Playlist& currP = user.playlists[i];
+			if (currP.playlistCoverBuffer.empty()) {
+				playlistTextures[currP.playlistID] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultPlaylistImage());
+			} else {
+				playlistTextures[currP.playlistID] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(Image(currP.playlistCoverBuffer)));
+			};
 		}
 	}
 }

@@ -4,7 +4,11 @@
 namespace Thingy {
 
 	void PopularsModule::SetupSubscriptions() {
-
+		m_MessageManager.Subscribe("loggedIn", GetModuleName(), [this](const MessageData data) {
+			if (data.type() == typeid(bool)) {
+				loggedIn = std::any_cast<bool>(data);
+			}
+			});
 	}
 
 	void PopularsModule::OnLoad(const std::variant<int, std::string> moduleState) {
@@ -47,7 +51,7 @@ namespace Thingy {
 		ImVec4 normalColor = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
 		ImGui::PushStyleColor(ImGuiCol_Button, normalColor);
 
-		float scale = (ImGui::GetWindowSize().x / DefaultWidth());
+		float scale = (ImGui::GetWindowSize().x / 1280);
 		float width = std::clamp(100.0f * scale, 85.0f, 125.0f);
 		float height = std::clamp(100.0f * scale, 85.0f, 125.0f);
 		ImVec2 imageSize = { width , height};

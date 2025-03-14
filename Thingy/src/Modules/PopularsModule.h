@@ -23,12 +23,15 @@ namespace Thingy {
 
 		uint16_t OnRender() override;
 
+		const int DefaultSize() const override { 
+			if (loggedIn && !m_AudioManager.GetQueue().empty()) {
+				return 5;
+			} else {
+				return 6;
+			}
 
-		int DefaultWidth() const override { return 1280; }
-
+			}
 		void GetPopulars();
-		
-
 
 		MODULE_CLASS_NAME("PopularsModule")
 
@@ -49,5 +52,6 @@ namespace Thingy {
 		std::vector<Artist> weeklyArtists; 
 		std::vector<Artist> monthlyArtists;
 		std::time_t lastFetch = 0;
+		bool loggedIn = false;
 	};
 }

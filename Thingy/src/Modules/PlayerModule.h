@@ -6,11 +6,12 @@
 #include "Core\Managers\ImageManager.h"
 #include "Core\Managers\SceneManager.h"
 #include "Core\Managers\MessageManager.h"
+#include "Core\Managers\AuthManager.h"
 
 namespace Thingy {
 	class PlayerModule : public Module {
 	public:
-		PlayerModule(MessageManager& messageManager, AudioManager& audioManager, ImageManager& imageManager) : m_MessageManager(messageManager), m_AudioManager(audioManager), m_ImageManager(imageManager), m_CurrentTime(audioManager.GetCurrentTrackPos()), m_AudioVolume(audioManager.GetVolume()), queue(audioManager.GetQueue()) {
+		PlayerModule(MessageManager& messageManager, AudioManager& audioManager, ImageManager& imageManager, AuthManager& authManager) : m_MessageManager(messageManager), m_AudioManager(audioManager), m_ImageManager(imageManager), m_AuthManager(authManager), user(authManager.GetUser()), m_CurrentTime(audioManager.GetCurrentTrackPos()), m_AudioVolume(audioManager.GetVolume()), queue(audioManager.GetQueue()) {
 			currentTrack = Track();
 		}
 
@@ -20,26 +21,32 @@ namespace Thingy {
 		void Window() override;
 		uint16_t OnRender() override;
 
-
-		int DefaultWidth() const override { return 400; }
-
+		const int DefaultSize() const override { return 3; }
 
 		MODULE_CLASS_NAME("PlayerModule")
 	private:
 		void QueueView();
 		void PlayerView();
+		void PlaylistModal();
+		void UserInfoChanged();
+
 
 		uint16_t upProps = 0;
 
 		MessageManager& m_MessageManager;
 		AudioManager& m_AudioManager;
 		ImageManager& m_ImageManager;
+		AuthManager& m_AuthManager;
+
+		const User& user;
+		std::unordered_map<uint32_t, bool> selectedPlaylists;
 
 		bool open = true;
 		bool isQueueOpen = false;
 
 		std::vector<Track>& queue;
 		std::unordered_map<uint32_t, std::unique_ptr<SDL_Texture, SDL_TDeleter>> queueTextures;
+		std::unordered_map<uint32_t, std::unique_ptr<SDL_Texture, SDL_TDeleter>> playlistTextures;
 
 		Track currentTrack;
 

@@ -38,16 +38,23 @@ namespace Thingy {
 	}
 	
 	void LoginScene::UpdateLayout() {
+		if (!ImGui::GetCurrentContext()) {
+			T_ERROR("ImGui context is not initialized!");
+			return;
+		}
 		ImGuiID dockspace_id = ImGui::GetID("DockSpace");
 		ImGui::DockBuilderRemoveNode(dockspace_id);
 		ImGui::DockBuilderAddNode(dockspace_id);
-
 		ImVec2 viewport_size = ImGui::GetMainViewport()->Size;
 		ImGui::DockBuilderSetNodeSize(dockspace_id, viewport_size);
 
 		std::vector<ImGuiID> docks;
-		for (auto module : modules) {
-			float ratio = module.second->CurrentWidth() / viewport_size.x;
+		for (size_t i = 0; i < modules.size(); i++) {
+			float sum = 0;
+			for (size_t j = i; j < modules.size(); j++) {
+				sum += modules[j].second->DefaultSize();
+			}
+			const float ratio = modules[i].second->DefaultSize() / sum;
 			docks.push_back(ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, ratio, nullptr, &dockspace_id));
 		}
 
