@@ -49,8 +49,8 @@ namespace Thingy {
 		}
 
 		if (j.contains("Tracks")) {
-			for (size_t i = 0; i < j.at("Tracks").size(); i++) {
-				p.trackIDs.push_back(j["Tracks"][i]);
+			for (size_t i = 0; i < j["Tracks"].size(); i++) {
+				p.trackIDs.push_back(j["Tracks"][i]["SongID"]);
 			}
 		}
 	}

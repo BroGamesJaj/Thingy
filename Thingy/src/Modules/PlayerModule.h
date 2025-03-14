@@ -11,7 +11,7 @@
 namespace Thingy {
 	class PlayerModule : public Module {
 	public:
-		PlayerModule(MessageManager& messageManager, AudioManager& audioManager, ImageManager& imageManager, AuthManager& authManager) : m_MessageManager(messageManager), m_AudioManager(audioManager), m_ImageManager(imageManager), m_AuthManager(authManager), user(authManager.GetUser()), m_CurrentTime(audioManager.GetCurrentTrackPos()), m_AudioVolume(audioManager.GetVolume()), queue(audioManager.GetQueue()) {
+		PlayerModule(MessageManager& messageManager, AudioManager& audioManager, ImageManager& imageManager, AuthManager& authManager, NetworkManager& networkManager) : m_MessageManager(messageManager), m_AudioManager(audioManager), m_ImageManager(imageManager), m_AuthManager(authManager), m_NetworkManager(networkManager), user(authManager.GetUser()), m_CurrentTime(audioManager.GetCurrentTrackPos()), m_AudioVolume(audioManager.GetVolume()), queue(audioManager.GetQueue()) {
 			currentTrack = Track();
 		}
 
@@ -37,6 +37,7 @@ namespace Thingy {
 		AudioManager& m_AudioManager;
 		ImageManager& m_ImageManager;
 		AuthManager& m_AuthManager;
+		NetworkManager& m_NetworkManager;
 
 		const User& user;
 		std::unordered_map<uint32_t, bool> selectedPlaylists;

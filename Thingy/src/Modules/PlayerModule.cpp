@@ -216,6 +216,25 @@ namespace Thingy {
 
 				ImGui::EndTable();
 				if (ImGui::Button("done")) {
+					std::string url = "http://localhost:3000/playlists/add?playlistIds=";
+					bool hasSelected = false;
+					for (auto& playlist : user.playlists) {
+						if (selectedPlaylists[playlist.playlistID] && std::find(playlist.trackIDs.begin(), playlist.trackIDs.end(), currentTrack.id) == playlist.trackIDs.end()) {
+							hasSelected = true;
+							url += std::to_string(playlist.playlistID) + ",";
+						}
+					}
+					if (hasSelected) {
+						url.pop_back();
+					}
+					url += "&trackId=" + std::to_string(currentTrack.id);
+					T_INFO("{0}", url);
+					if (hasSelected) {
+						std::string token;
+						m_AuthManager.RetrieveToken("accessToken", token);
+						std::string json;
+						T_INFO("{0}", m_NetworkManager.PostRequestAuth(url, json, token));
+					}
 					ImGui::CloseCurrentPopup();
 				}
 			}

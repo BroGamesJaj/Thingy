@@ -231,6 +231,58 @@ namespace Thingy {
 		return response;
 	}
 
+	std::string NetworkManager::PostRequestAuth(std::string& url, const std::string& data, const std::string& token) {
+		URLSanitizer(url);
+		CURL* curl = curl_easy_init();
+		std::string response;
+		struct curl_slist* headers = nullptr;
+		long responseCode;
+		T_INFO("data: {0}", data.empty());
+		if (!curl) {
+			std::cout << "ERROR : Curl initialization\n" << std::endl;
+			CleanupGet(curl, headers);
+			return "";
+		}
+		
+		//headers = curl_slist_append(headers, "Content-Type: application/json");
+		headers = curl_slist_append(headers, ("Authorization: Bearer " + token).c_str());
+
+		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+		curl_easy_setopt(curl, CURLOPT_POST, 1L);
+		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L);
+		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L);
+		
+		if (!data.empty()) {
+			curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.c_str());
+		} else {
+			curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "{}");
+		}
+		
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallbackPost);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+
+		CURLcode res = curl_easy_perform(curl);
+		if (res != CURLE_OK) {
+			response = "Curl error: " + std::string(curl_easy_strerror(res));
+		} else {
+			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &responseCode);
+			if (responseCode == 401) {
+				return "Received 401 Unauthorized";
+			}
+			if (responseCode == 409) {
+				return json::parse(response)["message"];
+			}
+			if (responseCode == 207) {
+				return json::parse(response)["message"];
+			}
+		};
+		curl_easy_cleanup(curl);
+		curl_slist_free_all(headers);
+
+		return response;
+	}
+
 	std::string NetworkManager::PatchRequestAuth(std::string& url, const json& data, const std::string& token) {
 		URLSanitizer(url);
 		CURL* curl = curl_easy_init();
