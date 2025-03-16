@@ -5,3 +5,4 @@
 #include "AlbumScene.h"
 #include "ArtistScene.h"
 #include "ProfileScene.h"
+#include "PlaylistScene.h"

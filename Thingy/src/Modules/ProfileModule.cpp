@@ -103,6 +103,10 @@ namespace Thingy {
 		for (size_t i = 0; i < user.playlists.size(); i++) {
 			ImGui::BeginGroup();
 			ImGui::Image(reinterpret_cast<ImTextureID>(playlistCovers[user.playlists[i].playlistID].get()), ImVec2(200.0f, 200.0f));
+			if (ImGui::IsItemClicked()) {
+				m_MessageManager.Publish("openPlaylist", user.playlists[i]);
+				m_MessageManager.Publish("changeScene", std::string("PlaylistScene"));
+			}
 			LimitedTextWrap(user.playlists[i].playlistName.data(), 180, 3);
 			ImGui::EndGroup();
 			ImGui::SameLine();

@@ -7,3 +7,4 @@
 #include "LoginModule.h"
 #include "ProfileModule.h"
 #include "PlaylistListModule.h"
+#include "PlaylistModule.h"

@@ -7,9 +7,32 @@ namespace Thingy {
 		m_MessageManager.Subscribe("openPlaylist", GetModuleName(), [this](const MessageData data) {
 
 			if (data.type() == typeid(Playlist)) {
-				//TODO opening
+				Playlist playlist = std::any_cast<Playlist>(data);
+				for (size_t i = 0; i < playlists.size(); i++) {
+					if (playlists[i].playlistName == playlist.playlistName) {
+						curr = i;
+						T_INFO("returned");
+						return;
+					}
+				}
+				std::string url = "https://api.jamendo.com/v3.0/tracks/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&limit=200";
+				bool needsUpdate = false;
+				for (auto& trackId : playlist.trackIDs) {
+					if (tracks.find(trackId) == tracks.end()) {
+						url += "&id[]=" + std::to_string(trackId);
+						needsUpdate = true;
+					}
+				}
+				if (needsUpdate) {
+					std::vector<Track> newTracks = m_NetworkManager.GetTrack(url);
+					for (auto& newTrack : newTracks) {
+						tracks[newTrack.id] = newTrack;
+					}
+				}
+				playlists.push_back(playlist);
+				curr = playlists.size() - 1;
 			} else {
-				T_ERROR("PlaylistModule: Invalid data type for openAlbum");
+				T_ERROR("PlaylistModule: Invalid data type for openPlaylist");
 			}
 			});
 
@@ -32,10 +55,31 @@ namespace Thingy {
 			}
 		}
 		if (std::holds_alternative<int>(moduleState)) {
-			T_ERROR("album got: {0}", std::get<int>(moduleState));
+			T_ERROR("Playlist got: {0}", std::get<int>(moduleState));
 		}
 
-		//TODO: texture loading
+		if (playlists[curr].playlistCoverBuffer.empty())
+			playlistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultPlaylistImage());
+		else playlistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(Image(playlists[curr].playlistCoverBuffer)));
+		std::unordered_map<uint32_t, std::future<Image>> images;
+		for (auto& trackId : playlists[curr].trackIDs) {
+			if (!textures[trackId]) {
+				std::string& url = tracks[trackId].imageURL;
+				images.emplace(trackId, std::async(std::launch::async, [this, &url]() { return m_ImageManager.GetImage(url); }));
+			}
+
+		}
+		while (!images.empty()) {
+			for (auto it = images.begin(); it != images.end(); ) {
+				auto& image = it->second;
+				if (image.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+					textures[it->first] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(image.get()));
+					it = images.erase(it);
+				} else {
+					++it;
+				}
+			}
+		}
 	}
 
 	void PlaylistModule::OnUpdate() {}
@@ -65,24 +109,25 @@ namespace Thingy {
 		ImGui::Text("Playlist length: %s", SecondsToTimeString(length).data());
 		ImGui::EndGroup();
 		ImGui::BeginChild("Tracks", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);
-
-		// TODO show tracks
-		/*
-		for (size_t i = 0; i < album[curr].tracks.size(); i++) {
-			Track& track = album[curr].tracks[i];
+		
+		for (size_t i = 0; i < playlists[curr].trackIDs.size(); i++) {
+			int& trackId = playlists[curr].trackIDs[i];
 			ImGui::BeginGroup();
-			ImGui::Image(reinterpret_cast<ImTextureID>(textures[album[curr].id].get()), { 200.0f, 200.0f });
+			ImGui::Image(reinterpret_cast<ImTextureID>(textures[trackId].get()), { 200.0f, 200.0f });
 			if (ImGui::IsItemClicked()) {
-				std::vector<Track> tracks(album[curr].tracks.begin() + i, album[curr].tracks.end());
+				std::vector<Track> queueTracks;
+				for (auto& trackId : playlists[curr].trackIDs) {
+					queueTracks.push_back(tracks[trackId]);
+				}
 				m_AudioManager.ClearQueue();
-				m_MessageManager.Publish("addToQueue", tracks);
+				m_MessageManager.Publish("addToQueue", queueTracks);
 				m_MessageManager.Publish("startMusic", "");
 			};
-			LimitedTextWrap(track.title.data(), 180, 3);
+			LimitedTextWrap(tracks[trackId].title.data(), 180, 3);
 			ImGui::EndGroup();
 			ImGui::SameLine();
 		}
-		*/
+		
 		ImGui::EndChild();
 
 	}

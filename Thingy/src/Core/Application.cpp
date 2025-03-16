@@ -115,6 +115,7 @@ namespace Thingy {
 		sceneManager->AddScene(std::make_shared<ProfileScene>(*messageManager));
 		sceneManager->AddScene(std::make_shared<AlbumScene>(*messageManager));
 		sceneManager->AddScene(std::make_shared<ArtistScene>(*messageManager));
+		sceneManager->AddScene(std::make_shared<PlaylistScene>(*messageManager));
 		sceneManager->GetScenes();
 		storedModules.emplace("loginModule", std::make_shared<LoginModule>(*messageManager, *networkManager, *authManager));
 		storedModules.emplace("profileModule", std::make_shared<ProfileModule>(*messageManager, *imageManager, *networkManager, *authManager));
@@ -123,8 +124,8 @@ namespace Thingy {
 		storedModules.emplace("artistModule", std::make_shared<ArtistModule>(*messageManager, *audioManager, *imageManager, *networkManager));
 		storedModules.emplace("playerModule", std::make_shared<PlayerModule>(*messageManager, *audioManager, *imageManager, *authManager, *networkManager));
 		storedModules.emplace("playlistListModule", std::make_shared<PlaylistListModule>(*messageManager, *imageManager, *networkManager, *authManager));
+		storedModules.emplace("playlistModule", std::make_shared<PlaylistModule>(*messageManager, *audioManager, *imageManager, *networkManager));
 		
-
 		sceneManager->GetScene("FrontPage")->PushModule(storedModules["playlistListModule"]);
 		sceneManager->GetScene("FrontPage")->PushModule(storedModules["popularsModule"]);
 		sceneManager->GetScene("FrontPage")->PushModule(storedModules["playerModule"]);
@@ -140,6 +141,10 @@ namespace Thingy {
 		sceneManager->GetScene("ArtistScene")->PushModule(storedModules["playlistListModule"]);
 		sceneManager->GetScene("ArtistScene")->PushModule(storedModules["artistModule"]);
 		sceneManager->GetScene("ArtistScene")->PushModule(storedModules["playerModule"]);
+
+		sceneManager->GetScene("PlaylistScene")->PushModule(storedModules["playlistListModule"]);
+		sceneManager->GetScene("PlaylistScene")->PushModule(storedModules["playlistModule"]);
+		sceneManager->GetScene("PlaylistScene")->PushModule(storedModules["playerModule"]);
 		
 		messageManager->Publish("homeButton", std::string("FrontPage"));
 		sceneManager->GetScenes();
