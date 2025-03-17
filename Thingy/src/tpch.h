@@ -19,6 +19,7 @@
 #include <stdexcept>
 #include <fstream>
 #include <chrono>
+#include <random>
 
 #include <cstdint>
 #include <string>

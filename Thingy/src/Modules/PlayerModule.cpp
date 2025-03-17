@@ -115,25 +115,23 @@ namespace Thingy {
 
 			int i = 0;
 			for (auto& track : queue) {
-				if (i >= m_AudioManager.GetCurrentTrackNum()) {
+				ImGui::TableNextRow();
 
-					ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Image(reinterpret_cast<ImTextureID>(queueTextures[track.albumID].get()), { 80.0f, 80.0f });
 
-					ImGui::TableSetColumnIndex(0);
-					ImGui::Image(reinterpret_cast<ImTextureID>(queueTextures[track.albumID].get()), { 80.0f, 80.0f });
-
-					ImGui::TableSetColumnIndex(1);
-					std::string label = std::to_string(i);
-					if (ImGui::Selectable(std::string("##" + label).data(), false, ImGuiSelectableFlags_AllowOverlap, ImVec2(0, 80.0f))) {
-						m_AudioManager.ChangeMusicByQueueNum(i);
-					}
-
-					ImGui::SameLine();
-					ImGui::BeginGroup();
-					ImGui::Text(track.title.data());
-					ImGui::Text(track.artistName.data());
-					ImGui::EndGroup();
+				ImGui::TableSetColumnIndex(1);
+				std::string label = std::to_string(i);
+				if (ImGui::Selectable(std::string("##" + label).data(), false, ImGuiSelectableFlags_AllowOverlap, ImVec2(0, 80.0f))) {
+					m_AudioManager.ChangeMusicByTrack(track.id);
 				}
+
+				ImGui::SameLine();
+				ImGui::BeginGroup();
+				ImGui::Text(track.title.data());
+				ImGui::Text(track.artistName.data());
+				ImGui::EndGroup();
+				
 				i++;
 			}
 
@@ -172,6 +170,10 @@ namespace Thingy {
 		ImGui::SameLine();
 		if (ImGui::Button("Forward", { 30.0f, 30.0f })) {
 			m_AudioManager.NextTrack();
+		};
+		ImGui::SameLine();
+		if (ImGui::Button("Shuffle", { 30.0f, 30.0f })) {
+			m_AudioManager.ShuffleQueue();
 		};
 		ImGui::SameLine();
 		if (loggedIn) {

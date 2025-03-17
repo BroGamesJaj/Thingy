@@ -124,8 +124,8 @@ namespace Thingy {
 			ImGui::Image(reinterpret_cast<ImTextureID>(textures[trackId].get()), { 200.0f, 200.0f });
 			if (ImGui::IsItemClicked()) {
 				std::vector<Track> queueTracks;
-				for (auto& trackId : playlists[curr].trackIDs) {
-					queueTracks.push_back(tracks[trackId]);
+				for (size_t j = i; j < playlists[curr].trackIDs.size(); j++) {
+					queueTracks.push_back(tracks[playlists[curr].trackIDs[j]]);
 				}
 				m_AudioManager.ClearQueue();
 				m_MessageManager.Publish("addToQueue", queueTracks);

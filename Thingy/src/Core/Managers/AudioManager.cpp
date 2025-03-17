@@ -39,6 +39,7 @@ namespace Thingy {
 				AddToQueue(tracks);
 			} else if (data.type() == typeid(Track)) {
 				Track track = std::any_cast<Track>(data);
+				//New
 				queue.push_back(track);
 			}
 			});
@@ -86,34 +87,38 @@ namespace Thingy {
 	}
 		
 	void AudioManager::NextTrack() {
-		if (currentTrackNum < queue.size()-1) {
-			currentTrackNum++;
-			LoadMusicFromQueue();
-			ChangeMusic();
-			ResumeMusic();
-		}
-		else if (queue.size() == 0 || queue.size() == 1) {
-			currentTrackPos = 0;
-			Mix_PlayMusic(music, 0);
-			PauseMusic();
-		} else if (currentTrackNum == queue.size()-1) {
-			currentTrackNum = 0;
-			LoadMusicFromQueue();
-			ChangeMusic();
-		}
-	
-	}
-
-	void AudioManager::PrevTrack() {
-		if (currentTrackPos < 5) {
-			if (currentTrackNum > 0) {
-				currentTrackNum--;
+		//New
+		if (current != queue.end()) {
+			history.push_back(*current);
+			++current;
+			if (current == queue.end() && !history.empty()) {
+				queue = history;
+				current = queue.begin();
+				LoadMusicFromQueue();
+				ChangeMusic();
+			} else if (current == queue.end()) {
+				--current;
+				Mix_PlayMusic(music, 0);
+				PauseMusic();
+				
+			} else {
+				queue.pop_front();
 				LoadMusicFromQueue();
 				ChangeMusic();
 				ResumeMusic();
-			} else if (currentTrackNum == 0) {
-				Mix_RewindMusic();
-			}
+			};
+		}
+	}
+
+	void AudioManager::PrevTrack() {
+		//New
+		if (!history.empty()) {
+			queue.push_front(history.back());
+			current = queue.begin();
+			history.pop_back();
+			LoadMusicFromQueue();
+			ChangeMusic();
+			ResumeMusic();
 		} else {
 			Mix_RewindMusic();
 		}
@@ -153,37 +158,74 @@ namespace Thingy {
 	}
 
 	void AudioManager::LoadMusicFromTrack(Track& track) {
+		//New
 		Mix_HaltMusic();
 		queue.clear();
 		queue.push_back(track);
+		current = queue.begin();
 		m_NetworkManager.DownloadAudio(track.audioURL, musicBuffer);
 	}
 
 	void AudioManager::LoadMusicFromQueue() {
+		//New
 		Mix_HaltMusic();
-		m_NetworkManager.DownloadAudio(queue[currentTrackNum].audioURL, musicBuffer);
+		m_NetworkManager.DownloadAudio(current->audioURL, musicBuffer);
 	}
 
 	void AudioManager::AddToQueue(const std::vector<Track>& tracks) {
-		queue.reserve(queue.size() + tracks.size());
+		//New
 		queue.insert(queue.end(), tracks.begin(), tracks.end());
 	}
 
 	void AudioManager::PlayQueueFromStart() {
-		if (queue.size() != 0) {
-			currentTrackNum = 0;
+		//New
+		if (!queue.empty()) {
+			current = queue.begin();
 			LoadMusicFromQueue();
 			ChangeMusic();
 			ResumeMusic();
 		}
 	}
 
-	void AudioManager::ChangeMusicByQueueNum(int newTrackNum) {
-		currentTrackNum = newTrackNum;
-		LoadMusicFromQueue();
-		ChangeMusic();
-		ResumeMusic();
+	//New
+	void AudioManager::ChangeMusicByTrack(const int trackID) {
+		auto it = std::find_if(queue.begin(), queue.end(), [&](const Track& track) {
+			return track.id == trackID;
+			});
+		if (it != queue.end()) {
+			history.push_back(*current);
+			queue.erase(queue.begin(), it);
+			current = queue.begin();
+			LoadMusicFromQueue();
+			ChangeMusic();
+			ResumeMusic();
+		}
 	}
 
-	
+	void AudioManager::ShuffleQueue() {
+		if (shuffled) {
+			if (current != queue.end()) {
+				auto it = std::find_if(originalQueue.begin(), originalQueue.end(), [&](const Track& track) {
+					return track.id == current->id;
+					});
+				if (it != originalQueue.end()) {
+					queue.assign(it, originalQueue.end());
+					current = queue.begin();
+				}
+				current = queue.begin();
+				shuffled = false;
+			}
+		} else {
+			if (queue.empty() || queue.size() < 2) return;
+			originalQueue = queue;
+			std::vector<Track> temp(queue.begin(), queue.end());
+			std::shuffle(temp.begin()+1, temp.end(), std::random_device());
+
+			queue.assign(temp.begin(), temp.end());
+			current = queue.begin();
+			shuffled = true;
+		}
+	}
+
+
 }

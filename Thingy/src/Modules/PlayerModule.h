@@ -46,7 +46,7 @@ namespace Thingy {
 		bool open = true;
 		bool isQueueOpen = false;
 
-		std::vector<Track>& queue;
+		std::list<Track>& queue;
 		std::unordered_map<uint32_t, std::unique_ptr<SDL_Texture, SDL_TDeleter>> queueTextures;
 		std::unordered_map<uint32_t, std::unique_ptr<SDL_Texture, SDL_TDeleter>> playlistTextures;
 
