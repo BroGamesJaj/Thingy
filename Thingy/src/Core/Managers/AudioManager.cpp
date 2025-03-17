@@ -39,7 +39,6 @@ namespace Thingy {
 				AddToQueue(tracks);
 			} else if (data.type() == typeid(Track)) {
 				Track track = std::any_cast<Track>(data);
-				//New
 				queue.push_back(track);
 			}
 			});
@@ -87,7 +86,6 @@ namespace Thingy {
 	}
 		
 	void AudioManager::NextTrack() {
-		//New
 		if (current != queue.end()) {
 			history.push_back(*current);
 			++current;
@@ -111,7 +109,6 @@ namespace Thingy {
 	}
 
 	void AudioManager::PrevTrack() {
-		//New
 		if (!history.empty()) {
 			queue.push_front(history.back());
 			current = queue.begin();
@@ -158,7 +155,6 @@ namespace Thingy {
 	}
 
 	void AudioManager::LoadMusicFromTrack(Track& track) {
-		//New
 		Mix_HaltMusic();
 		queue.clear();
 		queue.push_back(track);
@@ -167,18 +163,15 @@ namespace Thingy {
 	}
 
 	void AudioManager::LoadMusicFromQueue() {
-		//New
 		Mix_HaltMusic();
 		m_NetworkManager.DownloadAudio(current->audioURL, musicBuffer);
 	}
 
 	void AudioManager::AddToQueue(const std::vector<Track>& tracks) {
-		//New
 		queue.insert(queue.end(), tracks.begin(), tracks.end());
 	}
 
 	void AudioManager::PlayQueueFromStart() {
-		//New
 		if (!queue.empty()) {
 			current = queue.begin();
 			LoadMusicFromQueue();
@@ -187,7 +180,6 @@ namespace Thingy {
 		}
 	}
 
-	//New
 	void AudioManager::ChangeMusicByTrack(const int trackID) {
 		auto it = std::find_if(queue.begin(), queue.end(), [&](const Track& track) {
 			return track.id == trackID;

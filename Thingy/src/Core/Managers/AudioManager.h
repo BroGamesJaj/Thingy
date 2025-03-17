@@ -8,9 +8,6 @@
 #include <SDL3_mixer\SDL_mixer.h>
 
 namespace Thingy {
-
-	
-
 	
 	class AudioManager {
 	public:
@@ -27,8 +24,6 @@ namespace Thingy {
 		int& GetVolume() noexcept { return volume; }
 		
 		Track GetCurrentTrack() const { 
-			
-			//New
 			if (!queue.empty()) {
 				return *current;
 			}
@@ -71,7 +66,6 @@ namespace Thingy {
 		void ShuffleQueue();
 
 		void ClearQueue() noexcept {
-			//New
 			queue.clear();
 		}
 		void ClearHistory() noexcept {
