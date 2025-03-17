@@ -21,6 +21,7 @@ namespace Thingy {
 		void OnUpdate() override;
 		void Window() override;
 
+
 		uint16_t OnRender() override;
 
 		const int DefaultSize() const override { 
@@ -29,8 +30,8 @@ namespace Thingy {
 			} else {
 				return 6;
 			}
+		}
 
-			}
 		void GetPopulars();
 
 		MODULE_CLASS_NAME("PopularsModule")

@@ -29,6 +29,16 @@ namespace Thingy {
 		m_MessageManager.Subscribe("beforeSwitch" + GetModuleName(), GetModuleName(), [this](const MessageData data) {
 			m_MessageManager.Publish("saveModuleState", std::make_pair<std::string, std::variant<int, std::string>>(GetModuleName(), album[curr].name));
 			});
+
+		m_MessageManager.Subscribe("loggedIn", GetModuleName(), [this](const MessageData data) {
+			if (data.type() == typeid(bool)) {
+				loggedIn = std::any_cast<bool>(data);
+			}
+			});
+
+		m_MessageManager.Subscribe("userChanged", GetModuleName(), [this](const MessageData data) {
+			UserInfoChanged();
+			});
 		
 	}
 
@@ -75,10 +85,23 @@ namespace Thingy {
 		ImGui::BeginGroup();
 		ImGui::Text(album[curr].name.data());
 		ImGui::Text(album[curr].artistName.data());
+		if (ImGui::IsItemHovered()) {
+			upProps |= BIT(3);
+		}
+		if (ImGui::IsItemClicked()) {
+			m_MessageManager.Publish("openArtist", album[curr].artistID);
+			m_MessageManager.Publish("changeScene", std::string("ArtistScene"));
+		}
 		ImGui::Text("Release Date: %s", album[curr].releaseDate.data());
 		ImGui::Text("Track count: %zu", album[curr].tracks.size());
 		ImGui::SameLine();
 		ImGui::Text("Album length: %s", SecondsToTimeString(length).data());
+		if (loggedIn) {
+			if (ImGui::Button("Add to Playlist")) {
+				selectedPlaylists.clear();
+				ImGui::OpenPopup("Add to playlists");
+			}
+		}
 		ImGui::EndGroup();
 		ImGui::BeginChild("Tracks", ImVec2(0,300), false, ImGuiWindowFlags_HorizontalScrollbar);
 		for (size_t i = 0; i < album[curr].tracks.size(); i++) {
@@ -96,10 +119,13 @@ namespace Thingy {
 			ImGui::SameLine();
 		}
 		ImGui::EndChild();
+
+		PlaylistModal();
 		
 	}
 
 	uint16_t AlbumModule::OnRender() {
+		upProps &= BIT(0);
 		ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
 		Window();
 		ImGui::End();
@@ -113,5 +139,76 @@ namespace Thingy {
 			ImGui::EndDisabled();
 		}
 		return upProps;
+	}
+
+	void AlbumModule::PlaylistModal() {
+
+		ImVec2 center = ImVec2(ImGui::GetIO().DisplaySize.x * 0.5f, ImGui::GetIO().DisplaySize.y * 0.5f);
+		ImVec2 modalSize = ImVec2(310.0f, 600.0f);
+		ImVec2 modalPos = ImVec2(center.x - modalSize.x * 0.5f, center.y - modalSize.y * 0.5f);
+		ImGui::SetNextWindowPos(modalPos);
+		ImGui::SetNextWindowSize(modalSize);
+		if (ImGui::BeginPopupModal("Add to playlists", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
+			if (ImGui::BeginTable("AddToPlaylistsTable", 3, ImGuiTableFlags_ScrollY, ImVec2(300.0f, 500.0f))) {
+				ImGui::TableSetupColumn("Cover", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+				ImGui::TableSetupColumn("Info", ImGuiTableColumnFlags_WidthFixed, 150.0f);
+				ImGui::TableSetupColumn("Check");
+
+				int i = 0;
+				for (auto& playlist : user.playlists) {
+					ImGui::TableNextRow();
+					ImGui::TableSetColumnIndex(0);
+					ImGui::Image(reinterpret_cast<ImTextureID>(playlistTextures[playlist.playlistID].get()), { 80.0f, 80.0f });
+					ImGui::TableSetColumnIndex(1);
+					ImGui::SameLine();
+					ImGui::BeginGroup();
+					ImGui::Text(playlist.playlistName.data());
+					ImGui::TableSetColumnIndex(2);
+					ImGui::Checkbox(std::string("##" + std::to_string(playlist.playlistID)).data(), &selectedPlaylists[playlist.playlistID]);
+
+					ImGui::EndGroup();
+					i++;
+				}
+
+				ImGui::EndTable();
+				if (ImGui::Button("done")) {
+					std::string url = "http://localhost:3000/playlists/add?playlistIds=";
+					bool hasSelected = false;
+					for (auto& playlist : user.playlists) {
+						if (selectedPlaylists[playlist.playlistID]) {
+							hasSelected = true;
+							url += std::to_string(playlist.playlistID) + ",";
+						}
+					}
+					if (hasSelected) {
+						url.pop_back();
+					}
+					for (auto& track : album[curr].tracks) {
+						url += "&trackId=" + std::to_string(track.id);
+					}
+					T_INFO("{0}", url);
+					if (hasSelected) {
+						std::string token;
+						m_AuthManager.RetrieveToken("accessToken", token);
+						std::string json;
+						T_INFO("{0}", m_NetworkManager.PostRequestAuth(url, json, token));
+						m_MessageManager.Publish("updateUser", "");
+					}
+					ImGui::CloseCurrentPopup();
+				}
+			}
+			ImGui::EndPopup();
+		}
+	}
+
+	void AlbumModule::UserInfoChanged() {
+		for (size_t i = 0; i < user.playlists.size(); i++) {
+			const Playlist& currP = user.playlists[i];
+			if (currP.playlistCoverBuffer.empty()) {
+				playlistTextures[currP.playlistID] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultPlaylistImage());
+			} else {
+				playlistTextures[currP.playlistID] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(Image(currP.playlistCoverBuffer)));
+			};
+		}
 	}
 }

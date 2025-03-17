@@ -18,7 +18,7 @@ namespace Thingy {
 		uint16_t OnRender() override;
 
 		const int DefaultSize() const override { return 4; }
-		MODULE_CLASS_NAME("SearchModule")
+		MODULE_CLASS_NAME("searchModule")
 	private:
 		
 		MessageManager& m_MessageManager;

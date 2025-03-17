@@ -15,6 +15,12 @@ namespace Thingy {
 			isQueueOpen = !isQueueOpen;
 			});
 
+		m_MessageManager.Subscribe("loggedIn", GetModuleName(), [this](const MessageData data) {
+			if (data.type() == typeid(bool)) {
+				loggedIn = std::any_cast<bool>(data);
+			}
+			});
+
 		m_MessageManager.Subscribe("userChanged", GetModuleName(), [this](const MessageData data) {
 			UserInfoChanged();
 			});
@@ -84,6 +90,7 @@ namespace Thingy {
 	}
 
 	uint16_t PlayerModule::OnRender() {
+		upProps &= BIT(0);
 		if (m_AudioManager.GetQueue().size() != 0 && open) {
 			ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
 			Window();
@@ -140,6 +147,13 @@ namespace Thingy {
 		}
 		ImGui::Text(currentTrack.title.data());
 		ImGui::Text(currentTrack.artistName.data());
+		if (ImGui::IsItemHovered()) {
+			upProps |= BIT(3);
+		}
+		if (ImGui::IsItemClicked()) {
+			m_MessageManager.Publish("openArtist", currentTrack.artistID);
+			m_MessageManager.Publish("changeScene", std::string("ArtistScene"));
+		}
 		if (ImGui::Button("back", { 30.0f, 30.0f })) {
 			m_AudioManager.PrevTrack();
 		}
@@ -158,16 +172,18 @@ namespace Thingy {
 			m_AudioManager.NextTrack();
 		};
 		ImGui::SameLine();
-		if (ImGui::Button("Add to playlists")) {
-			selectedPlaylists.clear();
-			for (auto& playlist : user.playlists) {
-				if (std::find(playlist.trackIDs.begin(), playlist.trackIDs.end(), currentTrack.id) != playlist.trackIDs.end()) {
-					selectedPlaylists[playlist.playlistID] = true;
-				} else {
-					selectedPlaylists[playlist.playlistID] = false;
+		if (loggedIn) {
+			if (ImGui::Button("Add to playlists")) {
+				selectedPlaylists.clear();
+				for (auto& playlist : user.playlists) {
+					if (std::find(playlist.trackIDs.begin(), playlist.trackIDs.end(), currentTrack.id) != playlist.trackIDs.end()) {
+						selectedPlaylists[playlist.playlistID] = true;
+					} else {
+						selectedPlaylists[playlist.playlistID] = false;
+					}
 				}
+				ImGui::OpenPopup("Add to playlists");
 			}
-			ImGui::OpenPopup("Add to playlists");
 		}
 		ImGui::Text("Current");
 		ImGui::SameLine();
@@ -234,6 +250,7 @@ namespace Thingy {
 						m_AuthManager.RetrieveToken("accessToken", token);
 						std::string json;
 						T_INFO("{0}", m_NetworkManager.PostRequestAuth(url, json, token));
+						m_MessageManager.Publish("updateUser", "");
 					}
 					ImGui::CloseCurrentPopup();
 				}

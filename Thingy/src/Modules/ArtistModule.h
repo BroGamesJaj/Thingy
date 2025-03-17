@@ -17,11 +17,18 @@ namespace Thingy {
 		void Window() override;
 		uint16_t OnRender() override;
 
-		const int DefaultSize() const override { return 4; }
+		const int DefaultSize() const override { 
+			if (loggedIn && !m_AudioManager.GetQueue().empty()) {
+				return 6;
+			} else {
+				return 7;
+			}
+		}
 
 		MODULE_CLASS_NAME("artistModule")
 	private:
 		uint16_t upProps = 0;
+		bool loggedIn = false;
 
 		int curr = 0;
 		std::vector<Artist> artists;

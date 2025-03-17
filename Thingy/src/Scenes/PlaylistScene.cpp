@@ -46,8 +46,10 @@ namespace Thingy {
 
 	uint16_t PlaylistScene::OnRender() {
 		std::string dragged = "";
+		uint16_t sReturn = 0;
 		for (auto& module : modules) {
 			uint16_t mReturn = module.second->OnRender();
+			sReturn |= mReturn;
 			if (mReturn & BIT(1)) {
 				dragged = module.first;
 			}
@@ -57,7 +59,7 @@ namespace Thingy {
 			LayoutChangeScene(dragged, ImGui::GetMousePos(), modules, changed);
 			if (changed) UpdateLayout();
 		}
-		return 0;
+		return sReturn;
 	}
 
 

@@ -16,7 +16,6 @@ namespace Thingy{
 	void LoginModule::OnUpdate() {}
 
 	void LoginModule::Window() {
-		upProps = 0;
 		if (reg){
 			ImGui::Text("Sign-up");
 			ImGui::Text("Email:");
@@ -125,6 +124,7 @@ namespace Thingy{
 	}
 
 	uint16_t LoginModule::OnRender() {
+		upProps &= BIT(0);
 		ImGui::Begin(GetModuleName().data(), 0, defaultWindowFlags);
 		Window();
 		ImGui::End();

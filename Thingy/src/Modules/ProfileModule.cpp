@@ -115,7 +115,7 @@ namespace Thingy {
 	}
 
 	uint16_t ProfileModule::OnRender() {
-		upProps = 0;
+		upProps &= BIT(0);
 		ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
 		Window();
 		ImGui::End();

@@ -152,7 +152,7 @@
     <ClInclude Include="src\Core\Album.h" />
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\Artist.h" />
-    <ClInclude Include="src\Comps\CustomHeader.h" />
+    <ClInclude Include="src\Header\CustomHeader.h" />
     <ClInclude Include="src\Core\Fonts.h" />
     <ClInclude Include="src\Core\HelperFunctions.h" />
     <ClInclude Include="src\Core\Managers\AudioManager.h" />
@@ -183,6 +183,7 @@
     <ClInclude Include="src\Scenes\ArtistScene.h" />
     <ClInclude Include="src\Scenes\FrontPageScene.h" />
     <ClInclude Include="src\Scenes\LoginScene.h" />
+    <ClInclude Include="src\Scenes\PlaylistScene.h" />
     <ClInclude Include="src\Scenes\ProfileScene.h" />
     <ClInclude Include="src\Scenes\Scenes.h" />
     <ClInclude Include="src\tpch.h" />
@@ -190,7 +191,7 @@
   <ItemGroup>
     <ClCompile Include="src\Core\Album.cpp" />
     <ClCompile Include="src\Core\Application.cpp" />
-    <ClCompile Include="src\Comps\CustomHeader.cpp" />
+    <ClCompile Include="src\Header\CustomHeader.cpp" />
     <ClCompile Include="src\Core\Fonts.cpp" />
     <ClCompile Include="src\Core\HelperFunctions.cpp" />
     <ClCompile Include="src\Core\Managers\AudioManager.cpp" />
@@ -219,6 +220,7 @@
     <ClCompile Include="src\Scenes\ArtistScene.cpp" />
     <ClCompile Include="src\Scenes\FrontPageScene.cpp" />
     <ClCompile Include="src\Scenes\LoginScene.cpp" />
+    <ClCompile Include="src\Scenes\PlaylistScene.cpp" />
     <ClCompile Include="src\Scenes\ProfileScene.cpp" />
     <ClCompile Include="src\tpch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

@@ -72,7 +72,7 @@ namespace Thingy {
 		}
 		ImGui::GetWindowDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 0, 0, 255), 0.0f, 0, 5.0f);
 		ImVec2 winSize = ImGui::GetWindowSize();
-		float centering = (winSize.x / 2) - (winSize.x / 2 / (4.0f / 3));
+		float centering = (winSize.x / 2) - (winSize.x / 2 / (5.0f / 4.2f));
 		bool collapse = winSize.x < 1000 ? true : false;
 		if (collapse) {
 
@@ -82,15 +82,8 @@ namespace Thingy {
 			imageSize = { width , height };
 		}
 		if (!collapse) {
-			/*
-			ImGui::Text("Weekly Top Tracks");
-			ImGui::SameLine();
-			ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2 + 15);
-			ImGui::Text("Monthly Top Tracks");
-			ImGui::SetCursorPosX(10);
-			*/
 			ImGui::SetCursorPosX(20);
-			if (ImGui::BeginTable("Weeklys", 5, 0, {winSize.x / 2 - 20, 0.0f})) {
+			if (ImGui::BeginTable("Weeklys", 5, ImGuiTableFlags_ScrollY, {winSize.x / 2 - 20, 0.0f})) {
 				ImGui::TableHeader("WeeklyTracks");
 				ImGui::TableNextColumn();
 				ImGui::Text("Weekly Tracks");
@@ -132,7 +125,7 @@ namespace Thingy {
 			}
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(winSize.x / 2 + 15);
-			if (ImGui::BeginTable("Monthlys", 5, 0, { winSize.x / 2 - 20, 0.0f })) {
+			if (ImGui::BeginTable("Monthlys", 5, ImGuiTableFlags_ScrollY, { winSize.x / 2 - 20, 0.0f })) {
 				ImGui::TableHeader("MonthlyTracks");
 				ImGui::TableNextColumn();
 				ImGui::Text("Monthly Tracks");
@@ -177,7 +170,7 @@ namespace Thingy {
 			ImGui::SetCursorPosX(centering);
 			ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(10, 10));
 			
-			if (ImGui::BeginTable("WeeklysAndMonthlys", 5, 0, { winSize.x / (4.0f/3), 0.0f})) {
+			if (ImGui::BeginTable("WeeklysAndMonthlys", 5, ImGuiTableFlags_ScrollY, { winSize.x / (5.0f/4.2f), 0.0f})) {
 				ImGui::TableNextRow();	
 				ImGui::TableNextColumn();
 				ImGui::Text("Weekly Tracks");
@@ -264,10 +257,9 @@ namespace Thingy {
 		ImGui::PopStyleColor();
 	}
 
-
-
 	uint16_t PopularsModule::OnRender() {
-		ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
+		upProps &= BIT(0);
+		ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 		Window();
 		ImGui::End();
 		if (upProps & BIT(0)) {

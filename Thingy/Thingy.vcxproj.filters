@@ -34,7 +34,7 @@
     <ClInclude Include="src\Modules\AlbumModule.h" />
     <ClInclude Include="src\Core\Managers\MessageManager.h" />
     <ClInclude Include="src\Core\HelperFunctions.h" />
-    <ClInclude Include="src\Comps\CustomHeader.h" />
+    <ClInclude Include="src\Header\CustomHeader.h" />
     <ClInclude Include="src\Core\Fonts.h" />
     <ClInclude Include="src\Scenes\ArtistScene.h" />
     <ClInclude Include="src\Modules\ArtistModule.h" />
@@ -47,6 +47,7 @@
     <ClInclude Include="src\Core\Playlist.h" />
     <ClInclude Include="src\Modules\PlaylistListModule.h" />
     <ClInclude Include="src\Modules\PlaylistModule.h" />
+    <ClInclude Include="src\Scenes\PlaylistScene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -73,7 +74,7 @@
     <ClCompile Include="src\Modules\AlbumModule.cpp" />
     <ClCompile Include="src\Core\Managers\MessageManager.cpp" />
     <ClCompile Include="src\Core\HelperFunctions.cpp" />
-    <ClCompile Include="src\Comps\CustomHeader.cpp" />
+    <ClCompile Include="src\Header\CustomHeader.cpp" />
     <ClCompile Include="src\Core\Fonts.cpp" />
     <ClCompile Include="src\Scenes\ArtistScene.cpp" />
     <ClCompile Include="src\Modules\ArtistModule.cpp" />
@@ -86,5 +87,6 @@
     <ClCompile Include="src\Core\Playlist.cpp" />
     <ClCompile Include="src\Modules\PlaylistListModule.cpp" />
     <ClCompile Include="src\Modules\PlaylistModule.cpp" />
+    <ClCompile Include="src\Scenes\PlaylistScene.cpp" />
   </ItemGroup>
 </Project>

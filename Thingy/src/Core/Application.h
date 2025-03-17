@@ -11,7 +11,7 @@
 #include "Managers\AuthManager.h"
 
 #include "Image.h"
-#include "Comps\CustomHeader.h"
+#include "Header\CustomHeader.h"
 
 namespace Thingy {
 	class Application {

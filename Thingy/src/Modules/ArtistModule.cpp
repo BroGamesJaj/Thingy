@@ -31,6 +31,23 @@ namespace Thingy {
 				
 				curr = artists.size() - 1;
 				T_INFO("{0}", artists[curr].toString());
+			} else if(data.type() == typeid(int)){
+				int artistID = std::any_cast<int>(data);
+				std::string url =
+					"https://api.jamendo.com/v3.0/artists/tracks/?client_id="
+					+ std::string(CLIENTID)
+					+ "&format=jsonpretty&limit=1&id="
+					+ std::to_string(artistID);
+
+				std::vector<Artist> getArtist = m_NetworkManager.GetArtistsWithTracks(url);
+				if (getArtist.size() < 1) {
+					T_ERROR("ArtistModule: GetArtistsWithTracks returned 0 artists.");
+					return;
+				}
+				artists.emplace_back(getArtist[0]);
+
+				curr = artists.size() - 1;
+				T_INFO("{0}", artists[curr].toString());
 			} else {
 				T_ERROR("ArtistModule: Invalid data type for openArtist");
 			}
@@ -40,6 +57,11 @@ namespace Thingy {
 			m_MessageManager.Publish("saveModuleState", std::make_pair<std::string, std::variant<int, std::string>>(GetModuleName(), artists[curr].artistName));
 			});
 
+		m_MessageManager.Subscribe("loggedIn", GetModuleName(), [this](const MessageData data) {
+			if (data.type() == typeid(bool)) {
+				loggedIn = std::any_cast<bool>(data);
+			}
+			});
 	}
 
 	void ArtistModule::OnLoad(const std::variant<int, std::string> moduleState) {
@@ -89,7 +111,6 @@ namespace Thingy {
 	void ArtistModule::OnUpdate() {}
 
 	void ArtistModule::Window() {
-
 		ImVec2 bar_size = ImVec2(GetSize().x - 20, 30);
 		ImGui::InvisibleButton("DragBar", bar_size);
 		if (ImGui::IsItemHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left) && !ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
@@ -129,6 +150,7 @@ namespace Thingy {
 	}
 
 	uint16_t ArtistModule::OnRender() {
+		upProps &= BIT(0);
 		ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
 		Window();
 		ImGui::End();

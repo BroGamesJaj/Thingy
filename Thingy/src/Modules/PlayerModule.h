@@ -39,6 +39,7 @@ namespace Thingy {
 		AuthManager& m_AuthManager;
 		NetworkManager& m_NetworkManager;
 
+		bool loggedIn = false;
 		const User& user;
 		std::unordered_map<uint32_t, bool> selectedPlaylists;
 

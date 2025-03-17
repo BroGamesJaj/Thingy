@@ -120,7 +120,7 @@ namespace Thingy {
 		storedModules.emplace("loginModule", std::make_shared<LoginModule>(*messageManager, *networkManager, *authManager));
 		storedModules.emplace("profileModule", std::make_shared<ProfileModule>(*messageManager, *imageManager, *networkManager, *authManager));
 		storedModules.emplace("popularsModule", std::make_shared<PopularsModule>(*messageManager, *networkManager, *audioManager, *imageManager, renderer->GetRenderer()));
-		storedModules.emplace("albumModule", std::make_shared<AlbumModule>(*messageManager, *audioManager, *imageManager, *networkManager));
+		storedModules.emplace("albumModule", std::make_shared<AlbumModule>(*messageManager, *audioManager, *imageManager, *networkManager, *authManager));
 		storedModules.emplace("artistModule", std::make_shared<ArtistModule>(*messageManager, *audioManager, *imageManager, *networkManager));
 		storedModules.emplace("playerModule", std::make_shared<PlayerModule>(*messageManager, *audioManager, *imageManager, *authManager, *networkManager));
 		storedModules.emplace("playlistListModule", std::make_shared<PlaylistListModule>(*messageManager, *imageManager, *networkManager, *authManager));
@@ -176,7 +176,7 @@ namespace Thingy {
 		Fonts::LoadFonts();
 
 		authManager->RefreshTokens();
-
+		messageManager->Publish("changeScene", std::string("FrontPage"));
 		SDL_ShowWindow(sdlWindow);
 		bool first = true;
 		while (Running) {

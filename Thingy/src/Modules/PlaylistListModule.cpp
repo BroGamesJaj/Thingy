@@ -49,7 +49,8 @@ namespace Thingy {
 				ImGui::TableSetColumnIndex(1);
 				std::string label = std::to_string(i);
 				if (ImGui::Selectable(std::string("##" + label).data(), false, ImGuiSelectableFlags_AllowOverlap, ImVec2(0, 80.0f))) {
-
+					m_MessageManager.Publish("openPlaylist", playlist);
+					m_MessageManager.Publish("changeScene", std::string("PlaylistScene"));
 				}
 
 				ImGui::SameLine();
@@ -76,7 +77,7 @@ namespace Thingy {
 	}
 
 	uint16_t PlaylistListModule::OnRender() {
-		upProps = 0;
+		upProps &= BIT(0);
 		if (loggedIn) {
 			ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
 			Window();

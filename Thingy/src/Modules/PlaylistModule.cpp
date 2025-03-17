@@ -40,6 +40,12 @@ namespace Thingy {
 			m_MessageManager.Publish("saveModuleState", std::make_pair<std::string, std::variant<int, std::string>>(GetModuleName(), playlists[curr].playlistName));
 			});
 
+		m_MessageManager.Subscribe("loggedIn", GetModuleName(), [this](const MessageData data) {
+			if (data.type() == typeid(bool)) {
+				loggedIn = std::any_cast<bool>(data);
+			}
+			});
+
 		m_MessageManager.Subscribe("userChanged", GetModuleName(), [this](const MessageData data) {
 			});
 
@@ -62,12 +68,13 @@ namespace Thingy {
 			playlistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultPlaylistImage());
 		else playlistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(Image(playlists[curr].playlistCoverBuffer)));
 		std::unordered_map<uint32_t, std::future<Image>> images;
+		length = 0;
 		for (auto& trackId : playlists[curr].trackIDs) {
 			if (!textures[trackId]) {
 				std::string& url = tracks[trackId].imageURL;
 				images.emplace(trackId, std::async(std::launch::async, [this, &url]() { return m_ImageManager.GetImage(url); }));
 			}
-
+			length += tracks[trackId].duration;
 		}
 		while (!images.empty()) {
 			for (auto it = images.begin(); it != images.end(); ) {
@@ -80,6 +87,7 @@ namespace Thingy {
 				}
 			}
 		}
+
 	}
 
 	void PlaylistModule::OnUpdate() {}
@@ -105,7 +113,6 @@ namespace Thingy {
 		ImGui::Text(playlists[curr].description.data());
 		ImGui::Text("Track count: %zu", playlists[curr].trackIDs.size());
 		ImGui::SameLine();
-		//TODO: playlist length
 		ImGui::Text("Playlist length: %s", SecondsToTimeString(length).data());
 		ImGui::EndGroup();
 		ImGui::BeginChild("Tracks", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);
@@ -133,17 +140,23 @@ namespace Thingy {
 	}
 
 	uint16_t PlaylistModule::OnRender() {
-		ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
-		Window();
-		ImGui::End();
-		if (upProps & BIT(0)) {
-			ImGui::BeginDisabled();
-			ImGui::Begin("floater", nullptr, defaultWindowFlags);
+		upProps &= BIT(0);
+		if (!loggedIn) {
+			m_MessageManager.Publish("changeScene", std::string("FrontPage"));
+		} else {
+
+			ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
 			Window();
-			ImGui::SetWindowPos({ ImGui::GetMousePos().x - GetSize().x / 2, ImGui::GetMousePos().y + 5 });
-			ImGui::SetWindowSize(GetSize());
 			ImGui::End();
-			ImGui::EndDisabled();
+			if (upProps & BIT(0)) {
+				ImGui::BeginDisabled();
+				ImGui::Begin("floater", nullptr, defaultWindowFlags);
+				Window();
+				ImGui::SetWindowPos({ ImGui::GetMousePos().x - GetSize().x / 2, ImGui::GetMousePos().y + 5 });
+				ImGui::SetWindowSize(GetSize());
+				ImGui::End();
+				ImGui::EndDisabled();
+			}
 		}
 		return upProps;
 	}
