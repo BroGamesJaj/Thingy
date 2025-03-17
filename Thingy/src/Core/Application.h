@@ -10,6 +10,8 @@
 #include "Managers\MessageManager.h"
 #include "Managers\AuthManager.h"
 
+#include "Modules\Modules.h"
+#include "Scenes\Scenes.h"
 #include "Image.h"
 #include "Header\CustomHeader.h"
 

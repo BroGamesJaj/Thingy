@@ -178,5 +178,12 @@ namespace Thingy {
 		}
 	}
 
+	void AudioManager::ChangeMusicByQueueNum(int newTrackNum) {
+		currentTrackNum = newTrackNum;
+		LoadMusicFromQueue();
+		ChangeMusic();
+		ResumeMusic();
+	}
+
 	
 }

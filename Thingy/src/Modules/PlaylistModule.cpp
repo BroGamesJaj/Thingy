@@ -47,6 +47,7 @@ namespace Thingy {
 			});
 
 		m_MessageManager.Subscribe("userChanged", GetModuleName(), [this](const MessageData data) {
+			//TODO
 			});
 
 	}

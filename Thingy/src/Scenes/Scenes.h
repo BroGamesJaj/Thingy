@@ -6,3 +6,4 @@
 #include "ArtistScene.h"
 #include "ProfileScene.h"
 #include "PlaylistScene.h"
+#include "SearchScene.h"

@@ -26,7 +26,7 @@ namespace Thingy {
 
 
 	private:
-		std::vector<std::pair<std::string, int>> AllTermResults();
+		std::vector<std::string> AllTermResults();
 
 		MessageManager& m_MessageManager;
 		NetworkManager& m_NetworkManager;
@@ -43,13 +43,13 @@ namespace Thingy {
 		bool futureProcessed = true;
 		bool futureAllProcessed = true;
 		int whichToggled = 0;
-		std::vector<std::string> buttons = { "all", "tags", "tracks", "albums", "artists" };
+		std::vector<std::string> buttons = { "all", "tags", "tracks", "albums", "artists", "playlists"};
 		std::string& search;
 		std::string	currTerm = "";
-		std::unordered_map<std::string, std::vector<std::pair<std::string, int>>> autoCompleteResults;
-		std::future<std::unordered_map<std::string, std::vector<std::pair<std::string, int>>>> futureAutoCompleteResults;
-		std::future<std::vector<std::pair<std::string, int>>> futureAllResults;
-		std::vector<std::pair<std::string, int>> allResults;
+		std::unordered_map<std::string, std::vector<std::string>> autoCompleteResults;
+		std::future<std::unordered_map<std::string, std::vector<std::string>>> futureAutoCompleteResults;
+		std::future<std::vector<std::string>> futureAllResults;
+		std::vector<std::string> allResults;
 
 		std::chrono::system_clock::time_point lastChange;
 		bool changed = false;

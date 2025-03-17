@@ -3,7 +3,17 @@
 namespace Thingy {
 	void SearchModule::SetupSubscriptions() {
 		m_MessageManager.Subscribe("openSearch", GetModuleName(), [this](MessageData data) {
-			
+			//TODO: openSearch
+			});
+
+		m_MessageManager.Subscribe("loggedIn", GetModuleName(), [this](const MessageData data) {
+			if (data.type() == typeid(bool)) {
+				loggedIn = std::any_cast<bool>(data);
+			}
+			});
+
+		m_MessageManager.Subscribe("userChanged", GetModuleName(), [this](const MessageData data) {
+			//TODO userChanged
 			});
 	}
 
@@ -25,7 +35,7 @@ namespace Thingy {
 	void SearchModule::OnUpdate() {}
 
 	void SearchModule::Window() {
-	
+		//TODO: Show search results.
 	}
 
 	uint16_t SearchModule::OnRender() {

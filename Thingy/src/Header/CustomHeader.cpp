@@ -133,7 +133,6 @@ namespace Thingy {
 			ImGui::SetNextWindowSize({ 400.0f * scale, 0 });
 			ImGui::SetNextWindowPos({ winW / 2 - std::clamp(200.0f * scale, 200.0f, 400.0f), 50 });
 			ImGui::Begin("popup", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing);
-			
 			for (size_t i = 0; i < buttons.size(); i++) {
 				if (whichToggled == i) {
 					ImGui::PushStyleColor(ImGuiCol_Button, onColor);
@@ -158,7 +157,10 @@ namespace Thingy {
 			tempSearch.erase(std::remove(tempSearch.begin(), tempSearch.end(), '&'), tempSearch.end());
 			
 			if (tempSearch.size() > 1) {
-				
+				if (ImGui::IsKeyPressed(ImGuiKey_Enter, false)) {
+					m_MessageManager.Publish("openSearch", search);
+					m_MessageManager.Publish("changeScene", std::string("SearchScene"));
+				}
 				if (tempSearch != currTerm) {
 					currTerm = tempSearch;
 					lastChange = std::chrono::system_clock::now();
@@ -166,7 +168,7 @@ namespace Thingy {
 				}
 				if (lastChange + std::chrono::milliseconds(250) < std::chrono::system_clock::now() && changed) {
 
-					futureAutoCompleteResults = std::async(	std::launch::async, [this]() { return m_NetworkManager.GetAutoComplete(currTerm); });
+					futureAutoCompleteResults = std::async(	std::launch::async, [this]() { return m_NetworkManager.GetAutoComplete(currTerm, std::to_string(user.userID)); });
 					futureAllResults = std::async(std::launch::async, [this]() { return AllTermResults(); });
 					futureProcessed = false;
 					changed = false;
@@ -188,7 +190,7 @@ namespace Thingy {
 					}
 					
 					for (size_t i = 0; i < allResults.size() && i < 5; i++) {
-						std::string term = allResults[i].first;
+						std::string term = allResults[i];
 						if (ImGui::Selectable(term.data())) {
 							T_INFO("selected: {0}", term);
 							search = term;
@@ -197,7 +199,7 @@ namespace Thingy {
 					}
 				} else {
 					for (size_t i = 0; i < autoCompleteResults[buttons[whichToggled]].size(); i++) {
-						std::string term = autoCompleteResults[buttons[whichToggled]][i].first;
+						std::string term = autoCompleteResults[buttons[whichToggled]][i];
 						if (ImGui::Selectable(term.data())) {
 							T_INFO("selected: {0}", term);
 							search = term;
@@ -212,17 +214,21 @@ namespace Thingy {
 		}
 	}
 
-	std::vector<std::pair<std::string, int>> CustomHeader::AllTermResults() {
-		std::vector<std::pair<std::string, int>> sorted;
+	std::vector<std::string> CustomHeader::AllTermResults() {
+
+		//Its not sorted
+		std::vector<std::string> sorted;
 		for (auto& termResults : autoCompleteResults) {
 			for (auto& result : termResults.second) {
 				if(std::find(sorted.begin(), sorted.end(), result) == sorted.end())
 					sorted.push_back(result);
 			}
 		}
+		/*
 		std::sort(sorted.begin(), sorted.end(), [](const auto& a, const auto& b) {
 			return a.second < b.second;
 			});
+		*/
 
 		return sorted;
 	}

@@ -541,32 +541,22 @@ namespace Thingy {
 		return artists;
 	}
 
-	std::unordered_map<std::string, std::vector<std::pair<std::string, int>>>  NetworkManager::GetAutoComplete(std::string input) {
-		std::string url = 
-			"https://api.jamendo.com/v3.0/autocomplete/?client_id="
-			+ std::string(CLIENTID)
-			+ "&format=jsonpretty&limit=5&matchcount=1&prefix="
-			+ input;
+	std::unordered_map<std::string, std::vector<std::string>>  NetworkManager::GetAutoComplete(std::string input, std::string userID) {
+		std::string url = "http://localhost:3000/search/?term=" + input + "&userId=" + userID;
 		std::string jsonData = GetRequest(url);
 		if (jsonData == "curl error" || jsonData.find("error code:") != std::string::npos || jsonData == "Received 403 Forbidden") {
 			T_ERROR("{0}", jsonData);
-			return std::unordered_map<std::string, std::vector<std::pair<std::string, int>>>();
+			return std::unordered_map<std::string, std::vector<std::string>>();
 		}
 		json parsedJsonData = json::parse(jsonData);
-		json& headers = parsedJsonData["headers"];
-		if (headers["status"] != "success") {
-			T_ERROR("{0}", jsonData);
-			T_ERROR("code: {0}", headers["code"].get<int>());
-			return std::unordered_map<std::string, std::vector<std::pair<std::string, int>>>();
-		}
-		json& results = parsedJsonData["results"];
-		std::vector<std::string> terms = { "tags", "tracks", "albums", "artists" };
-		std::unordered_map<std::string, std::vector<std::pair<std::string, int>>> termResults;
+
+		std::vector<std::string> terms = { "tags", "tracks", "albums", "artists", "playlists"};
+		std::unordered_map<std::string, std::vector<std::string>> termResults;
 		for (auto& term : terms) {
-			if (results.contains(term)) {
-				for (size_t i = 0; i < results[term].size(); i++) {
-					json& currTermResults = results[term][i];
-					termResults[term].push_back(std::make_pair(currTermResults["match"].is_number() ? std::to_string(currTermResults["match"].get<int>()) : currTermResults["match"].get<std::string>(), currTermResults["count"]));
+			if (parsedJsonData.contains(term)) {
+				for (size_t i = 0; i < parsedJsonData[term].size(); i++) {
+					json& currTermResults = parsedJsonData[term][i];
+					termResults[term].push_back(currTermResults.get<std::string>());
 				}
 			}
 		}

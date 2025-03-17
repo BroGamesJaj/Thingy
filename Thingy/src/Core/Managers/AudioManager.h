@@ -66,6 +66,7 @@ namespace Thingy {
 
 		void AddToQueue(const std::vector<Track>& tracks);
 		void PlayQueueFromStart();
+		void ChangeMusicByQueueNum(int newTrackNum);
 		void ClearQueue() noexcept {
 			queue.clear();
 		}

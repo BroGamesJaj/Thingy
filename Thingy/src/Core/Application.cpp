@@ -116,6 +116,7 @@ namespace Thingy {
 		sceneManager->AddScene(std::make_shared<AlbumScene>(*messageManager));
 		sceneManager->AddScene(std::make_shared<ArtistScene>(*messageManager));
 		sceneManager->AddScene(std::make_shared<PlaylistScene>(*messageManager));
+		sceneManager->AddScene(std::make_shared<SearchScene>(*messageManager));
 		sceneManager->GetScenes();
 		storedModules.emplace("loginModule", std::make_shared<LoginModule>(*messageManager, *networkManager, *authManager));
 		storedModules.emplace("profileModule", std::make_shared<ProfileModule>(*messageManager, *imageManager, *networkManager, *authManager));
@@ -125,6 +126,7 @@ namespace Thingy {
 		storedModules.emplace("playerModule", std::make_shared<PlayerModule>(*messageManager, *audioManager, *imageManager, *authManager, *networkManager));
 		storedModules.emplace("playlistListModule", std::make_shared<PlaylistListModule>(*messageManager, *imageManager, *networkManager, *authManager));
 		storedModules.emplace("playlistModule", std::make_shared<PlaylistModule>(*messageManager, *audioManager, *imageManager, *networkManager));
+		storedModules.emplace("searchModule", std::make_shared<SearchModule>(*messageManager, *networkManager, *imageManager, *audioManager, *authManager));
 		
 		sceneManager->GetScene("FrontPage")->PushModule(storedModules["playlistListModule"]);
 		sceneManager->GetScene("FrontPage")->PushModule(storedModules["popularsModule"]);
@@ -146,6 +148,10 @@ namespace Thingy {
 		sceneManager->GetScene("PlaylistScene")->PushModule(storedModules["playlistModule"]);
 		sceneManager->GetScene("PlaylistScene")->PushModule(storedModules["playerModule"]);
 		
+		sceneManager->GetScene("SearchScene")->PushModule(storedModules["playlistListModule"]);
+		sceneManager->GetScene("SearchScene")->PushModule(storedModules["searchModule"]);
+		sceneManager->GetScene("SearchScene")->PushModule(storedModules["playerModule"]);
+
 		messageManager->Publish("homeButton", std::string("FrontPage"));
 		sceneManager->GetScenes();
 

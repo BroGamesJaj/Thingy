@@ -48,6 +48,7 @@
     <ClInclude Include="src\Modules\PlaylistListModule.h" />
     <ClInclude Include="src\Modules\PlaylistModule.h" />
     <ClInclude Include="src\Scenes\PlaylistScene.h" />
+    <ClInclude Include="src\Scenes\SearchScene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -88,5 +89,6 @@
     <ClCompile Include="src\Modules\PlaylistListModule.cpp" />
     <ClCompile Include="src\Modules\PlaylistModule.cpp" />
     <ClCompile Include="src\Scenes\PlaylistScene.cpp" />
+    <ClCompile Include="src\Scenes\SearchScene.cpp" />
   </ItemGroup>
 </Project>
