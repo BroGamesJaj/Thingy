@@ -25,10 +25,12 @@ namespace Thingy {
 		void UpdateTrackPos();
 
 		int& GetVolume() noexcept { return volume; }
-		int GetCurrentTrackNum() const noexcept { return currentTrackNum; }
+		
 		Track GetCurrentTrack() const { 
-			if (queue.size() != 0) {
-				return queue[currentTrackNum];
+			
+			//New
+			if (!queue.empty()) {
+				return *current;
 			}
 			Track dummy;
 			dummy.id = -1;
@@ -40,9 +42,8 @@ namespace Thingy {
 		}
 		int& GetCurrentTrackPos() noexcept { return currentTrackPos; }
 		const int GetCurrentTrackDuration() noexcept { return music ? Mix_MusicDuration(music) : 0; }
-		std::vector<Track>& GetQueue() noexcept { return queue; }
-	
-
+		std::list<Track>& GetQueue() noexcept { return queue; }
+ 
 		bool IsMusicPaused() noexcept { return {Mix_PausedMusic()}; }
 		bool IsMusicPlaying() noexcept { return {Mix_PlayingMusic()}; }
 		bool IsMusicLoaded() noexcept { return music ? true : false; }
@@ -66,11 +67,16 @@ namespace Thingy {
 
 		void AddToQueue(const std::vector<Track>& tracks);
 		void PlayQueueFromStart();
-		void ChangeMusicByQueueNum(int newTrackNum);
+		void ChangeMusicByTrack(const int trackID);
+		void ShuffleQueue();
+
 		void ClearQueue() noexcept {
+			//New
 			queue.clear();
 		}
-
+		void ClearHistory() noexcept {
+			history.clear();
+		}
 
 	private:
 		NetworkManager& m_NetworkManager;
@@ -79,9 +85,13 @@ namespace Thingy {
 		int audioOpen = 0;
 		SDL_AudioSpec spec;
 		int volume = 0;
-		int currentTrackNum = 0;
 		int currentTrackPos = 0;
-		std::vector<Track> queue;
+		std::list<Track> queue;
+		std::list<Track> history;
+		std::list<Track> originalQueue;
+		std::list<Track>::iterator current = queue.end();
+		bool shuffled = false;
+
 		Mix_Music* music = nullptr;
 
 		std::vector<uint8_t>& musicBuffer;

@@ -514,7 +514,6 @@ namespace Thingy {
 		json& results = parsedJsonData["results"];
 		std::vector<Artist> artists;
 		for (size_t i = 0; i < headers["results_count"]; i++) {
-			std::cout << "hello" << std::endl;
 			json& currArtist = results[i];
 			Artist artist = currArtist;
 			std::unordered_map<uint32_t, Album> albums;
