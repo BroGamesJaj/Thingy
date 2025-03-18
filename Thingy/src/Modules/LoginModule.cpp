@@ -118,14 +118,14 @@ namespace Thingy{
 
 		if (error != "") {
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-			ImGui::Text(error.data());
+			ImGui::Text(error.c_str());
 			ImGui::PopStyleColor();
 		}
 	}
 
 	uint16_t LoginModule::OnRender() {
 		upProps &= BIT(0);
-		ImGui::Begin(GetModuleName().data(), 0, defaultWindowFlags);
+		ImGui::Begin(GetModuleName().c_str(), 0, defaultWindowFlags);
 		Window();
 		ImGui::End();
 		return upProps;

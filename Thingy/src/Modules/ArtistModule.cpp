@@ -126,7 +126,7 @@ namespace Thingy {
 		ImGui::Image(reinterpret_cast<ImTextureID>(textures[artists[curr].id].get()), { 300.0f, 300.0f });
 		ImGui::SameLine();
 		ImGui::BeginGroup();
-		ImGui::Text(artists[curr].artistName.data());
+		ImGui::Text(U8(artists[curr].artistName.c_str()));
 		ImGui::Text("Album count: %zu", artists[curr].albums.size());
 		ImGui::SameLine();
 		ImGui::Text("length");
@@ -141,7 +141,7 @@ namespace Thingy {
 				m_MessageManager.Publish("changeScene", std::string("AlbumScene"));
 
 			}
-			LimitedTextWrap(album.name.data(), 180, 3);
+			LimitedTextWrap(album.name.c_str(), 180, 3);
 			ImGui::EndGroup();
 			ImGui::SameLine();
 		}
@@ -151,7 +151,7 @@ namespace Thingy {
 
 	uint16_t ArtistModule::OnRender() {
 		upProps &= BIT(0);
-		ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
+		ImGui::Begin(GetModuleName().c_str(), nullptr, defaultWindowFlags);
 		Window();
 		ImGui::End();
 		if (upProps & BIT(0)) {

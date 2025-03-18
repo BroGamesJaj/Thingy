@@ -14,7 +14,6 @@
 #include "Scenes\Scenes.h"
 
 namespace Thingy {
-
 	std::vector<uint8_t> musicBuffer;
 	bool fullscreen = false;
 	bool fullscreenChanged = false;

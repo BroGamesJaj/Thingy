@@ -63,18 +63,6 @@ namespace Thingy {
 			autoCompleteOn = true;
 		}
 		ImGui::PopFont();
-		/*
-		if (ImGui::BeginPopup("SearchPopup", ImGuiWindowFlags_NoMove)) {
-			ImGui::Text("helllo");
-			std::string temp = search + "hello";
-			if (ImGui::Selectable(temp.c_str())) {
-				strcpy(search.data(), temp.c_str());
-				ImGui::CloseCurrentPopup();
-			}
-
-			ImGui::EndPopup();
-		}
-		*/
 		if (ImGui::Button("Queue")) {
 			m_MessageManager.Publish("changeQueueOpen", "");
 		};
@@ -141,7 +129,7 @@ namespace Thingy {
 					ImGui::PushStyleColor(ImGuiCol_Button, offColor);
 					ImGui::PushStyleColor(ImGuiCol_Text, onColor);
 				}
-				if(ImGui::Button(buttons[i].data())) {
+				if(ImGui::Button(buttons[i].c_str())) {
 					whichToggled = i;
 				};
 				ImGui::PopStyleColor(2);
@@ -158,7 +146,7 @@ namespace Thingy {
 			
 			if (tempSearch.size() > 1) {
 				if (ImGui::IsKeyPressed(ImGuiKey_Enter, false)) {
-					m_MessageManager.Publish("openSearch", search);
+					m_MessageManager.Publish("openSearch", std::make_pair(search,whichToggled));
 					m_MessageManager.Publish("changeScene", std::string("SearchScene"));
 				}
 				if (tempSearch != currTerm) {
@@ -167,7 +155,6 @@ namespace Thingy {
 					changed = true;
 				}
 				if (lastChange + std::chrono::milliseconds(250) < std::chrono::system_clock::now() && changed) {
-
 					futureAutoCompleteResults = std::async(	std::launch::async, [this]() { return m_NetworkManager.GetAutoComplete(currTerm, std::to_string(user.userID)); });
 					futureAllResults = std::async(std::launch::async, [this]() { return AllTermResults(); });
 					futureProcessed = false;
@@ -191,7 +178,7 @@ namespace Thingy {
 					
 					for (size_t i = 0; i < allResults.size() && i < 5; i++) {
 						std::string term = allResults[i];
-						if (ImGui::Selectable(term.data())) {
+						if (ImGui::Selectable(term.c_str())) {
 							T_INFO("selected: {0}", term);
 							search = term;
 							autoCompleteOn = false;
@@ -200,7 +187,7 @@ namespace Thingy {
 				} else {
 					for (size_t i = 0; i < autoCompleteResults[buttons[whichToggled]].size(); i++) {
 						std::string term = autoCompleteResults[buttons[whichToggled]][i];
-						if (ImGui::Selectable(term.data())) {
+						if (ImGui::Selectable(term.c_str())) {
 							T_INFO("selected: {0}", term);
 							search = term;
 							autoCompleteOn = false;

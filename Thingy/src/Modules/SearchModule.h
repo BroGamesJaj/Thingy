@@ -19,6 +19,7 @@ namespace Thingy {
 
 		uint16_t OnRender() override;
 
+
 		const int DefaultSize() const override {
 			if (loggedIn && !m_AudioManager.GetQueue().empty()) {
 				return 6;
@@ -28,6 +29,8 @@ namespace Thingy {
 		}
 		MODULE_CLASS_NAME("searchModule")
 	private:
+		void TrackResultsDisplay();
+
 		uint16_t upProps = 0;
 		bool loggedIn = false;
 		
@@ -40,5 +43,11 @@ namespace Thingy {
 		const User& user;
 
 		std::unordered_map<uint32_t, std::unique_ptr<SDL_Texture, SDL_TDeleter>> textures;
+		std::vector<std::string> buttons = { "all", "tags", "tracks", "albums", "artists", "playlists" };
+		int whichToggled = 0;
+
+		std::vector<Track> trackResults;
+
+
 	};
 }

@@ -92,15 +92,15 @@ namespace Thingy {
 	uint16_t PlayerModule::OnRender() {
 		upProps &= BIT(0);
 		if (m_AudioManager.GetQueue().size() != 0 && open) {
-			ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
+			ImGui::Begin(GetModuleName().c_str(), nullptr, defaultWindowFlags);
 			Window();
 			ImGui::End();
 			if (upProps & BIT(0)) {
 				ImGui::BeginDisabled();
 				ImGui::Begin("floater", nullptr, defaultWindowFlags);
 				Window();
-				ImGui::SetWindowPos({ ImGui::GetMousePos().x - (ImGui::FindWindowByName(GetModuleName().data())->Size.x / 2), ImGui::GetMousePos().y + 5 });
-				ImGui::SetWindowSize(ImGui::FindWindowByName(GetModuleName().data())->Size);
+				ImGui::SetWindowPos({ ImGui::GetMousePos().x - (ImGui::FindWindowByName(GetModuleName().c_str())->Size.x / 2), ImGui::GetMousePos().y + 5 });
+				ImGui::SetWindowSize(ImGui::FindWindowByName(GetModuleName().c_str())->Size);
 				ImGui::End();
 				ImGui::EndDisabled();
 			}
@@ -122,14 +122,14 @@ namespace Thingy {
 
 				ImGui::TableSetColumnIndex(1);
 				std::string label = std::to_string(i);
-				if (ImGui::Selectable(std::string("##" + label).data(), false, ImGuiSelectableFlags_AllowOverlap, ImVec2(0, 80.0f))) {
+				if (ImGui::Selectable(std::string("##" + label).c_str(), false, ImGuiSelectableFlags_AllowOverlap, ImVec2(0, 80.0f))) {
 					m_AudioManager.ChangeMusicByTrack(track.id);
 				}
 
 				ImGui::SameLine();
 				ImGui::BeginGroup();
-				ImGui::Text(track.title.data());
-				ImGui::Text(track.artistName.data());
+				ImGui::Text(U8(track.title.c_str()));
+				ImGui::Text(U8(track.artistName.c_str()));
 				ImGui::EndGroup();
 				
 				i++;
@@ -145,8 +145,8 @@ namespace Thingy {
 		} else {
 			ImGui::Image(reinterpret_cast<ImTextureID>(queueTextures[currentTrack.albumID].get()), {300.0f, 300.0f});
 		}
-		ImGui::Text(currentTrack.title.data());
-		ImGui::Text(currentTrack.artistName.data());
+		ImGui::Text(U8(currentTrack.title.c_str()));
+		ImGui::Text(U8(currentTrack.artistName.c_str()));
 		if (ImGui::IsItemHovered()) {
 			upProps |= BIT(3);
 		}
@@ -226,9 +226,9 @@ namespace Thingy {
 					ImGui::TableSetColumnIndex(1);
 					ImGui::SameLine();
 					ImGui::BeginGroup();
-					ImGui::Text(playlist.playlistName.data());
+					ImGui::Text(U8(playlist.playlistName.c_str()));
 					ImGui::TableSetColumnIndex(2);
-					ImGui::Checkbox(std::string("##" + std::to_string(playlist.playlistID)).data(), &selectedPlaylists[playlist.playlistID]);
+					ImGui::Checkbox(std::string("##" + std::to_string(playlist.playlistID)).c_str(), &selectedPlaylists[playlist.playlistID]);
 					
 					ImGui::EndGroup();
 					i++;

@@ -110,11 +110,11 @@ namespace Thingy {
 		ImGui::Image(reinterpret_cast<ImTextureID>(playlistCover.get()), { 300.0f, 300.0f });
 		ImGui::SameLine();
 		ImGui::BeginGroup();
-		ImGui::Text(playlists[curr].playlistName.data());
-		ImGui::Text(playlists[curr].description.data());
+		ImGui::Text(U8(playlists[curr].playlistName.c_str()));
+		ImGui::Text(U8(playlists[curr].description.c_str()));
 		ImGui::Text("Track count: %zu", playlists[curr].trackIDs.size());
 		ImGui::SameLine();
-		ImGui::Text("Playlist length: %s", SecondsToTimeString(length).data());
+		ImGui::Text("Playlist length: %s", SecondsToTimeString(length).c_str());
 		ImGui::EndGroup();
 		ImGui::BeginChild("Tracks", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);
 		
@@ -127,11 +127,16 @@ namespace Thingy {
 				for (size_t j = i; j < playlists[curr].trackIDs.size(); j++) {
 					queueTracks.push_back(tracks[playlists[curr].trackIDs[j]]);
 				}
+				std::vector<Track> history;
+				for (size_t j = 0; j < i; j++) {
+					history.push_back(tracks[playlists[curr].trackIDs[j]]);
+				}
+				m_MessageManager.Publish("newHistory", history);
 				m_AudioManager.ClearQueue();
 				m_MessageManager.Publish("addToQueue", queueTracks);
 				m_MessageManager.Publish("startMusic", "");
 			};
-			LimitedTextWrap(tracks[trackId].title.data(), 180, 3);
+			LimitedTextWrap(tracks[trackId].title.c_str(), 180, 3);
 			ImGui::EndGroup();
 			ImGui::SameLine();
 		}
@@ -146,7 +151,7 @@ namespace Thingy {
 			m_MessageManager.Publish("changeScene", std::string("FrontPage"));
 		} else {
 
-			ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
+			ImGui::Begin(GetModuleName().c_str(), nullptr, defaultWindowFlags);
 			Window();
 			ImGui::End();
 			if (upProps & BIT(0)) {

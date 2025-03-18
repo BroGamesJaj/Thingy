@@ -54,8 +54,8 @@ namespace Thingy {
 		}
 		ImGui::SameLine();
 		ImGui::BeginGroup();
-		ImGui::Text(user.username.data());
-		ImGui::Text(user.email.data());
+		ImGui::Text(U8(user.username.c_str()));
+		ImGui::Text(U8(user.email.c_str()));
 		if(editingDesc){
 			ImGui::SetKeyboardFocusHere();
 			ImGui::InputText("##newDesc", &newDescription, 0, ResizeCallback, (void*)&newDescription);
@@ -94,7 +94,7 @@ namespace Thingy {
 				newDescription = user.description;
 			};
 			ImGui::SameLine();
-			LimitedTextWrap(user.description.data(), 500.0f, 3);
+			LimitedTextWrap(user.description.c_str(), 500.0f, 3);
 		}
 		ImGui::EndGroup();
 		ImGui::EndGroup();
@@ -107,7 +107,7 @@ namespace Thingy {
 				m_MessageManager.Publish("openPlaylist", user.playlists[i]);
 				m_MessageManager.Publish("changeScene", std::string("PlaylistScene"));
 			}
-			LimitedTextWrap(user.playlists[i].playlistName.data(), 180, 3);
+			LimitedTextWrap(user.playlists[i].playlistName.c_str(), 180, 3);
 			ImGui::EndGroup();
 			ImGui::SameLine();
 		}
@@ -116,7 +116,7 @@ namespace Thingy {
 
 	uint16_t ProfileModule::OnRender() {
 		upProps &= BIT(0);
-		ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
+		ImGui::Begin(GetModuleName().c_str(), nullptr, defaultWindowFlags);
 		Window();
 		ImGui::End();
 		return upProps;

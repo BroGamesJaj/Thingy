@@ -41,6 +41,18 @@ namespace Thingy {
 				Track track = std::any_cast<Track>(data);
 				queue.push_back(track);
 			}
+			shuffled = false;
+			});
+
+		m_MessageManager.Subscribe("newHistory", "audioManager", [this](const MessageData data) {
+			history.clear();
+			if (data.type() == typeid(std::vector<Track>)) {
+				std::vector<Track> tracks = std::any_cast<std::vector<Track>>(data);
+				history.insert(history.end(), tracks.begin(), tracks.end());
+			} else if (data.type() == typeid(Track)) {
+				Track track = std::any_cast<Track>(data);
+				history.push_back(track);
+			}
 			});
 	}
 

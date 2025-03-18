@@ -46,5 +46,5 @@
 #endif
 
 #define BIT(x) (1 << x)
-
+#define U8(x) (const char*)u8"%s",x
 #define CLIENTID "8b1de417"

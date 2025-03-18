@@ -5,7 +5,7 @@
 namespace Thingy {
 	static void URLSanitizer(std::string& url) {
 		url.erase(std::remove(url.begin(), url.end(), '\\'), url.end());
-		url.erase(std::remove_if(url.begin(), url.end(), [](unsigned char c) { return std::isspace(c); }), url.end());
+		std::replace(url.begin(), url.end(), ' ', '%');
 	}
 
 	NetworkManager::NetworkManager(MessageManager& messageManager) : m_MessageManager(messageManager) {
@@ -436,7 +436,12 @@ namespace Thingy {
 			T_ERROR("{0}", jsonData);
 			return std::vector<Track>();
 		}
-		json parsedJsonData = json::parse(jsonData);
+		json parsedJsonData;
+		try {
+			parsedJsonData = json::parse(jsonData);
+		} catch (const nlohmann::json::parse_error& e) {
+			T_ERROR("JSON parse error: {0}", e.what());
+		}
 		std::vector<Track> tracks;
 		for (size_t i = 0; i < parsedJsonData["headers"]["results_count"]; i++) {
 			Track track = parsedJsonData["results"][i];
@@ -451,7 +456,12 @@ namespace Thingy {
 			T_ERROR("{0}", jsonData);
 			return std::vector<Album>();
 		}
-		json parsedJsonData = json::parse(jsonData);
+		json parsedJsonData;
+		try {
+			parsedJsonData = json::parse(jsonData);
+		} catch (const nlohmann::json::parse_error& e) {
+			T_ERROR("JSON parse error: {0}", e.what());
+		}
 		std::vector<Album> albums;
 		for (size_t i = 0; i < parsedJsonData["headers"]["results_count"]; i++) {
 			Album album = parsedJsonData["results"][i];
@@ -481,7 +491,12 @@ namespace Thingy {
 			T_ERROR("{0}", jsonData);
 			return std::vector<Artist>();
 		}
-		json parsedJsonData = json::parse(jsonData);
+		json parsedJsonData;
+		try {
+			parsedJsonData = json::parse(jsonData);
+		} catch (const nlohmann::json::parse_error& e) {
+			T_ERROR("JSON parse error: {0}", e.what());
+		}
 		std::vector<Artist> artists;
 		for (size_t i = 0; i < parsedJsonData["headers"]["results_count"]; i++) {
 			Artist artist = parsedJsonData["results"][i];
@@ -504,7 +519,12 @@ namespace Thingy {
 			T_ERROR("{0}", jsonData);
 			return std::vector<Artist>();
 		}
-		json parsedJsonData = json::parse(jsonData);
+		json parsedJsonData;
+		try {
+			parsedJsonData = json::parse(jsonData);
+		} catch (const nlohmann::json::parse_error& e) {
+			T_ERROR("JSON parse error: {0}", e.what());
+		}
 		json& headers = parsedJsonData["headers"];
 		if (headers["status"] != "success") {
 			T_ERROR("{0}", jsonData);
@@ -547,8 +567,12 @@ namespace Thingy {
 			T_ERROR("{0}", jsonData);
 			return std::unordered_map<std::string, std::vector<std::string>>();
 		}
-		json parsedJsonData = json::parse(jsonData);
-
+		json parsedJsonData;
+		try {
+			parsedJsonData = json::parse(jsonData);
+		} catch (const nlohmann::json::parse_error& e) {
+			T_ERROR("JSON parse error: {0}", e.what());
+		}
 		std::vector<std::string> terms = { "tags", "tracks", "albums", "artists", "playlists"};
 		std::unordered_map<std::string, std::vector<std::string>> termResults;
 		for (auto& term : terms) {

@@ -48,14 +48,14 @@ namespace Thingy {
 
 				ImGui::TableSetColumnIndex(1);
 				std::string label = std::to_string(i);
-				if (ImGui::Selectable(std::string("##" + label).data(), false, ImGuiSelectableFlags_AllowOverlap, ImVec2(0, 80.0f))) {
+				if (ImGui::Selectable(std::string("##" + label).c_str(), false, ImGuiSelectableFlags_AllowOverlap, ImVec2(0, 80.0f))) {
 					m_MessageManager.Publish("openPlaylist", playlist);
 					m_MessageManager.Publish("changeScene", std::string("PlaylistScene"));
 				}
 
 				ImGui::SameLine();
 				ImGui::BeginGroup();
-				ImGui::Text(playlist.playlistName.data());
+				ImGui::Text(U8(playlist.playlistName.c_str()));
 				ImGui::EndGroup();
 				i++;
 			}
@@ -79,7 +79,7 @@ namespace Thingy {
 	uint16_t PlaylistListModule::OnRender() {
 		upProps &= BIT(0);
 		if (loggedIn) {
-			ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
+			ImGui::Begin(GetModuleName().c_str(), nullptr, defaultWindowFlags);
 			Window();
 			ImGui::End();
 			if (upProps & BIT(0)) {
@@ -129,7 +129,7 @@ namespace Thingy {
 				} else {
 					if (IsImageFile(imagePath)) {
 						coverPath = imagePath;
-						newPlaylistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromFile(coverPath.data()));
+						newPlaylistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromFile(coverPath.c_str()));
 						
 					} else {
 						T_INFO("not image path: {0}", imagePath);
@@ -154,7 +154,7 @@ namespace Thingy {
 			}
 			if (!error.empty()) {
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-				ImGui::Text(error.data());
+				ImGui::Text(error.c_str());
 				ImGui::PopStyleColor();
 			}
 			ImGui::EndPopup();

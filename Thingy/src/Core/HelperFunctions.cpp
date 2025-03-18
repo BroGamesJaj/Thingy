@@ -17,7 +17,7 @@ namespace Thingy {
 		);
 
 		ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + maxWidth - 10);
-		ImGui::TextUnformatted(text);
+		ImGui::TextUnformatted(U8(text));
 		ImGui::PopTextWrapPos();
 
 		ImGui::PopClipRect();

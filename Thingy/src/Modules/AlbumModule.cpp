@@ -83,8 +83,8 @@ namespace Thingy {
 		ImGui::Image(reinterpret_cast<ImTextureID>(textures[album[curr].id].get()), {300.0f, 300.0f});
 		ImGui::SameLine();
 		ImGui::BeginGroup();
-		ImGui::Text(album[curr].name.data());
-		ImGui::Text(album[curr].artistName.data());
+		ImGui::Text(U8(album[curr].name.c_str()));
+		ImGui::Text(U8(album[curr].artistName.c_str()));
 		if (ImGui::IsItemHovered()) {
 			upProps |= BIT(3);
 		}
@@ -92,10 +92,10 @@ namespace Thingy {
 			m_MessageManager.Publish("openArtist", album[curr].artistID);
 			m_MessageManager.Publish("changeScene", std::string("ArtistScene"));
 		}
-		ImGui::Text("Release Date: %s", album[curr].releaseDate.data());
+		ImGui::Text("Release Date: %s", album[curr].releaseDate.c_str());
 		ImGui::Text("Track count: %zu", album[curr].tracks.size());
 		ImGui::SameLine();
-		ImGui::Text("Album length: %s", SecondsToTimeString(length).data());
+		ImGui::Text("Album length: %s", SecondsToTimeString(length).c_str());
 		if (loggedIn) {
 			if (ImGui::Button("Add to Playlist")) {
 				selectedPlaylists.clear();
@@ -110,11 +110,13 @@ namespace Thingy {
 			ImGui::Image(reinterpret_cast<ImTextureID>(textures[album[curr].id].get()), { 200.0f, 200.0f });
 			if (ImGui::IsItemClicked()) {
 				std::vector<Track> tracks(album[curr].tracks.begin() + i, album[curr].tracks.end());
+				std::vector<Track> history(album[curr].tracks.begin(), album[curr].tracks.begin() + i);
 				m_AudioManager.ClearQueue();
+				m_MessageManager.Publish("newHistory", history);
 				m_MessageManager.Publish("addToQueue", tracks);
 				m_MessageManager.Publish("startMusic", "");
 			};
-			LimitedTextWrap(track.title.data(), 180, 3);
+			LimitedTextWrap(track.title.c_str(), 180, 3);
 			ImGui::EndGroup();
 			ImGui::SameLine();
 		}
@@ -126,7 +128,7 @@ namespace Thingy {
 
 	uint16_t AlbumModule::OnRender() {
 		upProps &= BIT(0);
-		ImGui::Begin(GetModuleName().data(), nullptr, defaultWindowFlags);
+		ImGui::Begin(GetModuleName().c_str(), nullptr, defaultWindowFlags);
 		Window();
 		ImGui::End();
 		if (upProps & BIT(0)) {
@@ -162,9 +164,9 @@ namespace Thingy {
 					ImGui::TableSetColumnIndex(1);
 					ImGui::SameLine();
 					ImGui::BeginGroup();
-					ImGui::Text(playlist.playlistName.data());
+					ImGui::Text(U8(playlist.playlistName.c_str()));
 					ImGui::TableSetColumnIndex(2);
-					ImGui::Checkbox(std::string("##" + std::to_string(playlist.playlistID)).data(), &selectedPlaylists[playlist.playlistID]);
+					ImGui::Checkbox(std::string("##" + std::to_string(playlist.playlistID)).c_str(), &selectedPlaylists[playlist.playlistID]);
 
 					ImGui::EndGroup();
 					i++;
