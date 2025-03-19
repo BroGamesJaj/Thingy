@@ -12,8 +12,8 @@ namespace Thingy {
 
 	struct Playlist {
 		int playlistID = -1;
+		int ownerID = -1;
 		std::string playlistName = "";
-
 		std::vector<uint8_t> playlistCoverBuffer;
 		std::string description = "";
 		bool priv = false;
@@ -26,7 +26,9 @@ namespace Thingy {
 		} else {
 			j.at("PlaylistID").get_to(p.playlistID);
 		}
-
+		if (j.contains("OwnerID")) {
+			j.at("OwnerID").get_to(p.ownerID);
+		}
 		if (j.contains("PlaylistName")) {
 			j.at("PlaylistName").get_to(p.playlistName);
 		}
@@ -45,13 +47,18 @@ namespace Thingy {
 		}
 
 		if (j.contains("Private")) {
-			j.at("Private").get_to(p.priv);
+			if (j.at("Private").is_number()) {
+				p.priv = j.at("Private").get<int>() == 0 ? false : true;
+			} else {
+				j.at("Private").get_to(p.priv);
+			}
 		}
-
+		
 		if (j.contains("Tracks")) {
 			for (size_t i = 0; i < j["Tracks"].size(); i++) {
 				p.trackIDs.push_back(j["Tracks"][i]["SongID"]);
 			}
 		}
+		
 	}
 }

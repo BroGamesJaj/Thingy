@@ -37,6 +37,7 @@ namespace Thingy {
 		NetworkManager& m_NetworkManager;
 		AudioManager& m_AudioManager;
 		ImageManager& m_ImageManager;
+		std::unordered_map<uint32_t, std::future<Image>> imageFutures;
 		std::unordered_map<uint32_t, std::unique_ptr<SDL_Texture, SDL_TDeleter>> textures;
 		std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::unique_ptr<SDL_Texture, SDL_TDeleter>>> albumTextures;
 

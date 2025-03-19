@@ -85,30 +85,30 @@ namespace Thingy {
 			}
 
 		}
-		std::unordered_map<uint32_t, std::future<Image>> images;
+		imageFutures.clear();
 		
 		for (auto& album : artists[curr].albums) {
 			if (!albumTextures[artists[curr].id][album.id]) {
 				std::string& url = album.imageURL;
-				images.emplace(album.id, std::async(std::launch::async, [this, &url]() { return m_ImageManager.GetImage(url); }));
+				imageFutures.emplace(album.id, std::async(std::launch::async, [this, &url]() { return m_ImageManager.GetImage(url); }));
 			}
 			
 		}
-		while (!images.empty()) {
-			for (auto it = images.begin(); it != images.end(); ) {
+	}
+
+	void ArtistModule::OnUpdate() {
+		if (!imageFutures.empty()) {
+			for (auto it = imageFutures.begin(); it != imageFutures.end(); ) {
 				auto& image = it->second;
 				if (image.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
 					albumTextures[artists[curr].id][it->first] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(image.get()));
-					it = images.erase(it);
+					it = imageFutures.erase(it);
 				} else {
 					++it;
 				}
 			}
 		}
-
 	}
-
-	void ArtistModule::OnUpdate() {}
 
 	void ArtistModule::Window() {
 		ImVec2 bar_size = ImVec2(GetSize().x - 20, 30);

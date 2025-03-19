@@ -1,5 +1,6 @@
 #pragma once
 #include "Core\Module.h"
+#include "Core\HelperFunctions.h"
 
 #include "Core\Managers\MessageManager.h"
 #include "Core\Managers\NetworkManager.h"
@@ -29,7 +30,18 @@ namespace Thingy {
 		}
 		MODULE_CLASS_NAME("searchModule")
 	private:
+		void LoadTextures();
+
+		void AllResultsDisplay();
 		void TrackResultsDisplay();
+		void AlbumResultsDisplay();
+		void ArtistResultsDisplay();
+		void PlaylistResultsDisplay();
+
+		void GetTrackResults(std::string term);
+		void GetAlbumResults(std::string term);
+		void GetArtistResults(std::string term);
+		void GetPlaylistResults(std::string term);
 
 		uint16_t upProps = 0;
 		bool loggedIn = false;
@@ -42,12 +54,15 @@ namespace Thingy {
 		
 		const User& user;
 
+		std::unordered_map<uint32_t, std::future<Image>> imageFutures;
 		std::unordered_map<uint32_t, std::unique_ptr<SDL_Texture, SDL_TDeleter>> textures;
 		std::vector<std::string> buttons = { "all", "tags", "tracks", "albums", "artists", "playlists" };
 		int whichToggled = 0;
 
 		std::vector<Track> trackResults;
-
+		std::vector<Album> albumResults;
+		std::vector<Artist> artistResults;
+		std::vector<Playlist> playlistResults;
 
 	};
 }

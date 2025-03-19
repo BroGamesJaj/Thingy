@@ -153,7 +153,12 @@ namespace Thingy {
 			m_MessageManager.Publish("loggedIn", false);
 			return;
 		}
-		json parsedJSON = json::parse(response);
+		json parsedJSON;
+		try {
+			parsedJSON = json::parse(response);
+		} catch (const nlohmann::json::parse_error& e) {
+			T_ERROR("JSON parse error: {0}", e.what());
+		}
 		std::string accessToken = parsedJSON["accessToken"];
 		StoreToken("accessToken", accessToken);
 		std::string newRefreshToken = parsedJSON["refreshToken"];

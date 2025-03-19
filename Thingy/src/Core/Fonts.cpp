@@ -14,7 +14,7 @@ namespace Thingy {
 	ImFont* Fonts::size60 = nullptr;
 	ImFont* Fonts::size70 = nullptr;
 
-	static const ImWchar full_unicode_range[] = { 0x0020, 0x10FFFF };
+	static const ImWchar full_unicode_range[] = { 0x0020, 0xFFFF };
 
 	void Fonts::LoadFonts() {
 		ImGuiIO& io = ImGui::GetIO();

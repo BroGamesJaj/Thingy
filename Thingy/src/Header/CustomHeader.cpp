@@ -148,6 +148,7 @@ namespace Thingy {
 				if (ImGui::IsKeyPressed(ImGuiKey_Enter, false)) {
 					m_MessageManager.Publish("openSearch", std::make_pair(search,whichToggled));
 					m_MessageManager.Publish("changeScene", std::string("SearchScene"));
+					ImGui::CloseCurrentPopup();
 				}
 				if (tempSearch != currTerm) {
 					currTerm = tempSearch;

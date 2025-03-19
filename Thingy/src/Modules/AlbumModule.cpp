@@ -16,9 +16,35 @@ namespace Thingy {
 						}
 					}
 					if (recAlbum.tracks.empty()) {
-						recAlbum.tracks = m_NetworkManager.GetTrack("https://api.jamendo.com/v3.0/tracks/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&limit=200&album_id=2442");
+						recAlbum.tracks = m_NetworkManager.GetTrack("https://api.jamendo.com/v3.0/tracks/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&limit=200&album_id=" + std::to_string(recAlbum.id));
 					}
 					album.emplace_back(recAlbum);
+					curr = album.size() - 1;
+					T_INFO("{0}", album[curr].toString());
+				} else if (data.type() == typeid(int)) {
+					int albumID = std::any_cast<int>(data);
+					std::string url =
+						"https://api.jamendo.com/v3.0/tracks/?client_id=" 
+						+ std::string(CLIENTID) 
+						+ "&format=jsonpretty&limit=200&album_id="
+						+ std::to_string(albumID);
+					Album newAlbum;
+					std::vector<Track> getTracks = m_NetworkManager.GetTrack(url);
+					if (getTracks.size() < 1) {
+						T_ERROR("AlbumModule: GetTrack returned 0 tracks.");
+						return;
+					}
+					newAlbum.name = getTracks[0].albumName;
+					newAlbum.id = getTracks[0].albumID;
+					newAlbum.artistID = getTracks[0].artistID;
+					newAlbum.artistName = getTracks[0].artistName;
+					newAlbum.imageURL = getTracks[0].imageURL;
+					newAlbum.releaseDate = getTracks[0].releaseDate;
+					newAlbum.tracks = getTracks;
+					newAlbum.trackCount = getTracks.size();
+					
+					album.emplace_back(newAlbum);
+
 					curr = album.size() - 1;
 					T_INFO("{0}", album[curr].toString());
 				} else {
