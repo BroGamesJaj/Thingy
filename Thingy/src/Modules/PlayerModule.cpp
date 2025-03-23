@@ -175,7 +175,6 @@ namespace Thingy {
 		if (ImGui::Button("Shuffle", { 30.0f, 30.0f })) {
 			m_AudioManager.ShuffleQueue();
 		};
-		ImGui::SameLine();
 		if (loggedIn) {
 			if (ImGui::Button("Add to playlists")) {
 				selectedPlaylists.clear();

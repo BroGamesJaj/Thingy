@@ -54,6 +54,14 @@ namespace Thingy {
 				history.push_back(track);
 			}
 			});
+
+		m_MessageManager.Subscribe("logout", "audioManager", [this](const MessageData data) {
+			Mix_HaltMusic();
+			history.clear();
+			queue.clear();
+			shuffled = false;
+			current = queue.begin();
+			});
 	}
 
 	AudioManager::~AudioManager() {

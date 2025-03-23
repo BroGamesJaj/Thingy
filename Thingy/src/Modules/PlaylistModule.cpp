@@ -47,7 +47,7 @@ namespace Thingy {
 			});
 
 		m_MessageManager.Subscribe("userChanged", GetModuleName(), [this](const MessageData data) {
-			//TODO
+			
 			});
 
 	}
@@ -147,22 +147,18 @@ namespace Thingy {
 
 	uint16_t PlaylistModule::OnRender() {
 		upProps &= BIT(0);
-		if (!loggedIn) {
-			m_MessageManager.Publish("changeScene", std::string("FrontPage"));
-		} else {
 
-			ImGui::Begin(GetModuleName().c_str(), nullptr, defaultWindowFlags);
+		ImGui::Begin(GetModuleName().c_str(), nullptr, defaultWindowFlags);
+		Window();
+		ImGui::End();
+		if (upProps & BIT(0)) {
+			ImGui::BeginDisabled();
+			ImGui::Begin("floater", nullptr, defaultWindowFlags);
 			Window();
+			ImGui::SetWindowPos({ ImGui::GetMousePos().x - GetSize().x / 2, ImGui::GetMousePos().y + 5 });
+			ImGui::SetWindowSize(GetSize());
 			ImGui::End();
-			if (upProps & BIT(0)) {
-				ImGui::BeginDisabled();
-				ImGui::Begin("floater", nullptr, defaultWindowFlags);
-				Window();
-				ImGui::SetWindowPos({ ImGui::GetMousePos().x - GetSize().x / 2, ImGui::GetMousePos().y + 5 });
-				ImGui::SetWindowSize(GetSize());
-				ImGui::End();
-				ImGui::EndDisabled();
-			}
+			ImGui::EndDisabled();
 		}
 		return upProps;
 	}

@@ -43,7 +43,7 @@ namespace Thingy {
 		const float winW = ImGui::GetWindowWidth();
 		const float scale = std::clamp(winW / 1280, 1.0f, 2.0f);
 		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Horizontal;
-		if (ImGui::Button("image", { 40.0f, 40.0f })) {
+		if (ImGui::Button("Home", { 40.0f, 40.0f })) {
 			m_MessageManager.Publish("homeButton", std::string("FrontPage"));
 		}
 		if (ImGui::Button("back", { 40.0f, 40.0f })) {

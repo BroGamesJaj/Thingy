@@ -429,7 +429,7 @@ namespace Thingy {
 		} else {
 
 			if (ImGui::ImageButton("##highlighted", reinterpret_cast<ImTextureID>(textures[playlistResults[0].playlistID].get()), ImVec2(200.0f, 200.0f))) {
-				m_MessageManager.Publish("openPlaylist", playlistResults[0].playlistID);
+				m_MessageManager.Publish("openPlaylist", playlistResults[0]);
 				m_MessageManager.Publish("changeScene", std::string("PlaylistScene"));
 			};
 			ImGui::SameLine();
@@ -463,7 +463,7 @@ namespace Thingy {
 							upProps |= BIT(3);
 						}
 						if (ImGui::IsItemClicked()) {
-							m_MessageManager.Publish("openPlaylist", playlistResults[i].playlistID);
+							m_MessageManager.Publish("openPlaylist", playlistResults[i]);
 							m_MessageManager.Publish("changeScene", std::string("PlaylistScene"));
 						}
 					}

@@ -12,7 +12,7 @@ namespace Thingy {
 			StoreToken("accessToken", "-");
 			StoreToken("refreshToken", "-");
 			m_MessageManager.Publish("loggedIn", false);
-
+			m_MessageManager.Publish("changeScene", std::string("FrontPage"));
 			});
 
 		m_MessageManager.Subscribe("loggedIn", "authManager", [this](const MessageData data) {
