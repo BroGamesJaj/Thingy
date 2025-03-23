@@ -18,7 +18,7 @@ namespace Thingy {
 		void operator=(const AudioManager&) = delete;
 		
 		void CleanUp();
-
+		void AudioLoop();
 		void UpdateTrackPos();
 
 		int& GetVolume() noexcept { return volume; }
@@ -85,6 +85,7 @@ namespace Thingy {
 		std::list<Track> originalQueue;
 		std::list<Track>::iterator current = queue.end();
 		bool shuffled = false;
+		bool empty = true;
 
 		Mix_Music* music = nullptr;
 

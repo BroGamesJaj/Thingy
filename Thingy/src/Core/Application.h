@@ -15,6 +15,8 @@
 #include "Image.h"
 #include "Header\CustomHeader.h"
 
+#include "style.h"
+
 namespace Thingy {
 	class Application {
 	public:

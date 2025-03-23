@@ -76,6 +76,18 @@ namespace Thingy {
 		SDL_QuitSubSystem(SDL_INIT_AUDIO);
 	}
 
+	void AudioManager::AudioLoop() {
+		if (IsMusicLoaded()) UpdateTrackPos();
+		if (empty && !queue.empty()) {
+			empty = false;
+			m_MessageManager.Publish("queueChanged", "");
+		} else if (!empty && queue.empty()) {
+			empty = true;
+			m_MessageManager.Publish("queueChanged", "");
+		}
+	}
+	
+
 	void AudioManager::UpdateTrackPos() {
 		currentTrackPos = Mix_GetMusicPosition(music);
 		if (currentTrackPos == Mix_MusicDuration(music)) {

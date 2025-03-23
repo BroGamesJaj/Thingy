@@ -152,6 +152,7 @@
     <ClInclude Include="src\Core\Album.h" />
     <ClInclude Include="src\Core\Application.h" />
     <ClInclude Include="src\Core\Artist.h" />
+    <ClInclude Include="src\Core\Style.h" />
     <ClInclude Include="src\Header\CustomHeader.h" />
     <ClInclude Include="src\Core\Fonts.h" />
     <ClInclude Include="src\Core\HelperFunctions.h" />

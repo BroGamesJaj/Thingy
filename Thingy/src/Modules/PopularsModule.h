@@ -27,6 +27,8 @@ namespace Thingy {
 		const int DefaultSize() const override { 
 			if (loggedIn && !m_AudioManager.GetQueue().empty()) {
 				return 5;
+			} else if (loggedIn) {
+				return 8;
 			} else {
 				return 6;
 			}

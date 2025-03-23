@@ -4,7 +4,12 @@
 #include "imgui_internal.h"
 
 namespace Thingy {
-	
+	FrontPageScene::FrontPageScene(MessageManager& messageManager) : m_MessageManager(messageManager) {
+		m_MessageManager.Subscribe("change" + GetSceneName(), GetSceneName(), [this](const MessageData data) {
+			BeforeSwitch();
+			});
+	};
+
 	FrontPageScene::~FrontPageScene() {
 	
 	}
@@ -54,7 +59,9 @@ namespace Thingy {
 			return;
 		}
 		ImGuiID dockspace_id = ImGui::GetID("DockSpace");
+		
 		ImGui::DockBuilderRemoveNode(dockspace_id);
+		
 		ImGui::DockBuilderAddNode(dockspace_id);
 		ImVec2 viewport_size = ImGui::GetMainViewport()->Size;
 		ImGui::DockBuilderSetNodeSize(dockspace_id, viewport_size);

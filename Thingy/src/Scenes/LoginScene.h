@@ -4,11 +4,7 @@
 namespace Thingy {
 	class LoginScene : public Scene {
 	public:
-		LoginScene(MessageManager& messageManager) : m_MessageManager(messageManager) {
-			m_MessageManager.Subscribe("change" + GetSceneName(), GetSceneName(), [this](const MessageData data) {
-				BeforeSwitch();
-				});
-		};
+		LoginScene(MessageManager& messageManager);
 		~LoginScene();
 
 		void OnSwitch(std::unordered_map<std::string, std::variant<int, std::string>> newModuleState) override;

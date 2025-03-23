@@ -4,11 +4,7 @@
 namespace Thingy {
 	class FrontPageScene : public Scene {
 	public:
-		FrontPageScene(MessageManager& messageManager) : m_MessageManager(messageManager) {
-			m_MessageManager.Subscribe("change" + GetSceneName(), GetSceneName(), [this](const MessageData data) {
-				BeforeSwitch();
-				});
-		};
+		FrontPageScene(MessageManager& messageManager);
 		~FrontPageScene();
 
 		void OnSwitch(std::unordered_map<std::string, std::variant<int, std::string>> newModuleState) override;

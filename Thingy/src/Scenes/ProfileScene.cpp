@@ -3,6 +3,12 @@
 
 namespace Thingy {
 
+	ProfileScene::ProfileScene(MessageManager& messageManager) : m_MessageManager(messageManager) {
+		m_MessageManager.Subscribe("change" + GetSceneName(), GetSceneName(), [this](const MessageData data) {
+			BeforeSwitch();
+			});
+	};
+
 	ProfileScene::~ProfileScene() {
 
 	}

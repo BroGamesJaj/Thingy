@@ -183,13 +183,14 @@ namespace Thingy {
 		authManager->RefreshTokens();
 		messageManager->Publish("changeScene", std::string("FrontPage"));
 		SDL_ShowWindow(sdlWindow);
+		SetupImGuiStyle(true, 1.0f);
 		bool first = true;
 		while (Running) {
 
 			EventLoop();
-			if (audioManager->IsMusicLoaded())
-				audioManager->UpdateTrackPos();
-
+		
+			audioManager->AudioLoop();
+			
 			if (fullscreenChanged) {
 				SDL_SetWindowFullscreen(sdlWindow, fullscreen);
 				SDL_SetWindowBordered(sdlWindow, false);

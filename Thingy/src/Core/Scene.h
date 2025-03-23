@@ -15,19 +15,19 @@ namespace Thingy {
 				return module.first == dragged;
 			});
 		for (size_t i = 0; i < modules.size(); i++) {
-
 			if (modules[i].first != dragged) {
-				if (!ImGui::FindWindowByName(modules[i].first.data())) break;
-				const ImVec2 winSize = ImGui::FindWindowByName(modules[i].first.data())->Size;
-				const ImVec2 winPos = ImGui::FindWindowByName(modules[i].first.data())->Pos;
-				if (currentPos.x > winPos.x && currentPos.x < winPos.x + winSize.x && currentPos.y > winPos.y && currentPos.y < winPos.y + winSize.y) {
+				if (ImGui::FindWindowByName(modules[i].first.data())) {
+					const ImVec2 winSize = ImGui::FindWindowByName(modules[i].first.data())->Size;
+					const ImVec2 winPos = ImGui::FindWindowByName(modules[i].first.data())->Pos;
+					if (currentPos.x > winPos.x && currentPos.x < winPos.x + winSize.x && currentPos.y > winPos.y && currentPos.y < winPos.y + winSize.y) {
 
-					if (draggedModule != modules.end()) {
-						std::swap(*draggedModule, modules[i]);
-						changed = true;
-						return;
+						if (draggedModule != modules.end()) {
+							std::swap(*draggedModule, modules[i]);
+							changed = true;
+							return;
+						}
 					}
-				}
+				};
 			}
 		}
 		changed = false;
@@ -40,11 +40,6 @@ namespace Thingy {
 	public:
 		virtual ~Scene() = default;
 
-		//Scene(const Scene&) = delete;
-		//void operator=(const Scene&) = delete;
-
-		//virtual void InitModules() const = 0;
-		//virtual void CleanUpModules() const = 0;
 		virtual void OnSwitch(std::unordered_map<std::string, std::variant<int, std::string>> newModuleState) = 0;
 		virtual void OnUpdate() = 0;
 		virtual uint16_t OnRender() = 0;

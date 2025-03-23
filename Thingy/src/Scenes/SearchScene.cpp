@@ -5,6 +5,12 @@
 
 namespace Thingy {
 
+	SearchScene::SearchScene(MessageManager& messageManager) : m_MessageManager(messageManager) {
+		m_MessageManager.Subscribe("change" + GetSceneName(), GetSceneName(), [this](const MessageData data) {
+			BeforeSwitch();
+			});
+	};
+
 	SearchScene::~SearchScene() {
 
 	}
@@ -48,6 +54,7 @@ namespace Thingy {
 	void SearchScene::LayoutChanged() {}
 
 	void SearchScene::UpdateLayout() {
+		
 		if (!ImGui::GetCurrentContext()) {
 			T_ERROR("ImGui context is not initialized!");
 			return;

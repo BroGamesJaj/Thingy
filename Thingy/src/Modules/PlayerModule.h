@@ -21,7 +21,13 @@ namespace Thingy {
 		void Window() override;
 		uint16_t OnRender() override;
 
-		const int DefaultSize() const override { return 3; }
+		const int DefaultSize() const override { 
+			if (queue.empty()) {
+				return 0;
+			} else {
+				return 3;
+			}
+		}
 
 		MODULE_CLASS_NAME("PlayerModule")
 	private:

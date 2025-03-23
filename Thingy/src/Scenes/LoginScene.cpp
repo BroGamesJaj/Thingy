@@ -2,7 +2,13 @@
 #include "LoginScene.h"
 
 namespace Thingy {
-	
+
+	LoginScene::LoginScene(MessageManager& messageManager) : m_MessageManager(messageManager) {
+		m_MessageManager.Subscribe("change" + GetSceneName(), GetSceneName(), [this](const MessageData data) {
+			BeforeSwitch();
+			});
+	};
+
 	LoginScene::~LoginScene() {
 	
 	}

@@ -90,8 +90,16 @@ namespace Thingy{
 					json parsed = json::parse(response);
 					std::string accessToken = parsed["accessToken"];
 					std::string refreshToken = parsed["refreshToken"];
+					T_INFO("accessToken: {0}", accessToken);
+					
+					T_INFO("refreshToken: {0}", refreshToken);
 					m_AuthManager.StoreToken("accessToken", accessToken);
 					m_AuthManager.StoreToken("refreshToken", refreshToken);
+					std::string tk1, tk2;
+					m_AuthManager.RetrieveToken("accessToken", tk1);
+					m_AuthManager.RetrieveToken("refreshToken", tk2);
+					T_INFO("accessToken: {0}", tk1);
+					T_INFO("refreshToken: {0}", tk2);
 					email = "";
 					password = "";
 					username = "";

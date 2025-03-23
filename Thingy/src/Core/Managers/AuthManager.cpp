@@ -77,7 +77,7 @@ namespace Thingy {
 		cred.Type = CRED_TYPE_GENERIC;
 		cred.TargetName = wtoken;
 		cred.CredentialBlobSize = token.size();
-		cred.CredentialBlob = (LPBYTE)token.c_str();
+		cred.CredentialBlob = (LPBYTE)token.data();
 		cred.Persist = CRED_PERSIST_LOCAL_MACHINE;
 
 		if (CredWriteW(&cred, 0)) {
@@ -111,7 +111,7 @@ namespace Thingy {
 
 		PCREDENTIALW pcred;
 		if (CredReadW(wtoken, CRED_TYPE_GENERIC, 0, &pcred)) {
-			token = (char*)pcred->CredentialBlob;
+			token.assign(reinterpret_cast<char*>(pcred->CredentialBlob), pcred->CredentialBlobSize);
 			CredFree(pcred);
 			delete[] wtoken;
 			return 0;

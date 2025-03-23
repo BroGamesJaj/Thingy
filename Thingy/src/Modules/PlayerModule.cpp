@@ -24,10 +24,11 @@ namespace Thingy {
 		m_MessageManager.Subscribe("userChanged", GetModuleName(), [this](const MessageData data) {
 			UserInfoChanged();
 			});
+
+		
 	}
 
 	void PlayerModule::OnLoad(const std::variant<int, std::string> moduleState) {
-			
 	}
 
 	void PlayerModule::OnUpdate() {

@@ -67,7 +67,9 @@ namespace Thingy {
 			
 			});
 
-
+		m_MessageManager.Subscribe("queueChanged", "sceneManager", [this](const MessageData data) {
+			layoutChanged = true;
+			});
 	}
 	
 	SceneManager::~SceneManager() {
@@ -102,8 +104,8 @@ namespace Thingy {
 			activeScene = it->second;
 			if (!history.empty()) {
 				if (type == BACK) activeScene->OnSwitch(history[currentSceneIndex - 1].moduleState);
-				if (type == NEXT) activeScene->OnSwitch(history[currentSceneIndex + 1].moduleState);
-				if (type == OPEN) activeScene->OnSwitch(history[currentSceneIndex].moduleState);
+				else if (type == NEXT) activeScene->OnSwitch(history[currentSceneIndex + 1].moduleState);
+				else if (type == OPEN) activeScene->OnSwitch(history[currentSceneIndex].moduleState);
 			} else {
 				activeScene->OnSwitch({});
 			}

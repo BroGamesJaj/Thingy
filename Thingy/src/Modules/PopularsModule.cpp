@@ -70,7 +70,7 @@ namespace Thingy {
 			upProps |= BIT(1);
 			upProps &= ~BIT(0);
 		}
-		ImGui::GetWindowDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 0, 0, 255), 0.0f, 0, 5.0f);
+		ImGui::GetWindowDrawList()->AddRectFilled(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(55, 55, 55, 255), 3.0f, ImDrawFlags_RoundCornersAll);
 		ImVec2 winSize = ImGui::GetWindowSize();
 		float centering = (winSize.x / 2) - (winSize.x / 2 / (5.0f / 4.2f));
 		bool collapse = winSize.x < 1000 ? true : false;

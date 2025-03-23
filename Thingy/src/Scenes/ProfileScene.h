@@ -4,11 +4,7 @@
 namespace Thingy {
 	class ProfileScene : public Scene {
 	public:
-		ProfileScene(MessageManager& messageManager) : m_MessageManager(messageManager) {
-			m_MessageManager.Subscribe("change" + GetSceneName(), GetSceneName(), [this](const MessageData data) {
-				BeforeSwitch();
-				});
-		};
+		ProfileScene(MessageManager& messageManager);
 		~ProfileScene();
 
 		void OnSwitch(std::unordered_map<std::string, std::variant<int, std::string>> newModuleState) override;

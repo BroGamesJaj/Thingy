@@ -4,11 +4,7 @@
 namespace Thingy {
 	class SearchScene : public Scene {
 	public:
-		SearchScene(MessageManager& messageManager) : m_MessageManager(messageManager) {
-			m_MessageManager.Subscribe("change" + GetSceneName(), GetSceneName(), [this](const MessageData data) {
-				BeforeSwitch();
-				});
-		};
+		SearchScene(MessageManager& messageManager);
 		~SearchScene();
 
 		void OnSwitch(std::unordered_map<std::string, std::variant<int, std::string>> newModuleState) override;
