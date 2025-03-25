@@ -376,7 +376,7 @@ namespace Thingy {
 		std::string response;
 		struct curl_slist* headers = nullptr;
 		long responseCode;
-		T_TRACE("hello");
+
 		if (!curl) {
 			std::cout << "ERROR : Curl initialization\n" << std::endl;
 			CleanupGet(curl, headers);
@@ -430,6 +430,105 @@ namespace Thingy {
 		return response;
 	}
 
+	std::string NetworkManager::UpdatePlaylist(std::string& url, const std::string& playlistName, const std::string& desc, const bool& isPrivate, const std::string& filePath, const std::string& token) {
+		URLSanitizer(url);
+		CURL* curl = curl_easy_init();
+		std::string response;
+		struct curl_slist* headers = nullptr;
+		long responseCode;
+
+		if (!curl) {
+			std::cout << "ERROR : Curl initialization\n" << std::endl;
+			CleanupGet(curl, headers);
+			return "";
+		}
+
+		curl_mime* mime = curl_mime_init(curl);
+		curl_mimepart* part;
+		if (!playlistName.empty()) {
+			part = curl_mime_addpart(mime);
+			curl_mime_name(part, "PlaylistName");
+			curl_mime_data(part, playlistName.c_str(), CURL_ZERO_TERMINATED);
+		}
+		
+		if (!desc.empty()) {
+			part = curl_mime_addpart(mime);
+			curl_mime_name(part, "Description");
+			curl_mime_data(part, desc.c_str(), CURL_ZERO_TERMINATED);
+		}
+
+		part = curl_mime_addpart(mime);
+		curl_mime_name(part, "Private");
+		curl_mime_data(part, isPrivate ? "true" : "false", CURL_ZERO_TERMINATED);
+
+		if (!filePath.empty()) {
+			part = curl_mime_addpart(mime);
+			curl_mime_name(part, "PlaylistCover");
+			curl_mime_filedata(part, filePath.c_str());
+		}
+
+		headers = curl_slist_append(headers, "Content-Type: multipart/form-data");
+		headers = curl_slist_append(headers, ("Authorization: Bearer " + token).c_str());
+
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+		curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PATCH");
+		curl_easy_setopt(curl, CURLOPT_MIMEPOST, mime);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+
+		CURLcode res = curl_easy_perform(curl);
+		if (res != CURLE_OK) {
+			std::cout << "Curl error: " << curl_easy_strerror(res) << std::endl;
+		} else {
+			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &responseCode);
+			if (responseCode == 401) {
+				return "Received 401 Unauthorized";
+			}
+		};
+		curl_mime_free(mime);
+		curl_easy_cleanup(curl);
+		curl_slist_free_all(headers);
+
+		return response;
+	}
+
+	std::string NetworkManager::DeletePlaylist(std::string& url, const std::string& token) {
+		URLSanitizer(url);
+		CURL* curl = curl_easy_init();
+		std::string response;
+		struct curl_slist* headers = nullptr;
+		long responseCode;
+
+		if (!curl) {
+			std::cout << "ERROR : Curl initialization\n" << std::endl;
+			CleanupGet(curl, headers);
+			return "";
+		}
+
+		headers = curl_slist_append(headers, ("Authorization: Bearer " + token).c_str());
+
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+		curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+
+		CURLcode res = curl_easy_perform(curl);
+		if (res != CURLE_OK) {
+			std::cout << "Curl error: " << curl_easy_strerror(res) << std::endl;
+		} else {
+			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &responseCode);
+			if (responseCode == 401) {
+				return "Received 401 Unauthorized";
+			}
+		};
+		curl_easy_cleanup(curl);
+		curl_slist_free_all(headers);
+
+		return response;
+	}
+	
 	std::vector<Track> NetworkManager::GetTrack(std::string url) {
 		std::string jsonData = GetRequest(url);
 		if (jsonData == "curl error" || jsonData.find("error code:") != std::string::npos) {

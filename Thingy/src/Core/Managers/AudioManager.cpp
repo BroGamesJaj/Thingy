@@ -203,6 +203,12 @@ namespace Thingy {
 		queue.insert(queue.end(), tracks.begin(), tracks.end());
 	}
 
+	void AudioManager::RemoveFromQueue(const int& index) {
+		if (index != 0 || index < queue.size()) {
+			queue.erase(std::next(queue.begin(), index));
+		}
+	}
+
 	void AudioManager::PlayQueueFromStart() {
 		if (!queue.empty()) {
 			current = queue.begin();

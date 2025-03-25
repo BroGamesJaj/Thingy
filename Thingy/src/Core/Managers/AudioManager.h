@@ -61,6 +61,7 @@ namespace Thingy {
 		void LoadMusicFromQueue();
 
 		void AddToQueue(const std::vector<Track>& tracks);
+		void RemoveFromQueue(const int& index);
 		void PlayQueueFromStart();
 		void ChangeMusicByTrack(const int trackID);
 		void ShuffleQueue();

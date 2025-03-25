@@ -239,8 +239,6 @@ namespace Thingy {
 		
 		}
 		
-	
-		ImGui::Text("window size: (%.1f, %.1f)", ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
 		ImGui::PopStyleColor();
 	}
 

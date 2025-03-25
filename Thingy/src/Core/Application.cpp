@@ -124,7 +124,7 @@ namespace Thingy {
 		storedModules.emplace("artistModule", std::make_shared<ArtistModule>(*messageManager, *audioManager, *imageManager, *networkManager));
 		storedModules.emplace("playerModule", std::make_shared<PlayerModule>(*messageManager, *audioManager, *imageManager, *authManager, *networkManager));
 		storedModules.emplace("playlistListModule", std::make_shared<PlaylistListModule>(*messageManager, *imageManager, *networkManager, *authManager));
-		storedModules.emplace("playlistModule", std::make_shared<PlaylistModule>(*messageManager, *audioManager, *imageManager, *networkManager));
+		storedModules.emplace("playlistModule", std::make_shared<PlaylistModule>(*messageManager, *audioManager, *imageManager, *networkManager, *authManager));
 		storedModules.emplace("searchModule", std::make_shared<SearchModule>(*messageManager, *networkManager, *imageManager, *audioManager, *authManager));
 		
 		sceneManager->GetScene("FrontPage")->PushModule(storedModules["playlistListModule"]);

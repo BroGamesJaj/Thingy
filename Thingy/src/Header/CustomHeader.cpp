@@ -44,15 +44,15 @@ namespace Thingy {
 		const float winW = ImGui::GetWindowWidth();
 		const float scale = std::clamp(winW / 1280, 1.0f, 2.0f);
 		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Horizontal;
-		if (ImGui::Button("Home", { 40.0f, 40.0f })) {
+		if (ImGui::Button("Home", { 38.0f, 38.0f })) {
 			m_MessageManager.Publish("homeButton", std::string("FrontPage"));
 		}
-		if (ImGui::Button("back", { 40.0f, 40.0f })) {
+		if (ImGui::Button("back", { 38.0f, 38.0f })) {
 
 			T_INFO("back");
 			m_MessageManager.Publish("previousScene", "");
 		}
-		if (ImGui::Button("next", { 40.0f, 40.0f })) {
+		if (ImGui::Button("next", { 38.0f, 38.0f })) {
 			T_INFO("next");
 			m_MessageManager.Publish("nextScene", "");
 		}
@@ -66,11 +66,8 @@ namespace Thingy {
 		}
 		ImGui::PopFont();
 		ImGui::PopStyleVar();
-		if (ImGui::Button("Queue")) {
-			m_MessageManager.Publish("changeQueueOpen", "");
-		};
 		if (loggedIn) {
-			CircleImage(reinterpret_cast<ImTextureID>(pfpTexture.get()), 40.0f);
+			CircleImage(reinterpret_cast<ImTextureID>(pfpTexture.get()), 38.0f);
 			if (ImGui::IsItemClicked()) {
 				T_INFO("pressed");
 				ImGui::OpenPopup("profile");
@@ -89,7 +86,7 @@ namespace Thingy {
 				ImGui::EndPopup();
 			}
 		} else {
-			if (ImGui::Button("Login")) {
+			if (ImGui::Button("Login", ImVec2(50.0f, 38.0f))) {
 				m_MessageManager.Publish("changeScene", std::string("LoginScene"));
 			}
 		}

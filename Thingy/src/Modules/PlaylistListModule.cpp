@@ -31,7 +31,6 @@ namespace Thingy {
 
 				ImGui::TableSetColumnIndex(0);
 				ImGui::Image(reinterpret_cast<ImTextureID>(playlistTextures[playlist.playlistID].get()), { 80.0f, 80.0f });
-
 				ImGui::TableSetColumnIndex(1);
 				std::string label = std::to_string(i);
 				if (ImGui::Selectable(std::string("##" + label).c_str(), false, ImGuiSelectableFlags_AllowOverlap, ImVec2(0, 80.0f))) {
@@ -127,8 +126,8 @@ namespace Thingy {
 			ImGui::InputText("Description", &newDescription, 0, ResizeCallback, (void*)&newDescription);
 			ImGui::Checkbox("Private?", &isPrivate);
 			if (ImGui::Button("Save Playlist")) {
-				if (newPlaylistName.empty()) {
-					error = "Playlist name cannot be empty!";
+				if (newPlaylistName.size() < 3) {
+					error = "Playlist name cannot be shorter than 3 characters!";
 				} else {
 					std::string url = "http://localhost:3000/playlists";
 					std::string token;

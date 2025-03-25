@@ -11,6 +11,10 @@ namespace Thingy {
 				for (size_t i = 0; i < playlists.size(); i++) {
 					if (playlists[i].playlistName == playlist.playlistName) {
 						curr = i;
+						if (playlists[curr].playlistCoverBuffer.empty())
+							playlistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultPlaylistImage());
+						else playlistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(Image(playlists[curr].playlistCoverBuffer)));
+
 						T_INFO("returned");
 						return;
 					}
@@ -31,6 +35,30 @@ namespace Thingy {
 				}
 				playlists.push_back(playlist);
 				curr = playlists.size() - 1;
+				if (playlists[curr].playlistCoverBuffer.empty())
+					playlistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultPlaylistImage());
+				else playlistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(Image(playlists[curr].playlistCoverBuffer)));
+			
+				std::unordered_map<uint32_t, std::future<Image>> images;
+				length.push_back(0);
+				for (auto& trackId : playlists[curr].trackIDs) {
+					if (!textures[trackId]) {
+						std::string& url = tracks[trackId].imageURL;
+						images.emplace(trackId, std::async(std::launch::async, [this, &url]() { return m_ImageManager.GetImage(url); }));
+					}
+					length[curr] += tracks[trackId].duration;
+				}
+				while (!images.empty()) {
+					for (auto it = images.begin(); it != images.end(); ) {
+						auto& image = it->second;
+						if (image.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+							textures[it->first] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(image.get()));
+							it = images.erase(it);
+						} else {
+							++it;
+						}
+					}
+				}
 			} else {
 				T_ERROR("PlaylistModule: Invalid data type for openPlaylist");
 			}
@@ -65,30 +93,6 @@ namespace Thingy {
 			T_ERROR("Playlist got: {0}", std::get<int>(moduleState));
 		}
 
-		if (playlists[curr].playlistCoverBuffer.empty())
-			playlistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultPlaylistImage());
-		else playlistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(Image(playlists[curr].playlistCoverBuffer)));
-		std::unordered_map<uint32_t, std::future<Image>> images;
-		length = 0;
-		for (auto& trackId : playlists[curr].trackIDs) {
-			if (!textures[trackId]) {
-				std::string& url = tracks[trackId].imageURL;
-				images.emplace(trackId, std::async(std::launch::async, [this, &url]() { return m_ImageManager.GetImage(url); }));
-			}
-			length += tracks[trackId].duration;
-		}
-		while (!images.empty()) {
-			for (auto it = images.begin(); it != images.end(); ) {
-				auto& image = it->second;
-				if (image.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-					textures[it->first] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(image.get()));
-					it = images.erase(it);
-				} else {
-					++it;
-				}
-			}
-		}
-
 	}
 
 	void PlaylistModule::OnUpdate() {}
@@ -104,7 +108,22 @@ namespace Thingy {
 		ImGui::Text(U8(playlists[curr].description.c_str()));
 		ImGui::Text("Track count: %zu", playlists[curr].trackIDs.size());
 		ImGui::SameLine();
-		ImGui::Text("Playlist length: %s", SecondsToTimeString(length).c_str());
+		ImGui::Text("Playlist length: %s", SecondsToTimeString(length[curr]).c_str());
+		if (playlists[curr].ownerID == user.userID) {
+			if (ImGui::Button("edit playlist")) {
+				error = "";
+				editedDescription = playlists[curr].description;
+				editedPlaylistName = playlists[curr].playlistName;
+				editedIsPrivate = playlists[curr].priv;
+				editedCoverPath = "";
+				editedPlaylistCover = nullptr;
+				ImGui::OpenPopup("Edit playlist");
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Delete playlist")) {
+				ImGui::OpenPopup("Delete playlist");
+			}
+		}
 		ImGui::EndGroup();
 		ImGui::BeginChild("Tracks", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);
 		
@@ -133,6 +152,8 @@ namespace Thingy {
 		
 		ImGui::EndChild();
 
+		EditPlaylistModal();
+		DeletePlaylistModal();
 	}
 
 	uint16_t PlaylistModule::OnRender() {
@@ -151,5 +172,96 @@ namespace Thingy {
 			ImGui::EndDisabled();
 		}
 		return upProps;
+	}
+
+	void PlaylistModule::EditPlaylistModal() {
+		ImVec2 center = ImVec2(ImGui::GetIO().DisplaySize.x * 0.5f, ImGui::GetIO().DisplaySize.y * 0.5f);
+		ImVec2 modalSize = ImVec2(310.0f, 600.0f);
+		ImVec2 modalPos = ImVec2(center.x - modalSize.x * 0.5f, center.y - modalSize.y * 0.5f);
+		ImGui::SetNextWindowPos(modalPos);
+		ImGui::SetNextWindowSize(modalSize);
+
+		if (ImGui::BeginPopupModal("Edit playlist", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
+			ImGui::SameLine(ImGui::GetWindowWidth() - 20);
+			if (ImGui::Button("X")) ImGui::CloseCurrentPopup();
+
+			ImGui::Image((ImTextureID)(intptr_t)(editedPlaylistCover == nullptr ? playlistCover.get() : editedPlaylistCover.get()), ImVec2(100.0f, 100.0f));
+			if (ImGui::IsItemHovered()) {
+				upProps |= BIT(3);
+			}
+			if (ImGui::IsItemClicked()) {
+				std::string imagePath;
+				if (!OpenFileExplorer(imagePath)) {
+					T_ERROR("OpenFileExplorer failed!");
+				} else {
+					if (IsImageFile(imagePath)) {
+						editedCoverPath = imagePath;
+						editedPlaylistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromFile(editedCoverPath.c_str()));
+
+					} else {
+						T_INFO("not image path: {0}", imagePath);
+					}
+				}
+
+			}
+			ImGui::InputText("Playlist Name", &editedPlaylistName, 0, ResizeCallback, (void*)&editedPlaylistName);
+			ImGui::InputText("Description", &editedDescription, 0, ResizeCallback, (void*)&editedDescription);
+			ImGui::Checkbox("Private?", &editedIsPrivate);
+			if (ImGui::Button("Save Changes")) {
+				if (editedPlaylistName.size() < 3) {
+					error = "Playlist name cannot be shorter than 3 characters!";
+				} else {
+					std::string url = "http://localhost:3000/playlists/" + std::to_string(playlists[curr].playlistID);
+					std::string token;
+					m_AuthManager.RetrieveToken("accessToken", token);
+					m_NetworkManager.UpdatePlaylist(url, editedPlaylistName, editedDescription, editedIsPrivate, editedCoverPath, token);
+					m_MessageManager.Publish("updateUser", "");
+					auto it = std::find_if(user.playlists.begin(), user.playlists.end(), [&](const Playlist& playlist) {
+						return playlist.playlistID == playlists[curr].playlistID;
+						});
+					if (it != user.playlists.end()) {
+						playlists[curr] = *it;
+						if (playlists[curr].playlistCoverBuffer.empty())
+							playlistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultPlaylistImage());
+						else playlistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(Image(playlists[curr].playlistCoverBuffer)));
+
+					}
+					ImGui::CloseCurrentPopup();
+				}
+			}
+			if (!error.empty()) {
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+				ImGui::Text(error.c_str());
+				ImGui::PopStyleColor();
+			}
+			ImGui::EndPopup();
+		}
+	}
+
+	void PlaylistModule::DeletePlaylistModal() {
+		ImVec2 center = ImVec2(ImGui::GetIO().DisplaySize.x * 0.5f, ImGui::GetIO().DisplaySize.y * 0.5f);
+		ImVec2 modalSize = ImVec2(100.0f, 100.0f);
+		ImVec2 modalPos = ImVec2(center.x - modalSize.x * 0.5f, center.y - modalSize.y * 0.5f);
+		ImGui::SetNextWindowPos(modalPos);
+		ImGui::SetNextWindowSize(modalSize);
+
+		if (ImGui::BeginPopupModal("Delete playlist", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
+			if (ImGui::Button("Yes")) {
+				std::string url = "http://localhost:3000/playlists/" + std::to_string(playlists[curr].playlistID);
+				std::string token;
+				m_AuthManager.RetrieveToken("accessToken", token);
+				m_NetworkManager.DeletePlaylist(url, token);
+				m_MessageManager.Publish("updateUser", "");
+				playlists[curr] = Playlist();
+				ImGui::CloseCurrentPopup();
+				m_MessageManager.Publish("homeButton", std::string("FrontPage"));
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("No")) {
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
+		}
 	}
 }

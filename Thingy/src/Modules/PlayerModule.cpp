@@ -21,18 +21,17 @@ namespace Thingy {
 			}
 			});
 
-		m_MessageManager.Subscribe("userChanged", GetModuleName(), [this](const MessageData data) {
-			UserInfoChanged();
-			});
+			m_MessageManager.Subscribe("userChanged", GetModuleName(), [this](const MessageData data) {
+				UserInfoChanged();
+				});
 
-		
+
 	}
 
-	void PlayerModule::OnLoad(const std::variant<int, std::string> moduleState) {
-	}
+	void PlayerModule::OnLoad(const std::variant<int, std::string> moduleState) {}
 
 	void PlayerModule::OnUpdate() {
-		int currentTrackID = m_AudioManager.GetCurrentTrack().id; 
+		int currentTrackID = m_AudioManager.GetCurrentTrack().id;
 		if (isQueueOpen) {
 
 			std::unordered_map<uint32_t, std::future<Image>> images;
@@ -73,6 +72,12 @@ namespace Thingy {
 		} else {
 			PlayerView();
 		}
+		if (addTrackToPlaylist) {
+			ImGui::OpenPopup("Add to playlists");
+			addTrackToPlaylist = false;
+		}
+		PlaylistModal();
+
 	}
 
 	uint16_t PlayerModule::OnRender() {
@@ -95,7 +100,7 @@ namespace Thingy {
 	}
 
 	void PlayerModule::QueueView() {
-		if (ImGui::BeginTable("QueueTable", 2, ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY)) {
+		if (ImGui::BeginTable("QueueTable", 2, ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY, ImVec2(0, ImGui::GetWindowSize().y - 100.0f))) {
 			ImGui::TableSetupColumn("Cover", ImGuiTableColumnFlags_WidthFixed, 80.0f);
 			ImGui::TableSetupColumn("Info");
 
@@ -108,20 +113,49 @@ namespace Thingy {
 
 				ImGui::TableSetColumnIndex(1);
 				std::string label = std::to_string(i);
-				if (ImGui::Selectable(std::string("##" + label).c_str(), false, ImGuiSelectableFlags_AllowOverlap, ImVec2(0, 80.0f))) {
-					m_AudioManager.ChangeMusicByTrack(track.id);
+				ImGui::Selectable(std::string("##" + label).c_str(), false, ImGuiSelectableFlags_AllowOverlap, ImVec2(0, 80.0f));
+				if (ImGui::IsItemClicked()) m_AudioManager.ChangeMusicByTrack(track.id);
+				if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
+					lastClickedIndex = i;
+					lastClickedTrack = track;
+					ImGui::OpenPopup("QueueOptions");
 				}
+
+
 
 				ImGui::SameLine();
 				ImGui::BeginGroup();
 				ImGui::Text(U8(track.title.c_str()));
 				ImGui::Text(U8(track.artistName.c_str()));
 				ImGui::EndGroup();
-				
+
 				i++;
 			}
-
+			if (ImGui::BeginPopup("QueueOptions")) {
+				if (ImGui::Button("Remove from Queue")){
+					m_AudioManager.RemoveFromQueue(lastClickedIndex);
+					ImGui::CloseCurrentPopup();
+				}
+				if (ImGui::Button("Add to Playlists")) {
+					selectedPlaylists.clear();
+					for (auto& playlist : user.playlists) {
+						if (std::find(playlist.trackIDs.begin(), playlist.trackIDs.end(), lastClickedTrack.id) != playlist.trackIDs.end()) {
+							selectedPlaylists[playlist.playlistID] = true;
+						} else {
+							selectedPlaylists[playlist.playlistID] = false;
+						}
+					}
+					addTrackToPlaylist = true;
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
 			ImGui::EndTable();
+		}
+		ImVec2 wSize = ImGui::GetWindowSize();
+		ImGui::SetCursorPos(ImVec2(wSize.x / 2 - 50, wSize.y - 50));
+		if (ImGui::Button("Player")) {
+			isQueueOpen = !isQueueOpen;
 		}
 	}
 
@@ -171,6 +205,7 @@ namespace Thingy {
 						selectedPlaylists[playlist.playlistID] = false;
 					}
 				}
+				lastClickedTrack = currentTrack;
 				ImGui::OpenPopup("Add to playlists");
 			}
 		}
@@ -184,8 +219,12 @@ namespace Thingy {
 		if (ImGui::IsItemEdited()) {
 			m_AudioManager.ChangeVolume();
 		}
+		ImVec2 wSize = ImGui::GetWindowSize();
+		ImGui::SetCursorPos(ImVec2(wSize.x / 2 - 50, wSize.y - 50));
+		if (ImGui::Button("Queue")) {
+			isQueueOpen = !isQueueOpen;
+		}
 
-		PlaylistModal();
 	}
 
 	void PlayerModule::PlaylistModal() {
@@ -224,7 +263,7 @@ namespace Thingy {
 					std::string url = "http://localhost:3000/playlists/add?playlistIds=";
 					bool hasSelected = false;
 					for (auto& playlist : user.playlists) {
-						if (selectedPlaylists[playlist.playlistID] && std::find(playlist.trackIDs.begin(), playlist.trackIDs.end(), currentTrack.id) == playlist.trackIDs.end()) {
+						if (selectedPlaylists[playlist.playlistID] && std::find(playlist.trackIDs.begin(), playlist.trackIDs.end(), lastClickedTrack.id) == playlist.trackIDs.end()) {
 							hasSelected = true;
 							url += std::to_string(playlist.playlistID) + ",";
 						}
@@ -232,7 +271,7 @@ namespace Thingy {
 					if (hasSelected) {
 						url.pop_back();
 					}
-					url += "&trackId=" + std::to_string(currentTrack.id);
+					url += "&trackId=" + std::to_string(lastClickedTrack.id);
 					T_INFO("{0}", url);
 					if (hasSelected) {
 						std::string token;
