@@ -126,23 +126,8 @@ namespace Thingy {
 	}
 
 	void SearchModule::Window() {
-		ImVec2 bar_size = ImVec2(GetSize().x - 20, 30);
-		ImGui::InvisibleButton("DragBar", bar_size);
-		if (ImGui::IsItemHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left) && !ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
-			upProps |= BIT(0);
-		}
-		if (ImGui::IsItemHovered()) {
-			upProps |= BIT(2);
-		} else {
-			upProps &= ~BIT(2);
-		}
-		if (upProps & BIT(1)) upProps &= ~BIT(1);
-		if (upProps & BIT(0) && ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
-			upProps |= BIT(1);
-			upProps &= ~BIT(0);
-		}
-		ImGui::GetWindowDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 0, 0, 255), 0.0f, 0, 5.0f);
-
+		ImVec2 barSize = ImVec2(GetSize().x - 30, 30);
+		DragBar(upProps, barSize);
 		//TODO: Show search results.
 		switch (whichToggled) {
 		case 0: { //all
@@ -227,7 +212,7 @@ namespace Thingy {
 		if (!artistResults.empty()) {
 			ImGui::Text("Artists");
 			ImGui::BeginChild("artists", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);
-			for (size_t i = 0; i < albumResults.size(); i++) {
+			for (size_t i = 0; i < artistResults.size(); i++) {
 				ImGui::BeginGroup();
 				ImGui::Image(reinterpret_cast<ImTextureID>(textures[artistResults[i].id].get()), { 200.0f, 200.0f });
 				if (ImGui::IsItemClicked()) {

@@ -55,23 +55,10 @@ namespace Thingy {
 		float width = std::clamp(100.0f * scale, 85.0f, 125.0f);
 		float height = std::clamp(100.0f * scale, 85.0f, 125.0f);
 		ImVec2 imageSize = { width , height};
-		ImVec2 bar_size = ImVec2(GetSize().x - 20, 30);
-		ImGui::InvisibleButton("DragBar", bar_size);
-		if (ImGui::IsItemHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left) && !ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
-			upProps |= BIT(0);
-		}
-		if (ImGui::IsItemHovered()) {
-			upProps |= BIT(2);
-		} else {
-			upProps &= ~BIT(2);
-		}
-		if (upProps & BIT(1)) upProps &= ~BIT(1);
-		if (upProps & BIT(0) && ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
-			upProps |= BIT(1);
-			upProps &= ~BIT(0);
-		}
-		ImGui::GetWindowDrawList()->AddRectFilled(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(55, 55, 55, 255), 3.0f, ImDrawFlags_RoundCornersAll);
-		ImVec2 winSize = ImGui::GetWindowSize();
+
+		ImVec2 barSize = ImVec2(GetSize().x - 20, 30);
+		DragBar(upProps, barSize);ImVec2 winSize = ImGui::GetWindowSize();
+
 		float centering = (winSize.x / 2) - (winSize.x / 2 / (5.0f / 4.2f));
 		bool collapse = winSize.x < 1000 ? true : false;
 		if (collapse) {

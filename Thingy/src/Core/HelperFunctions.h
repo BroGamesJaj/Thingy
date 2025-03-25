@@ -24,4 +24,6 @@ namespace Thingy {
 	bool IsImageFile(const std::string& filePath);
 
 	void CircleImage(ImTextureID user_texture_id, float diameter, const ImVec2& uv0 = ImVec2(0, 0), const ImVec2& uv1 = ImVec2(1, 1), const ImVec4& tint_col = ImVec4(1, 1, 1, 1));
+
+	void DragBar(uint16_t& upProps, ImVec2 barSize);
 }

@@ -6,6 +6,11 @@
 
 namespace Thingy {
 
+	//0 = Playlistlist
+	//1 = main content
+	//2 = player
+	static std::array<int, 3> order = { 0, 1, 2 };
+
 	typedef std::vector<std::pair<std::string, std::shared_ptr<Module>>> Modules;
 	
 	inline void LayoutChangeScene(std::string dragged, ImVec2 currentPos, Modules& modules, bool& changed) {
@@ -64,7 +69,26 @@ namespace Thingy {
 
 		virtual void LayoutChanged() = 0;
 		virtual void UpdateLayout() = 0;
-		virtual void SaveLayout() = 0;
+		virtual void SaveLayout() {
+			for (size_t i = 0; i < modules.size(); i++) {
+				if (modules[i].first == "PlayerModule") order[i] = 2;
+				else if (modules[i].first == "PlaylistListModule") order[i] = 0;
+				else order[i] = 1;
+			}
+		};
+
+		virtual void LoadLayout(std::pair<std::string, std::shared_ptr<Module>>& module) {
+			for (size_t i = 0; i < modules.size(); i++) {
+				if (module.first == "PlaylistListModule" && order[i] == 0) {
+					std::swap(module, modules[i]);
+					break;
+				}
+				if (module.first == "PlayerModule" && order[i] == 2) {
+					std::swap(module, modules[i]);
+					break;
+				}
+			}
+		}
  
 	protected:
 		Modules modules;

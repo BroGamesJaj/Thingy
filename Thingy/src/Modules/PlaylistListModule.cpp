@@ -17,22 +17,8 @@ namespace Thingy {
 	void PlaylistListModule::OnUpdate() {}
 
 	void PlaylistListModule::Window() {
-		ImVec2 bar_size = ImVec2(GetSize().x - 20, 30);
-		ImGui::InvisibleButton("DragBar", bar_size);
-		if (ImGui::IsItemHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left) && !ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
-			upProps |= BIT(0);
-		}
-		if (ImGui::IsItemHovered()) {
-			upProps |= BIT(2);
-		} else {
-			upProps &= ~BIT(2);
-		}
-		if (upProps & BIT(1)) upProps &= ~BIT(1);
-		if (upProps & BIT(0) && ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
-			upProps |= BIT(1);
-			upProps &= ~BIT(0);
-		}
-		ImGui::GetWindowDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 0, 0, 255), 0.0f, 0, 5.0f);
+		ImVec2 barSize = ImVec2(GetSize().x - 20, 30);
+		DragBar(upProps, barSize);
 
 		if (ImGui::BeginTable("PlaylistTable", 2, ImGuiTableFlags_ScrollY, ImVec2(0, ImGui::GetWindowSize().y - 100.0f))) {
 			ImGui::TableSetupColumn("Cover", ImGuiTableColumnFlags_WidthFixed, 80.0f);

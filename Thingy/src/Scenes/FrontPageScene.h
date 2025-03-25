@@ -14,7 +14,6 @@ namespace Thingy {
 
 		void LayoutChanged() override;
 		void UpdateLayout() override;
-		void SaveLayout() override;	
 
 		SCENE_CLASS_NAME("FrontPage");
 	private:

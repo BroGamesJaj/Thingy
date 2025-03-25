@@ -9,6 +9,7 @@ namespace Thingy {
 			if (data.type() == typeid(std::string)){
 				std::string name = std::any_cast<std::string>(data);
 				if (GetActiveScene()->GetSceneName() != name) {
+					m_MessageManager.Publish("change" + GetActiveScene()->GetSceneName(), "OPEN");
 					ChangeScene(name, OPEN);
 				}
 			} else {

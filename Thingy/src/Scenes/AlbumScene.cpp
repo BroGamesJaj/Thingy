@@ -30,6 +30,7 @@ namespace Thingy {
 		moduleStates.clear();
 		moduleStates = newModuleState;
 		for (auto& module : modules) {
+			LoadLayout(module);
 			if (moduleStates.find(module.first) != moduleStates.end()) {
 				module.second->OnLoad(moduleStates[module.first]);
 			} else {
@@ -65,6 +66,7 @@ namespace Thingy {
 
 	
 	void AlbumScene::BeforeSwitch() {
+		SaveLayout();
 		for (auto& module : modules) {
 			m_MessageManager.Publish("beforeSwitch" + module.first, GetSceneName());
 		}
@@ -133,6 +135,4 @@ namespace Thingy {
 
 	}
 	
-	void AlbumScene::SaveLayout() {
-	}
 }

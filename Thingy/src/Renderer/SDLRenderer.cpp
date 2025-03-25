@@ -60,7 +60,7 @@ namespace Thingy {
 		if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
 			printf("Error: SDL_Init(): %s\n", SDL_GetError());
 		}
-		SDL_SetLogPriorities(SDL_LOG_PRIORITY_VERBOSE);
+		SDL_SetLogPriorities(SDL_LOG_PRIORITY_DEBUG);
 		SetWindowFlags();
 		CreateSDLWindow(props);
 		CreateRenderer();

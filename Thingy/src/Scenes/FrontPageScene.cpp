@@ -16,6 +16,7 @@ namespace Thingy {
 	
 	void FrontPageScene::OnSwitch(std::unordered_map<std::string, std::variant<int, std::string>> newModuleState) {
 		for (auto& module : modules) {
+			LoadLayout(module);
 			module.second->OnLoad(-1);
 		}
 	}
@@ -45,6 +46,8 @@ namespace Thingy {
 	}
 
 	void FrontPageScene::BeforeSwitch() {
+		T_INFO("before Switch");
+		SaveLayout();
 		for (auto& module : modules) {
 			m_MessageManager.Publish("beforeSwitch" + module.first, GetSceneName());
 		}
@@ -81,8 +84,5 @@ namespace Thingy {
 		}
 		ImGui::DockBuilderFinish(dockspace_id);
 
-	}
-
-	void FrontPageScene::SaveLayout() {
 	}
 }

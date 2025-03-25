@@ -38,6 +38,7 @@ namespace Thingy {
 		SDL_GetWindowSizeInPixels(m_Window, &w, &h);
 		ImGui::SetNextWindowSize({ static_cast<float>(w), static_cast<float>(h) });
 		ImGui::SetNextWindowPos({ 0.0f, 0.0f });
+		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f,0.0f,0.0f,1.0f));
 		ImGui::Begin("Custom Header", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus);
 
 		const float winW = ImGui::GetWindowWidth();
@@ -58,11 +59,13 @@ namespace Thingy {
 		ImGui::SetCursorPosX(winW / 2 - std::clamp(200.0f * scale, 200.0f, 400.0f));
 		ImGui::SetNextItemWidth(400.0f * scale);
 		ImGui::PushFont(Fonts::size30);
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 2.0f);
 		ImGui::InputText("##search", &search, 0, ResizeCallback, static_cast<void*>(&search));
 		if (ImGui::IsItemFocused()) {
 			autoCompleteOn = true;
 		}
 		ImGui::PopFont();
+		ImGui::PopStyleVar();
 		if (ImGui::Button("Queue")) {
 			m_MessageManager.Publish("changeQueueOpen", "");
 		};
@@ -104,7 +107,7 @@ namespace Thingy {
 
 		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Vertical;
 		ImGui::End();
-
+		ImGui::PopStyleColor();
 		AutoComplete();
 	}
 

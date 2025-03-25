@@ -17,6 +17,7 @@ namespace Thingy {
 
 	void SearchScene::OnSwitch(std::unordered_map<std::string, std::variant<int, std::string>> newModuleState) {
 		for (auto& module : modules) {
+			LoadLayout(module);
 			module.second->OnLoad(-1);
 		}
 	}
@@ -46,6 +47,7 @@ namespace Thingy {
 	}
 
 	void SearchScene::BeforeSwitch() {
+		SaveLayout();
 		for (auto& module : modules) {
 			m_MessageManager.Publish("beforeSwitch" + module.first, GetSceneName());
 		}

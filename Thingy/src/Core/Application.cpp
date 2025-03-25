@@ -223,9 +223,6 @@ namespace Thingy {
 				sceneManager->ResetLayoutChanged();
 			}
 
-
-			//Header
-
 			sceneManager->GetActiveScene()->OnUpdate();
 			uint16_t upProps = sceneManager->GetActiveScene()->OnRender();
 

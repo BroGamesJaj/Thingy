@@ -119,4 +119,23 @@ namespace Thingy {
 		ImGui::InvisibleButton(name.data(), ImVec2(diameter,diameter));
 		ImGui::GetWindowDrawList()->AddImageRounded(user_texture_id, p_min, p_max, uv0, uv1, ImGui::GetColorU32(tint_col), diameter * 0.5f);
 	}
+
+	void DragBar(uint16_t& upProps, ImVec2 barSize) {
+		ImGui::InvisibleButton("DragBar", barSize);
+		if (ImGui::IsItemHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left) && !ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+			upProps |= BIT(0);
+		}
+		if (ImGui::IsItemHovered()) {
+			upProps |= BIT(2);
+		} else {
+			upProps &= ~BIT(2);
+		}
+		if (upProps & BIT(1)) upProps &= ~BIT(1);
+		if (upProps & BIT(0) && ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+			upProps |= BIT(1);
+			upProps &= ~BIT(0);
+		}
+		ImGui::GetWindowDrawList()->AddRectFilled(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(55, 55, 55, 255), 3.0f, ImDrawFlags_RoundCornersAll);
+
+	}
 }
