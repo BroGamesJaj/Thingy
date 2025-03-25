@@ -67,7 +67,6 @@ namespace Thingy {
 			}
 		}
 
-		virtual void LayoutChanged() = 0;
 		virtual void UpdateLayout() = 0;
 		virtual void SaveLayout() {
 			for (size_t i = 0; i < modules.size(); i++) {

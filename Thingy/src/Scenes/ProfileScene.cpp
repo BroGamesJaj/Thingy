@@ -39,8 +39,6 @@ namespace Thingy {
 		}
 	}
 
-	void ProfileScene::LayoutChanged() {}
-
 	void ProfileScene::UpdateLayout() {
 		if (!ImGui::GetCurrentContext()) {
 			T_ERROR("ImGui context is not initialized!");

@@ -12,7 +12,6 @@ namespace Thingy {
 		uint16_t OnRender() override;
 		void BeforeSwitch() override;
 
-		void LayoutChanged() override;
 		void UpdateLayout() override;
 
 		SCENE_CLASS_NAME("FrontPage");

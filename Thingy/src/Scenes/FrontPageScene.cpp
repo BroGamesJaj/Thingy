@@ -53,9 +53,6 @@ namespace Thingy {
 		}
 	}
 	
-	void FrontPageScene::LayoutChanged() {
-	}
-	
 	void FrontPageScene::UpdateLayout() {
 		if (!ImGui::GetCurrentContext()) {
 			T_ERROR("ImGui context is not initialized!");

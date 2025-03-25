@@ -40,9 +40,6 @@ namespace Thingy {
 		}
 	}
 	
-	void LoginScene::LayoutChanged() {
-	}
-	
 	void LoginScene::UpdateLayout() {
 		if (!ImGui::GetCurrentContext()) {
 			T_ERROR("ImGui context is not initialized!");

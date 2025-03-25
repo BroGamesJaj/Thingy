@@ -53,8 +53,6 @@ namespace Thingy {
 		}
 	}
 
-	void SearchScene::LayoutChanged() {}
-
 	void SearchScene::UpdateLayout() {
 		
 		if (!ImGui::GetCurrentContext()) {
