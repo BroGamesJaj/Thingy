@@ -36,7 +36,7 @@ namespace Thingy {
 
 			std::unordered_map<uint32_t, std::future<Image>> images;
 			for (auto& track : queue) {
-				if (!queueTextures[track.albumID]) {
+				if (!m_ImageManager.HasTextureAt(track.albumID)) {
 					std::string& url = track.imageURL;
 					images.emplace(track.albumID, std::async(std::launch::async, [this, &url]() { return m_ImageManager.GetImage(url); }));
 				}
@@ -46,7 +46,7 @@ namespace Thingy {
 				for (auto it = images.begin(); it != images.end(); ) {
 					auto& image = it->second;
 					if (image.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-						queueTextures[it->first] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(image.get()));
+						m_ImageManager.AddTexture(it->first, m_ImageManager.GetTextureFromImage(image.get()));
 						it = images.erase(it);
 					} else {
 						++it;
@@ -58,8 +58,8 @@ namespace Thingy {
 		if (currentTrackID != currentTrack.id && currentTrackID != -1) {
 			open = true;
 			currentTrack = m_AudioManager.GetCurrentTrack();
-			if (!queueTextures[currentTrack.albumID]) {
-				queueTextures[currentTrack.albumID] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTexture(currentTrack.imageURL));
+			if (!m_ImageManager.HasTextureAt(currentTrack.albumID)) {
+				m_ImageManager.AddTexture(currentTrack.albumID, m_ImageManager.GetTexture(currentTrack.imageURL));
 			}
 		}
 	}
@@ -109,7 +109,7 @@ namespace Thingy {
 				ImGui::TableNextRow();
 
 				ImGui::TableSetColumnIndex(0);
-				ImGui::Image(reinterpret_cast<ImTextureID>(queueTextures[track.albumID].get()), { 80.0f, 80.0f });
+				ImGui::Image(m_ImageManager.GetImTexture(track.albumID), { 80.0f, 80.0f });
 
 				ImGui::TableSetColumnIndex(1);
 				std::string label = std::to_string(i);
@@ -163,7 +163,7 @@ namespace Thingy {
 		if (m_AudioManager.GetQueue().size() == 0) {
 			ImGui::Button("image", { 300.0f, 300.0f });
 		} else {
-			ImGui::Image(reinterpret_cast<ImTextureID>(queueTextures[currentTrack.albumID].get()), {300.0f, 300.0f});
+			ImGui::Image(m_ImageManager.GetImTexture(currentTrack.albumID), {300.0f, 300.0f});
 		}
 		ImGui::Text(U8(currentTrack.title.c_str()));
 		ImGui::Text(U8(currentTrack.artistName.c_str()));
@@ -173,6 +173,9 @@ namespace Thingy {
 		if (ImGui::IsItemClicked()) {
 			m_MessageManager.Publish("openArtist", currentTrack.artistID);
 			m_MessageManager.Publish("changeScene", std::string("ArtistScene"));
+		}
+		if (ImGui::Button("Like", ImVec2(30.0f, 30.0f))) {
+
 		}
 		if (ImGui::Button("back", { 30.0f, 30.0f })) {
 			m_AudioManager.PrevTrack();
@@ -246,7 +249,7 @@ namespace Thingy {
 						selectedPlaylists[playlist.playlistID] = false;
 					ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
-					ImGui::Image(reinterpret_cast<ImTextureID>(playlistTextures[playlist.playlistID].get()), { 80.0f, 80.0f });
+					ImGui::Image(m_ImageManager.GetImTexture(playlist.playlistID), { 80.0f, 80.0f });
 					ImGui::TableSetColumnIndex(1);
 					ImGui::SameLine();
 					ImGui::BeginGroup();
@@ -272,12 +275,11 @@ namespace Thingy {
 						url.pop_back();
 					}
 					url += "&trackId=" + std::to_string(lastClickedTrack.id);
-					T_INFO("{0}", url);
 					if (hasSelected) {
 						std::string token;
 						m_AuthManager.RetrieveToken("accessToken", token);
 						std::string json;
-						T_INFO("{0}", m_NetworkManager.PostRequestAuth(url, json, token));
+						m_NetworkManager.PostRequestAuth(url, json, token);
 						m_MessageManager.Publish("updateUser", "");
 					}
 					ImGui::CloseCurrentPopup();
@@ -291,9 +293,9 @@ namespace Thingy {
 		for (size_t i = 0; i < user.playlists.size(); i++) {
 			const Playlist& currP = user.playlists[i];
 			if (currP.playlistCoverBuffer.empty()) {
-				playlistTextures[currP.playlistID] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultPlaylistImage());
+				m_ImageManager.AddTexture(currP.playlistID, m_ImageManager.GetDefaultPlaylistImage());
 			} else {
-				playlistTextures[currP.playlistID] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(Image(currP.playlistCoverBuffer)));
+				m_ImageManager.AddTexture(currP.playlistID, m_ImageManager.GetTextureFromImage(Image(currP.playlistCoverBuffer)));
 			};
 		}
 	}

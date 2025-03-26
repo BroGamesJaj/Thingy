@@ -36,8 +36,6 @@ namespace Thingy {
 		std::string newDescription = "";
 
 		const User& user;
-		std::unique_ptr<SDL_Texture, SDL_TDeleter> pfp;
-		std::unordered_map<int, std::unique_ptr<SDL_Texture, SDL_TDeleter>> playlistCovers;
 
 	};
 }

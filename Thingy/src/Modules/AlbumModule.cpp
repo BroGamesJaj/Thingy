@@ -80,8 +80,8 @@ namespace Thingy {
 		if (std::holds_alternative<int>(moduleState)) {
 			T_ERROR("album got: {0}", std::get<int>(moduleState));
 		}
-		if (!textures[album[curr].id]) 
-			textures[album[curr].id] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTexture(album[curr].imageURL));
+		if (!m_ImageManager.HasTextureAt(album[curr].id))
+			m_ImageManager.AddTexture(album[curr].id, m_ImageManager.GetTexture(album[curr].imageURL));
 
 		length = 0;
 		for (auto& track : album[curr].tracks) {
@@ -97,7 +97,7 @@ namespace Thingy {
 		ImVec2 barSize = ImVec2(GetSize().x - 20, 30);
 		DragBar(upProps, barSize);
 
-		ImGui::Image(reinterpret_cast<ImTextureID>(textures[album[curr].id].get()), {300.0f, 300.0f});
+		ImGui::Image(m_ImageManager.GetImTexture(album[curr].id), {300.0f, 300.0f});
 		ImGui::SameLine();
 		ImGui::BeginGroup();
 		ImGui::Text(U8(album[curr].name.c_str()));
@@ -124,7 +124,7 @@ namespace Thingy {
 		for (size_t i = 0; i < album[curr].tracks.size(); i++) {
 			Track& track = album[curr].tracks[i];
 			ImGui::BeginGroup();
-			ImGui::Image(reinterpret_cast<ImTextureID>(textures[album[curr].id].get()), { 200.0f, 200.0f });
+			ImGui::Image(m_ImageManager.GetImTexture(album[curr].id), { 200.0f, 200.0f });
 			if (ImGui::IsItemClicked()) {
 				std::vector<Track> tracks(album[curr].tracks.begin() + i, album[curr].tracks.end());
 				std::vector<Track> history(album[curr].tracks.begin(), album[curr].tracks.begin() + i);
@@ -177,7 +177,7 @@ namespace Thingy {
 				for (auto& playlist : user.playlists) {
 					ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
-					ImGui::Image(reinterpret_cast<ImTextureID>(playlistTextures[playlist.playlistID].get()), { 80.0f, 80.0f });
+					ImGui::Image(m_ImageManager.GetImTexture(playlist.playlistID), { 80.0f, 80.0f });
 					ImGui::TableSetColumnIndex(1);
 					ImGui::SameLine();
 					ImGui::BeginGroup();
@@ -224,9 +224,9 @@ namespace Thingy {
 		for (size_t i = 0; i < user.playlists.size(); i++) {
 			const Playlist& currP = user.playlists[i];
 			if (currP.playlistCoverBuffer.empty()) {
-				playlistTextures[currP.playlistID] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultPlaylistImage());
+				m_ImageManager.AddTexture(currP.playlistID, m_ImageManager.GetDefaultPlaylistImage());
 			} else {
-				playlistTextures[currP.playlistID] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(Image(currP.playlistCoverBuffer)));
+				m_ImageManager.AddTexture(currP.playlistID, m_ImageManager.GetTextureFromImage(Image(currP.playlistCoverBuffer)));
 			};
 		}
 	}

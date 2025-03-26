@@ -75,8 +75,25 @@ namespace Thingy {
 		SDL_Texture* GetDefaultArtistImage();
 		SDL_Texture* GetDefaultPlaylistImage();
 
+		const std::unique_ptr<SDL_Texture, SDL_TDeleter>& GetTexture(const int& identifier) {
+			return textures[identifier];
+		}
+
+		const bool HasTextureAt(const int& identifier) {
+			return (textures[identifier] ? true : false);
+		}
+		const ImTextureID GetImTexture(const int& identifier) {
+			return reinterpret_cast<ImTextureID>(textures[identifier].get());
+		}
+
+		void AddTexture(const int& identifier, SDL_Texture* texture) {
+			textures[identifier] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(texture);
+		}
+
 	private:
 		NetworkManager& m_NetworkManager;
 		SDL_Renderer* m_Renderer;
+
+		std::unordered_map<uint32_t, std::unique_ptr<SDL_Texture, SDL_TDeleter>> textures;
 	};
 }

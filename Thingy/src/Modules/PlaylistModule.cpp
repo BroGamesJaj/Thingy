@@ -12,8 +12,8 @@ namespace Thingy {
 					if (playlists[i].playlistName == playlist.playlistName) {
 						curr = i;
 						if (playlists[curr].playlistCoverBuffer.empty())
-							playlistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultPlaylistImage());
-						else playlistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(Image(playlists[curr].playlistCoverBuffer)));
+							m_ImageManager.AddTexture(playlists[curr].playlistID, m_ImageManager.GetDefaultPlaylistImage());
+						else m_ImageManager.AddTexture(playlists[curr].playlistID, m_ImageManager.GetTextureFromImage(Image(playlists[curr].playlistCoverBuffer)));
 
 						T_INFO("returned");
 						return;
@@ -36,13 +36,13 @@ namespace Thingy {
 				playlists.push_back(playlist);
 				curr = playlists.size() - 1;
 				if (playlists[curr].playlistCoverBuffer.empty())
-					playlistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultPlaylistImage());
-				else playlistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(Image(playlists[curr].playlistCoverBuffer)));
+					m_ImageManager.AddTexture(playlists[curr].playlistID, m_ImageManager.GetDefaultPlaylistImage());
+				else m_ImageManager.AddTexture(playlists[curr].playlistID, m_ImageManager.GetTextureFromImage(Image(playlists[curr].playlistCoverBuffer)));
 			
 				std::unordered_map<uint32_t, std::future<Image>> images;
 				length.push_back(0);
 				for (auto& trackId : playlists[curr].trackIDs) {
-					if (!textures[trackId]) {
+					if (!m_ImageManager.HasTextureAt(trackId)) {
 						std::string& url = tracks[trackId].imageURL;
 						images.emplace(trackId, std::async(std::launch::async, [this, &url]() { return m_ImageManager.GetImage(url); }));
 					}
@@ -52,7 +52,7 @@ namespace Thingy {
 					for (auto it = images.begin(); it != images.end(); ) {
 						auto& image = it->second;
 						if (image.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-							textures[it->first] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(image.get()));
+							m_ImageManager.AddTexture(it->first, m_ImageManager.GetTextureFromImage(image.get()));
 							it = images.erase(it);
 						} else {
 							++it;
@@ -101,7 +101,7 @@ namespace Thingy {
 		ImVec2 barSize = ImVec2(GetSize().x - 20, 30);
 		DragBar(upProps, barSize);
 
-		ImGui::Image(reinterpret_cast<ImTextureID>(playlistCover.get()), { 300.0f, 300.0f });
+		ImGui::Image(m_ImageManager.GetImTexture(playlists[curr].playlistID), {300.0f, 300.0f});
 		ImGui::SameLine();
 		ImGui::BeginGroup();
 		ImGui::Text(U8(playlists[curr].playlistName.c_str()));
@@ -109,8 +109,9 @@ namespace Thingy {
 		ImGui::Text("Track count: %zu", playlists[curr].trackIDs.size());
 		ImGui::SameLine();
 		ImGui::Text("Playlist length: %s", SecondsToTimeString(length[curr]).c_str());
-		if (playlists[curr].ownerID == user.userID) {
-			if (ImGui::Button("edit playlist")) {
+		if (playlists[curr].ownerID == user.userID && playlists[curr].playlistName != "Liked") {
+			
+			if (ImGui::Button("Edit playlist")) {
 				error = "";
 				editedDescription = playlists[curr].description;
 				editedPlaylistName = playlists[curr].playlistName;
@@ -123,6 +124,17 @@ namespace Thingy {
 			if (ImGui::Button("Delete playlist")) {
 				ImGui::OpenPopup("Delete playlist");
 			}
+		} else if(playlists[curr].ownerID != user.userID) {
+			if (ImGui::Button("Follow")) {
+				std::string url = "http://localhost:3000/followed";
+				std::string token;
+				m_AuthManager.RetrieveToken("accessToken", token);
+				char buffer[100];
+				snprintf(buffer, sizeof(buffer), R"({"FollowedID": %d, "Type": "Playlist"})", playlists[curr].playlistID);
+				std::string data = buffer;
+				std::string response = m_NetworkManager.PostRequestAuth(url, data, token);
+				T_TRACE("response: {0}", response);
+			}
 		}
 		ImGui::EndGroup();
 		ImGui::BeginChild("Tracks", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);
@@ -130,7 +142,7 @@ namespace Thingy {
 		for (size_t i = 0; i < playlists[curr].trackIDs.size(); i++) {
 			int& trackId = playlists[curr].trackIDs[i];
 			ImGui::BeginGroup();
-			ImGui::Image(reinterpret_cast<ImTextureID>(textures[trackId].get()), { 200.0f, 200.0f });
+			ImGui::Image(m_ImageManager.GetImTexture(trackId), {200.0f, 200.0f});
 			if (ImGui::IsItemClicked()) {
 				std::vector<Track> queueTracks;
 				for (size_t j = i; j < playlists[curr].trackIDs.size(); j++) {
@@ -185,7 +197,7 @@ namespace Thingy {
 			ImGui::SameLine(ImGui::GetWindowWidth() - 20);
 			if (ImGui::Button("X")) ImGui::CloseCurrentPopup();
 
-			ImGui::Image((ImTextureID)(intptr_t)(editedPlaylistCover == nullptr ? playlistCover.get() : editedPlaylistCover.get()), ImVec2(100.0f, 100.0f));
+			ImGui::Image((editedPlaylistCover == nullptr ? m_ImageManager.GetImTexture(playlists[curr].playlistID) : reinterpret_cast<ImTextureID>(editedPlaylistCover.get())), ImVec2(100.0f, 100.0f));
 			if (ImGui::IsItemHovered()) {
 				upProps |= BIT(3);
 			}
@@ -222,8 +234,8 @@ namespace Thingy {
 					if (it != user.playlists.end()) {
 						playlists[curr] = *it;
 						if (playlists[curr].playlistCoverBuffer.empty())
-							playlistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultPlaylistImage());
-						else playlistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(Image(playlists[curr].playlistCoverBuffer)));
+							m_ImageManager.AddTexture(playlists[curr].playlistID, m_ImageManager.GetDefaultPlaylistImage());
+						else m_ImageManager.AddTexture(playlists[curr].playlistID, m_ImageManager.GetTextureFromImage(Image(playlists[curr].playlistCoverBuffer)));
 
 					}
 					ImGui::CloseCurrentPopup();

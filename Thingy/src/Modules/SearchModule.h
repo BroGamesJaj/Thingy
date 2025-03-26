@@ -55,7 +55,6 @@ namespace Thingy {
 		const User& user;
 
 		std::unordered_map<uint32_t, std::future<Image>> imageFutures;
-		std::unordered_map<uint32_t, std::unique_ptr<SDL_Texture, SDL_TDeleter>> textures;
 		std::vector<std::string> buttons = { "all", "tags", "tracks", "albums", "artists", "playlists" };
 		int whichToggled = 0;
 

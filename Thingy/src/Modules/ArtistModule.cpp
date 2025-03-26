@@ -77,18 +77,18 @@ namespace Thingy {
 		if (std::holds_alternative<int>(moduleState)) {
 			T_ERROR("artist got: {0}", std::get<int>(moduleState));
 		}
-		if (!textures[artists[curr].id]) {
+		if (!m_ImageManager.HasTextureAt(artists[curr].id)) {
 			if (artists[curr].artistImageURL == "") {
-			textures[artists[curr].id] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultArtistImage());
+				m_ImageManager.AddTexture(artists[curr].id, m_ImageManager.GetDefaultArtistImage());
 			} else {
-				textures[artists[curr].id] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTexture(artists[curr].artistImageURL));
+				m_ImageManager.AddTexture(artists[curr].id, m_ImageManager.GetTexture(artists[curr].artistImageURL));
 			}
 
 		}
 		imageFutures.clear();
 		
 		for (auto& album : artists[curr].albums) {
-			if (!albumTextures[artists[curr].id][album.id]) {
+			if (!m_ImageManager.HasTextureAt(album.id)) {
 				std::string& url = album.imageURL;
 				imageFutures.emplace(album.id, std::async(std::launch::async, [this, &url]() { return m_ImageManager.GetImage(url); }));
 			}
@@ -101,7 +101,7 @@ namespace Thingy {
 			for (auto it = imageFutures.begin(); it != imageFutures.end(); ) {
 				auto& image = it->second;
 				if (image.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-					albumTextures[artists[curr].id][it->first] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(image.get()));
+					m_ImageManager.AddTexture(it->first, m_ImageManager.GetTextureFromImage(image.get()));
 					it = imageFutures.erase(it);
 				} else {
 					++it;
@@ -114,7 +114,7 @@ namespace Thingy {
 		ImVec2 barSize = ImVec2(GetSize().x - 20, 30);
 		DragBar(upProps, barSize);
 
-		ImGui::Image(reinterpret_cast<ImTextureID>(textures[artists[curr].id].get()), { 300.0f, 300.0f });
+		ImGui::Image(m_ImageManager.GetImTexture(artists[curr].id), { 300.0f, 300.0f });
 		ImGui::SameLine();
 		ImGui::BeginGroup();
 		ImGui::Text(U8(artists[curr].artistName.c_str()));
@@ -126,7 +126,7 @@ namespace Thingy {
 		for (size_t i = 0; i < artists[curr].albums.size(); i++) {
 			Album& album = artists[curr].albums[i];
 			ImGui::BeginGroup();
-			ImGui::Image(reinterpret_cast<ImTextureID>(albumTextures[artists[curr].id][album.id].get()), {200.0f, 200.0f});
+			ImGui::Image(m_ImageManager.GetImTexture(album.id), {200.0f, 200.0f});
 			if (ImGui::IsItemClicked()) {
 				m_MessageManager.Publish("openAlbum", album);
 				m_MessageManager.Publish("changeScene", std::string("AlbumScene"));

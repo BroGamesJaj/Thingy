@@ -42,8 +42,6 @@ namespace Thingy {
 		AudioManager& m_AudioManager;
 		ImageManager& m_ImageManager;
 		AuthManager& m_AuthManager;
-		std::unordered_map<uint32_t, std::unique_ptr<SDL_Texture, SDL_TDeleter>> textures;
-		std::unordered_map<uint32_t, std::unique_ptr<SDL_Texture, SDL_TDeleter>> playlistTextures;
 
 		const User& user = m_AuthManager.GetUser();
 		bool loggedIn = false;

@@ -30,7 +30,7 @@ namespace Thingy {
 				ImGui::TableNextRow();
 
 				ImGui::TableSetColumnIndex(0);
-				ImGui::Image(reinterpret_cast<ImTextureID>(playlistTextures[playlist.playlistID].get()), { 80.0f, 80.0f });
+				ImGui::Image(m_ImageManager.GetImTexture(playlist.playlistID), { 80.0f, 80.0f });
 				ImGui::TableSetColumnIndex(1);
 				std::string label = std::to_string(i);
 				if (ImGui::Selectable(std::string("##" + label).c_str(), false, ImGuiSelectableFlags_AllowOverlap, ImVec2(0, 80.0f))) {
@@ -85,9 +85,9 @@ namespace Thingy {
 
 		for (auto& playlist : user.playlists) {
 			if (playlist.playlistCoverBuffer.empty()) {
-				playlistTextures[playlist.playlistID] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultPlaylistImage());
+				m_ImageManager.AddTexture(playlist.playlistID, m_ImageManager.GetDefaultPlaylistImage());
 			} else {
-				playlistTextures[playlist.playlistID] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(Image(playlist.playlistCoverBuffer)));
+				m_ImageManager.AddTexture(playlist.playlistID, m_ImageManager.GetTextureFromImage(Image(playlist.playlistCoverBuffer)));
 			}
 		}
 	}

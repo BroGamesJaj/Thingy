@@ -38,7 +38,6 @@ namespace Thingy {
 			return false;
 		}
 		URLSanitizer(url);
-		T_INFO("{0}", url.c_str());
 		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
@@ -237,7 +236,6 @@ namespace Thingy {
 		std::string response;
 		struct curl_slist* headers = nullptr;
 		long responseCode;
-		T_INFO("data: {0}", data.empty());
 		if (!curl) {
 			std::cout << "ERROR : Curl initialization\n" << std::endl;
 			CleanupGet(curl, headers);

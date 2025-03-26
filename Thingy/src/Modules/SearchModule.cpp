@@ -77,21 +77,21 @@ namespace Thingy {
 	void SearchModule::LoadTextures() {
 		imageFutures.clear();
 		for (auto& track : trackResults) {
-			if (!textures[track.id]) {
+			if (!m_ImageManager.HasTextureAt(track.id)) {
 				std::string& url = track.imageURL;
 				imageFutures.emplace(track.id, std::async(std::launch::async, [this, &url]() { return m_ImageManager.GetImage(url); }));
 			}
 		}
 		for (auto& album : albumResults) {
-			if (!textures[album.id]) {
+			if (!m_ImageManager.HasTextureAt(album.id)) {
 				std::string& url = album.imageURL;
 				imageFutures.emplace(album.id, std::async(std::launch::async, [this, &url]() { return m_ImageManager.GetImage(url); }));
 			}
 		}
 		for (auto& artist : artistResults) {
-			if (!textures[artist.id]) {
+			if (!m_ImageManager.HasTextureAt(artist.id)) {
 				if (artist.artistImageURL == "") {
-					textures[artist.id] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultArtistImage());
+					m_ImageManager.AddTexture(artist.id, m_ImageManager.GetDefaultArtistImage());
 				} else {
 					std::string& url = artist.artistImageURL;
 					imageFutures.emplace(artist.id, std::async(std::launch::async, [this, &url]() { return m_ImageManager.GetImage(url); }));
@@ -99,11 +99,11 @@ namespace Thingy {
 			}
 		}
 		for (auto& playlist : playlistResults) {
-			if (!textures[playlist.playlistID]) {
+			if (!m_ImageManager.HasTextureAt(playlist.playlistID)) {
 				if (playlist.playlistCoverBuffer.empty()) {
-					textures[playlist.playlistID] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultPlaylistImage());
+					m_ImageManager.AddTexture(playlist.playlistID, m_ImageManager.GetDefaultPlaylistImage());
 				} else {
-					textures[playlist.playlistID] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(Image(playlist.playlistCoverBuffer)));
+					m_ImageManager.AddTexture(playlist.playlistID, m_ImageManager.GetTextureFromImage(Image(playlist.playlistCoverBuffer)));
 				}
 			}
 		}
@@ -116,7 +116,7 @@ namespace Thingy {
 			for (auto it = imageFutures.begin(); it != imageFutures.end(); ) {
 				auto& image = it->second;
 				if (image.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-					textures[it->first] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(image.get()));
+					m_ImageManager.AddTexture(it->first, m_ImageManager.GetTextureFromImage(image.get()));
 					it = imageFutures.erase(it);
 				} else {
 					++it;
@@ -184,7 +184,7 @@ namespace Thingy {
 			ImGui::BeginChild("Tracks", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);
 			for (size_t i = 0; i < trackResults.size(); i++) {
 				ImGui::BeginGroup();
-				ImGui::Image(reinterpret_cast<ImTextureID>(textures[trackResults[i].id].get()), { 200.0f, 200.0f });
+				ImGui::Image(m_ImageManager.GetImTexture(trackResults[i].id), {200.0f, 200.0f});
 				if (ImGui::IsItemClicked()) {
 				};
 				LimitedTextWrap(trackResults[i].title.c_str(), 180, 3);
@@ -199,7 +199,7 @@ namespace Thingy {
 			ImGui::BeginChild("Albums", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);
 			for (size_t i = 0; i < albumResults.size(); i++) {
 				ImGui::BeginGroup();
-				ImGui::Image(reinterpret_cast<ImTextureID>(textures[albumResults[i].id].get()), {200.0f, 200.0f});
+				ImGui::Image(m_ImageManager.GetImTexture(albumResults[i].id), {200.0f, 200.0f});
 				if (ImGui::IsItemClicked()) {
 				};
 				LimitedTextWrap(albumResults[i].name.c_str(), 180, 3);
@@ -214,7 +214,7 @@ namespace Thingy {
 			ImGui::BeginChild("artists", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);
 			for (size_t i = 0; i < artistResults.size(); i++) {
 				ImGui::BeginGroup();
-				ImGui::Image(reinterpret_cast<ImTextureID>(textures[artistResults[i].id].get()), { 200.0f, 200.0f });
+				ImGui::Image(m_ImageManager.GetImTexture(artistResults[i].id), { 200.0f, 200.0f });
 				if (ImGui::IsItemClicked()) {
 				};
 				LimitedTextWrap(artistResults[i].artistName.c_str(), 180, 3);
@@ -229,7 +229,7 @@ namespace Thingy {
 			ImGui::BeginChild("playlists", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);
 			for (size_t i = 0; i < playlistResults.size(); i++) {
 				ImGui::BeginGroup();
-				ImGui::Image(reinterpret_cast<ImTextureID>(textures[playlistResults[i].playlistID].get()), { 200.0f, 200.0f });
+				ImGui::Image(m_ImageManager.GetImTexture(playlistResults[i].playlistID), { 200.0f, 200.0f });
 				if (ImGui::IsItemClicked()) {
 				};
 				LimitedTextWrap(playlistResults[i].playlistName.c_str(), 180, 3);
@@ -248,7 +248,7 @@ namespace Thingy {
 			ImGui::Text("No results :c");
 		} else {
 
-			if (ImGui::ImageButton("##highlighted", reinterpret_cast<ImTextureID>(textures[trackResults[0].id].get()), ImVec2(200.0f, 200.0f))) {
+			if (ImGui::ImageButton("##highlighted", m_ImageManager.GetImTexture(trackResults[0].id), ImVec2(200.0f, 200.0f))) {
 				m_MessageManager.Publish("startMusic", trackResults[0]);
 			};
 			ImGui::SameLine();
@@ -280,7 +280,7 @@ namespace Thingy {
 						ImGui::TableNextRow();
 						ImGui::TableSetColumnIndex(0);
 						std::string label = "##" + std::to_string(i);
-						if (ImGui::ImageButton(label.c_str(), reinterpret_cast<ImTextureID>(textures[trackResults[i].id].get()), ImVec2(100.0f, 100.0f))) {
+						if (ImGui::ImageButton(label.c_str(), m_ImageManager.GetImTexture(trackResults[i].id), ImVec2(100.0f, 100.0f))) {
 							m_MessageManager.Publish("startMusic", trackResults[i]);
 						};
 						ImGui::TableSetColumnIndex(1);
@@ -313,7 +313,7 @@ namespace Thingy {
 			ImGui::Text("No results :c");
 		} else {
 
-			if (ImGui::ImageButton("##highlighted", reinterpret_cast<ImTextureID>(textures[albumResults[0].id].get()), ImVec2(200.0f, 200.0f))) {
+			if (ImGui::ImageButton("##highlighted", m_ImageManager.GetImTexture(albumResults[0].id), ImVec2(200.0f, 200.0f))) {
 				m_MessageManager.Publish("openAlbum", albumResults[0]);
 				m_MessageManager.Publish("changeScene", std::string("AlbumScene"));
 			};
@@ -338,7 +338,7 @@ namespace Thingy {
 						ImGui::TableNextRow();
 						ImGui::TableSetColumnIndex(0);
 						std::string label = "##" + std::to_string(i);
-						if (ImGui::ImageButton(label.c_str(), reinterpret_cast<ImTextureID>(textures[albumResults[i].id].get()), ImVec2(100.0f, 100.0f))) {
+						if (ImGui::ImageButton(label.c_str(), m_ImageManager.GetImTexture(albumResults[i].id), ImVec2(100.0f, 100.0f))) {
 							m_MessageManager.Publish("openAlbum", albumResults[i]);
 							m_MessageManager.Publish("changeScene", std::string("AlbumScene"));
 						};
@@ -364,7 +364,7 @@ namespace Thingy {
 			ImGui::Text("No results :c");
 		} else {
 
-			if (ImGui::ImageButton("##highlighted", reinterpret_cast<ImTextureID>(textures[artistResults[0].id].get()), ImVec2(200.0f, 200.0f))) {
+			if (ImGui::ImageButton("##highlighted", m_ImageManager.GetImTexture(artistResults[0].id), ImVec2(200.0f, 200.0f))) {
 				m_MessageManager.Publish("openArtist", artistResults[0].id);
 				m_MessageManager.Publish("changeScene", std::string("ArtistScene"));
 			};
@@ -388,7 +388,7 @@ namespace Thingy {
 						ImGui::TableNextRow();
 						ImGui::TableSetColumnIndex(0);
 						std::string label = "##" + std::to_string(i);
-						if (ImGui::ImageButton(label.c_str(), reinterpret_cast<ImTextureID>(textures[artistResults[i].id].get()), ImVec2(100.0f, 100.0f))) {
+						if (ImGui::ImageButton(label.c_str(), m_ImageManager.GetImTexture(artistResults[i].id), ImVec2(100.0f, 100.0f))) {
 							m_MessageManager.Publish("openArtist", artistResults[i].id);
 							m_MessageManager.Publish("changeScene", std::string("ArtistScene"));
 						};
@@ -413,7 +413,7 @@ namespace Thingy {
 			ImGui::Text("No results :c");
 		} else {
 
-			if (ImGui::ImageButton("##highlighted", reinterpret_cast<ImTextureID>(textures[playlistResults[0].playlistID].get()), ImVec2(200.0f, 200.0f))) {
+			if (ImGui::ImageButton("##highlighted", m_ImageManager.GetImTexture(playlistResults[0].playlistID), ImVec2(200.0f, 200.0f))) {
 				m_MessageManager.Publish("openPlaylist", playlistResults[0]);
 				m_MessageManager.Publish("changeScene", std::string("PlaylistScene"));
 			};
@@ -438,7 +438,7 @@ namespace Thingy {
 						ImGui::TableNextRow();
 						ImGui::TableSetColumnIndex(0);
 						std::string label = "##" + std::to_string(i);
-						if (ImGui::ImageButton(label.c_str(), reinterpret_cast<ImTextureID>(textures[playlistResults[i].playlistID].get()), ImVec2(100.0f, 100.0f))) {
+						if (ImGui::ImageButton(label.c_str(), m_ImageManager.GetImTexture(playlistResults[i].playlistID), ImVec2(100.0f, 100.0f))) {
 							m_MessageManager.Publish("openPlaylist", playlistResults[i].playlistID);
 							m_MessageManager.Publish("changeScene", std::string("PlaylistScene"));
 						};
@@ -548,7 +548,6 @@ namespace Thingy {
 		if (parsed.empty() || parsed.contains("message")) {
 			T_INFO("no results");
 		} else {
-			T_INFO("{0}", parsed.dump());
 			for (size_t i = 0; i < parsed.size(); i++) {
 
 				Playlist currPlaylist = parsed[i];

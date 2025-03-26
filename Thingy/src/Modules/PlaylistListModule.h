@@ -32,7 +32,6 @@ namespace Thingy {
 		
 		const User& user;
 		bool loggedIn = false;
-		std::unordered_map<uint32_t, std::unique_ptr<SDL_Texture, SDL_TDeleter>> playlistTextures;
 
 		std::string newPlaylistName = "";
 		std::string newDescription = "";

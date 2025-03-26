@@ -45,8 +45,6 @@ namespace Thingy {
 		AudioManager& m_AudioManager;
 		ImageManager& m_ImageManager;
 		AuthManager& m_AuthManager;
-		std::unique_ptr<SDL_Texture, SDL_TDeleter> playlistCover;
-		std::unordered_map<uint32_t, std::unique_ptr<SDL_Texture, SDL_TDeleter>> textures;
 
 		std::string editedPlaylistName = "";
 		std::string editedDescription = "";

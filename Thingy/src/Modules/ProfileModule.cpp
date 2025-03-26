@@ -16,7 +16,6 @@ namespace Thingy {
 
 	void ProfileModule::OnLoad(const std::variant<int, std::string> moduleState) {
 		if (!loggedIn) {
-			pfp.reset();
 			m_MessageManager.Publish("changeScene", std::string("FrontPage"));
 		}
 		UserInfoChanged();
@@ -24,14 +23,13 @@ namespace Thingy {
 
 	void ProfileModule::OnUpdate() {
 		if (!loggedIn) {
-			pfp.reset();
 			m_MessageManager.Publish("changeScene", std::string("FrontPage"));
 		}
 	}
 
 	void ProfileModule::Window() {
 		ImGui::BeginGroup();
-		CircleImage((ImTextureID)(intptr_t)pfp.get(), 300.0f);
+		CircleImage(m_ImageManager.GetImTexture(user.userID), 300.0f);
 		if (ImGui::IsItemHovered()) {
 			upProps |= BIT(3);
 		}
@@ -102,7 +100,7 @@ namespace Thingy {
 		ImGui::BeginChild("Playlists", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);
 		for (size_t i = 0; i < user.playlists.size(); i++) {
 			ImGui::BeginGroup();
-			ImGui::Image(reinterpret_cast<ImTextureID>(playlistCovers[user.playlists[i].playlistID].get()), ImVec2(200.0f, 200.0f));
+			ImGui::Image(m_ImageManager.GetImTexture(user.playlists[i].playlistID), ImVec2(200.0f, 200.0f));
 			if (ImGui::IsItemClicked()) {
 				m_MessageManager.Publish("openPlaylist", user.playlists[i]);
 				m_MessageManager.Publish("changeScene", std::string("PlaylistScene"));
@@ -124,17 +122,16 @@ namespace Thingy {
 
 	void ProfileModule::UserInfoChanged() {
 		if (user.pfpBuffer.empty()) {
-			pfp = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultArtistImage());
+			m_ImageManager.AddTexture(user.userID, m_ImageManager.GetDefaultArtistImage());
 		} else {
-			pfp = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(Image(user.pfpBuffer)));
+			m_ImageManager.AddTexture(user.userID, m_ImageManager.GetTextureFromImage(Image(user.pfpBuffer)));
 		}
 		for (size_t i = 0; i < user.playlists.size(); i++) {
 			const Playlist& currP = user.playlists[i];
 			if (currP.playlistCoverBuffer.empty()) {
-				playlistCovers[currP.playlistID] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultPlaylistImage());
+				m_ImageManager.AddTexture(currP.playlistID, m_ImageManager.GetDefaultPlaylistImage());
 			} else {
-
-				playlistCovers[currP.playlistID] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(Image(currP.playlistCoverBuffer)));
+				m_ImageManager.AddTexture(currP.playlistID, m_ImageManager.GetTextureFromImage(Image(currP.playlistCoverBuffer)));
 			};
 		}
 	}

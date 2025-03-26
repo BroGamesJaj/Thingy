@@ -4,6 +4,13 @@
 
 namespace Thingy {
 
+	enum FollowedType {
+		PLAYLIST,
+		ARTIST,
+		ALBUM
+
+	};
+
 	struct User {
 		int userID = -1;
 		std::string username = "";
@@ -12,6 +19,7 @@ namespace Thingy {
 
 		std::vector<uint8_t> pfpBuffer;
 		std::vector<Playlist> playlists;
+		std::vector<std::pair<int, FollowedType>> followed;
 
 		inline std::string toString() const {
 			std::ostringstream oss;
