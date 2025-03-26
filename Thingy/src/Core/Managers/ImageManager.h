@@ -75,10 +75,6 @@ namespace Thingy {
 		SDL_Texture* GetDefaultArtistImage();
 		SDL_Texture* GetDefaultPlaylistImage();
 
-		const std::unique_ptr<SDL_Texture, SDL_TDeleter>& GetTexture(const int& identifier) {
-			return textures[identifier];
-		}
-
 		const bool HasTextureAt(const int& identifier) {
 			return (textures[identifier] ? true : false);
 		}
@@ -90,10 +86,22 @@ namespace Thingy {
 			textures[identifier] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(texture);
 		}
 
+		const bool HasPlaylistTextureAt(const int& identifier) {
+			return (playlistTextures[identifier] ? true : false);
+		}
+		const ImTextureID GetPlaylistImTexture(const int& identifier) {
+			return reinterpret_cast<ImTextureID>(playlistTextures[identifier].get());
+		}
+
+		void AddPlaylistTexture(const int& identifier, SDL_Texture* texture) {
+			playlistTextures[identifier] = std::unique_ptr<SDL_Texture, SDL_TDeleter>(texture);
+		}
 	private:
 		NetworkManager& m_NetworkManager;
 		SDL_Renderer* m_Renderer;
 
 		std::unordered_map<uint32_t, std::unique_ptr<SDL_Texture, SDL_TDeleter>> textures;
+		std::unordered_map<uint32_t, std::unique_ptr<SDL_Texture, SDL_TDeleter>> userTextures;
+		std::unordered_map<uint32_t, std::unique_ptr<SDL_Texture, SDL_TDeleter>> playlistTextures;
 	};
 }

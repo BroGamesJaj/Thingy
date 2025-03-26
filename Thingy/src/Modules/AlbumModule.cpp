@@ -9,7 +9,7 @@ namespace Thingy {
 				if (data.type() == typeid(Album)) {
 					Album recAlbum = std::any_cast<Album>(data);
 					for (size_t i = 0; i < album.size(); i++) {
-						if (album[i].name == recAlbum.name) {
+						if (album[i].id == recAlbum.id) {
 							curr = i;
 							T_INFO("returned");
 							return;
@@ -117,6 +117,16 @@ namespace Thingy {
 			if (ImGui::Button("Add to Playlist")) {
 				selectedPlaylists.clear();
 				ImGui::OpenPopup("Add to playlists");
+			}
+			if (ImGui::Button("Follow")) {
+				std::string url = "http://localhost:3000/followed";
+				std::string token;
+				m_AuthManager.RetrieveToken("accessToken", token);
+				char buffer[100];
+				snprintf(buffer, sizeof(buffer), R"({"FollowedID": %d, "Type": "Album"})", album[curr].id);
+				std::string data = buffer;
+				m_NetworkManager.PostRequestAuth(url, data, token);
+				m_MessageManager.Publish("updateUser", "");
 			}
 		}
 		ImGui::EndGroup();

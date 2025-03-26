@@ -9,12 +9,46 @@ namespace Thingy {
 			if (data.type() == typeid(Playlist)) {
 				Playlist playlist = std::any_cast<Playlist>(data);
 				for (size_t i = 0; i < playlists.size(); i++) {
-					if (playlists[i].playlistName == playlist.playlistName) {
+					if (playlists[i].playlistID == playlist.playlistID) {
 						curr = i;
 						if (playlists[curr].playlistCoverBuffer.empty())
-							m_ImageManager.AddTexture(playlists[curr].playlistID, m_ImageManager.GetDefaultPlaylistImage());
-						else m_ImageManager.AddTexture(playlists[curr].playlistID, m_ImageManager.GetTextureFromImage(Image(playlists[curr].playlistCoverBuffer)));
-
+							m_ImageManager.AddPlaylistTexture(playlists[curr].playlistID, m_ImageManager.GetDefaultPlaylistImage());
+						else m_ImageManager.AddPlaylistTexture(playlists[curr].playlistID, m_ImageManager.GetTextureFromImage(Image(playlists[curr].playlistCoverBuffer)));
+						playlists[curr] = playlist;
+						std::unordered_map<uint32_t, std::future<Image>> images;
+						length[curr] = 0;
+						for (auto& trackId : playlists[curr].trackIDs) {
+							if (!m_ImageManager.HasTextureAt(trackId)) {
+								std::string& url = tracks[trackId].imageURL;
+								images.emplace(trackId, std::async(std::launch::async, [this, &url]() { return m_ImageManager.GetImage(url); }));
+							}
+							length[curr] += tracks[trackId].duration;
+						}
+						while (!images.empty()) {
+							for (auto it = images.begin(); it != images.end(); ) {
+								auto& image = it->second;
+								if (image.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+									m_ImageManager.AddTexture(it->first, m_ImageManager.GetTextureFromImage(image.get()));
+									it = images.erase(it);
+								} else {
+									++it;
+								}
+							}
+						}
+						std::string url = "https://api.jamendo.com/v3.0/tracks/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&limit=200";
+						bool needsUpdate = false;
+						for (auto& trackId : playlist.trackIDs) {
+							if (tracks.find(trackId) == tracks.end()) {
+								url += "&id[]=" + std::to_string(trackId);
+								needsUpdate = true;
+							}
+						}
+						if (needsUpdate) {
+							std::vector<Track> newTracks = m_NetworkManager.GetTrack(url);
+							for (auto& newTrack : newTracks) {
+								tracks[newTrack.id] = newTrack;
+							}
+						}
 						T_INFO("returned");
 						return;
 					}
@@ -36,8 +70,8 @@ namespace Thingy {
 				playlists.push_back(playlist);
 				curr = playlists.size() - 1;
 				if (playlists[curr].playlistCoverBuffer.empty())
-					m_ImageManager.AddTexture(playlists[curr].playlistID, m_ImageManager.GetDefaultPlaylistImage());
-				else m_ImageManager.AddTexture(playlists[curr].playlistID, m_ImageManager.GetTextureFromImage(Image(playlists[curr].playlistCoverBuffer)));
+					m_ImageManager.AddPlaylistTexture(playlists[curr].playlistID, m_ImageManager.GetDefaultPlaylistImage());
+				else m_ImageManager.AddPlaylistTexture(playlists[curr].playlistID, m_ImageManager.GetTextureFromImage(Image(playlists[curr].playlistCoverBuffer)));
 			
 				std::unordered_map<uint32_t, std::future<Image>> images;
 				length.push_back(0);
@@ -101,7 +135,7 @@ namespace Thingy {
 		ImVec2 barSize = ImVec2(GetSize().x - 20, 30);
 		DragBar(upProps, barSize);
 
-		ImGui::Image(m_ImageManager.GetImTexture(playlists[curr].playlistID), {300.0f, 300.0f});
+		ImGui::Image(m_ImageManager.GetPlaylistImTexture(playlists[curr].playlistID), {300.0f, 300.0f});
 		ImGui::SameLine();
 		ImGui::BeginGroup();
 		ImGui::Text(U8(playlists[curr].playlistName.c_str()));
@@ -109,7 +143,7 @@ namespace Thingy {
 		ImGui::Text("Track count: %zu", playlists[curr].trackIDs.size());
 		ImGui::SameLine();
 		ImGui::Text("Playlist length: %s", SecondsToTimeString(length[curr]).c_str());
-		if (playlists[curr].ownerID == user.userID && playlists[curr].playlistName != "Liked") {
+		if (loggedIn && playlists[curr].ownerID == user.userID && playlists[curr].playlistName != "Liked") {
 			
 			if (ImGui::Button("Edit playlist")) {
 				error = "";
@@ -124,7 +158,7 @@ namespace Thingy {
 			if (ImGui::Button("Delete playlist")) {
 				ImGui::OpenPopup("Delete playlist");
 			}
-		} else if(playlists[curr].ownerID != user.userID) {
+		} else if(playlists[curr].ownerID != user.userID && loggedIn) {
 			if (ImGui::Button("Follow")) {
 				std::string url = "http://localhost:3000/followed";
 				std::string token;
@@ -132,8 +166,8 @@ namespace Thingy {
 				char buffer[100];
 				snprintf(buffer, sizeof(buffer), R"({"FollowedID": %d, "Type": "Playlist"})", playlists[curr].playlistID);
 				std::string data = buffer;
-				std::string response = m_NetworkManager.PostRequestAuth(url, data, token);
-				T_TRACE("response: {0}", response);
+				m_NetworkManager.PostRequestAuth(url, data, token);
+				m_MessageManager.Publish("updateUser", "");
 			}
 		}
 		ImGui::EndGroup();
@@ -152,8 +186,8 @@ namespace Thingy {
 				for (size_t j = 0; j < i; j++) {
 					history.push_back(tracks[playlists[curr].trackIDs[j]]);
 				}
-				m_MessageManager.Publish("newHistory", history);
 				m_AudioManager.ClearQueue();
+				m_MessageManager.Publish("newHistory", history);
 				m_MessageManager.Publish("addToQueue", queueTracks);
 				m_MessageManager.Publish("startMusic", "");
 			};

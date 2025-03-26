@@ -55,7 +55,24 @@ namespace Thingy {
 			json userJson = json::parse(response);
 			from_json(userJson, user);
 		}
+		UpdateFollowed();
 		m_MessageManager.Publish("userChanged", "");
+	}
+
+	void AuthManager::UpdateFollowed() {
+		std::string url = "http://localhost:3000/followed";
+		std::string accessToken;
+		RetrieveToken("accessToken", accessToken);
+		std::string response = m_NetworkManager.GetRequestAuth(url, accessToken);
+		if (response.find("FollowedID") != std::string::npos) {
+			json followeds = json::parse(response);
+			for (size_t i = 0; i < followeds.size(); i++) {
+				json& current = followeds[i];
+				if (current["Type"] == "Playlist") user.followed.push_back(std::make_pair(current["PlaylistID"], PLAYLIST));
+				if (current["Type"] == "Artist") user.followed.push_back(std::make_pair(current["TypeID"], ARTIST));
+				if (current["Type"] == "Album") user.followed.push_back(std::make_pair(current["TypeID"], ALBUM));
+			}
+		}
 	}
 
 	uint8_t AuthManager::StoreToken(const std::string& tokenName, const std::string& token) {

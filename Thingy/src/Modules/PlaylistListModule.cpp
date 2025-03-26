@@ -20,9 +20,9 @@ namespace Thingy {
 		ImVec2 barSize = ImVec2(GetSize().x - 20, 30);
 		DragBar(upProps, barSize);
 
-		if (ImGui::BeginTable("PlaylistTable", 2, ImGuiTableFlags_ScrollY, ImVec2(0, ImGui::GetWindowSize().y - 100.0f))) {
+		if (ImGui::BeginTable("PlaylistTable", 2, ImGuiTableFlags_ScrollY, ImVec2(ImGui::GetWindowSize().x - 5, ImGui::GetWindowSize().y - 100.0f))) {
 			ImGui::TableSetupColumn("Cover", ImGuiTableColumnFlags_WidthFixed, 80.0f);
-			ImGui::TableSetupColumn("Info");
+			ImGui::TableSetupColumn("Info", ImGuiTableColumnFlags_WidthFixed, 200.0f);
 
 			int i = 0;
 			for (auto& playlist : user.playlists) {
@@ -30,7 +30,7 @@ namespace Thingy {
 				ImGui::TableNextRow();
 
 				ImGui::TableSetColumnIndex(0);
-				ImGui::Image(m_ImageManager.GetImTexture(playlist.playlistID), { 80.0f, 80.0f });
+				ImGui::Image(m_ImageManager.GetPlaylistImTexture(playlist.playlistID), { 80.0f, 80.0f });
 				ImGui::TableSetColumnIndex(1);
 				std::string label = std::to_string(i);
 				if (ImGui::Selectable(std::string("##" + label).c_str(), false, ImGuiSelectableFlags_AllowOverlap, ImVec2(0, 80.0f))) {
@@ -41,6 +41,36 @@ namespace Thingy {
 				ImGui::SameLine();
 				ImGui::BeginGroup();
 				ImGui::Text(U8(playlist.playlistName.c_str()));
+				ImGui::EndGroup();
+				i++;
+			}
+			for (auto& follow : user.followed) {
+				ImGui::TableNextRow();
+
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Image((follow.second == PLAYLIST ? m_ImageManager.GetPlaylistImTexture(follow.first) : m_ImageManager.GetImTexture(follow.first)), { 80.0f, 80.0f });
+				ImGui::TableSetColumnIndex(1);
+				std::string label = std::to_string(i);
+				if (ImGui::Selectable(std::string("##" + label).c_str(), false, ImGuiSelectableFlags_AllowOverlap, ImVec2(0, 80.0f))) {
+					if (follow.second == PLAYLIST) {
+						m_MessageManager.Publish("openPlaylist", followedPlaylists[follow.first]);
+						m_MessageManager.Publish("changeScene", std::string("PlaylistScene"));
+					} else if (follow.second == ALBUM) {
+						m_MessageManager.Publish("openAlbum", follow.first);
+						m_MessageManager.Publish("changeScene", std::string("AlbumScene"));
+					} else if (follow.second == ARTIST) {
+						m_MessageManager.Publish("openArtist", follow.first);
+						m_MessageManager.Publish("changeScene", std::string("ArtistScene"));
+					}
+				}
+
+				ImGui::SameLine();
+				ImGui::BeginGroup();
+				if (follow.second == PLAYLIST) {
+					ImGui::Text(U8(followedPlaylists[follow.first].playlistName.c_str()));
+				} else {
+					ImGui::Text(U8(followedAlbumArtist[follow.first].c_str()));
+				}
 				ImGui::EndGroup();
 				i++;
 			}
@@ -85,9 +115,50 @@ namespace Thingy {
 
 		for (auto& playlist : user.playlists) {
 			if (playlist.playlistCoverBuffer.empty()) {
-				m_ImageManager.AddTexture(playlist.playlistID, m_ImageManager.GetDefaultPlaylistImage());
+				m_ImageManager.AddPlaylistTexture(playlist.playlistID, m_ImageManager.GetDefaultPlaylistImage());
 			} else {
-				m_ImageManager.AddTexture(playlist.playlistID, m_ImageManager.GetTextureFromImage(Image(playlist.playlistCoverBuffer)));
+				m_ImageManager.AddPlaylistTexture(playlist.playlistID, m_ImageManager.GetTextureFromImage(Image(playlist.playlistCoverBuffer)));
+			}
+		}
+		for (auto& follow : user.followed) {
+			std::cout << follow.second << "\n";
+			if (follow.second == PLAYLIST) {
+			
+				std::string url = "http://localhost:3000/playlists/" + std::to_string(follow.first);
+				std::string response = m_NetworkManager.GetRequest(url);
+				try {
+					Playlist newPlaylist = json::parse(response);
+					followedPlaylists[follow.first] = newPlaylist;
+					if (newPlaylist.playlistCoverBuffer.empty()) {
+						m_ImageManager.AddPlaylistTexture(follow.first, m_ImageManager.GetDefaultPlaylistImage());
+					} else {
+						m_ImageManager.AddPlaylistTexture(follow.first, m_ImageManager.GetTextureFromImage(Image(newPlaylist.playlistCoverBuffer)));
+					}
+				} catch (const nlohmann::json::parse_error& e) {
+						T_ERROR("JSON parse error: {0}", e.what());
+				}
+				
+			} else if (follow.second == ALBUM) {
+				std::string url = "https://api.jamendo.com/v3.0/tracks/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&album_id=" + std::to_string(follow.first);
+				T_INFO("{0}", url);
+				Track track = m_NetworkManager.GetTrack(url)[0];
+				followedAlbumArtist[follow.first] = track.albumName;
+				if (!m_ImageManager.HasTextureAt(follow.first)) {
+					
+					m_ImageManager.AddTexture(follow.first, m_ImageManager.GetTexture(track.imageURL));
+				}
+			} else if (follow.second == ARTIST) {
+				std::string url = "https://api.jamendo.com/v3.0/artists/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&id=" + std::to_string(follow.first);
+				T_INFO("{0}", url);
+				Artist artist = m_NetworkManager.GetArtist(url)[0];
+				followedAlbumArtist[follow.first] = artist.artistName;
+				if (!m_ImageManager.HasTextureAt(follow.first)) {
+					if (artist.artistImageURL == "") {
+						m_ImageManager.AddTexture(follow.first, m_ImageManager.GetDefaultArtistImage());
+					} else {
+						m_ImageManager.AddTexture(follow.first, m_ImageManager.GetTexture(artist.artistImageURL));
+					}
+				}
 			}
 		}
 	}

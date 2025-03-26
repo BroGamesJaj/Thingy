@@ -6,11 +6,12 @@
 #include "Core\Managers\NetworkManager.h"
 #include "Core\Managers\ImageManager.h"
 #include "Core\Managers\MessageManager.h"
+#include "Core\Managers\AuthManager.h"
 
 namespace Thingy {
 	class ArtistModule : public Module {
 	public:
-		ArtistModule(MessageManager& messageManager, AudioManager& audioManager, ImageManager& imageManager, NetworkManager& networkManager) : m_MessageManager(messageManager), m_AudioManager(audioManager), m_ImageManager(imageManager), m_NetworkManager(networkManager) {}
+		ArtistModule(MessageManager& messageManager, AudioManager& audioManager, ImageManager& imageManager, NetworkManager& networkManager, AuthManager& authManager) : m_MessageManager(messageManager), m_AudioManager(audioManager), m_ImageManager(imageManager), m_NetworkManager(networkManager), m_AuthManager(authManager) {}
 		void SetupSubscriptions() override;
 		void OnLoad(const std::variant<int, std::string> moduleState) override;
 		void OnUpdate() override;
@@ -37,6 +38,8 @@ namespace Thingy {
 		NetworkManager& m_NetworkManager;
 		AudioManager& m_AudioManager;
 		ImageManager& m_ImageManager;
+		AuthManager& m_AuthManager;
+
 		std::unordered_map<uint32_t, std::future<Image>> imageFutures;
 
 	};

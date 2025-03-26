@@ -242,7 +242,7 @@ namespace Thingy {
 			return "";
 		}
 		
-		//headers = curl_slist_append(headers, "Content-Type: application/json");
+		headers = curl_slist_append(headers, "Content-Type: application/json");
 		headers = curl_slist_append(headers, ("Authorization: Bearer " + token).c_str());
 
 		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
@@ -606,6 +606,7 @@ namespace Thingy {
 			}
 			artists.push_back(artist);
 		}
+		T_INFO("artist: {0}", artists[0].toString());
 		return artists;
 	}
 

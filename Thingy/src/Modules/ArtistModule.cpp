@@ -9,7 +9,7 @@ namespace Thingy {
 			if (data.type() == typeid(Artist)) {
 				Artist recArtist = std::any_cast<Artist>(data);
 				for (size_t i = 0; i < artists.size(); i++) {
-					if (artists[i].artistName == recArtist.artistName) {
+					if (artists[i].id == recArtist.id) {
 						curr = i;
 						T_INFO("returned");
 						return;
@@ -121,6 +121,18 @@ namespace Thingy {
 		ImGui::Text("Album count: %zu", artists[curr].albums.size());
 		ImGui::SameLine();
 		ImGui::Text("length");
+		if (loggedIn) {
+			if (ImGui::Button("Follow")) {
+				std::string url = "http://localhost:3000/followed";
+				std::string token;
+				m_AuthManager.RetrieveToken("accessToken", token);
+				char buffer[100];
+				snprintf(buffer, sizeof(buffer), R"({"FollowedID": %d, "Type": "Artist"})", artists[curr].id);
+				std::string data = buffer;
+				m_NetworkManager.PostRequestAuth(url, data, token);
+				m_MessageManager.Publish("updateUser", "");
+			}
+		}
 		ImGui::EndGroup();
 		ImGui::BeginChild("Albums", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);
 		for (size_t i = 0; i < artists[curr].albums.size(); i++) {
@@ -133,6 +145,7 @@ namespace Thingy {
 
 			}
 			LimitedTextWrap(album.name.c_str(), 180, 3);
+			
 			ImGui::EndGroup();
 			ImGui::SameLine();
 		}

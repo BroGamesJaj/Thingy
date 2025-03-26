@@ -33,11 +33,15 @@ namespace Thingy {
 		const User& user;
 		bool loggedIn = false;
 
+		std::unordered_map<int, Playlist> followedPlaylists;
+		std::unordered_map<int, std::string> followedAlbumArtist;
+
 		std::string newPlaylistName = "";
 		std::string newDescription = "";
 		bool isPrivate = false;
 		std::string coverPath = "";
 		std::unique_ptr<SDL_Texture, SDL_TDeleter> newPlaylistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultPlaylistImage());
 		std::string error = "";
+
 	};
 }

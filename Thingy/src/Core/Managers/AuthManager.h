@@ -22,6 +22,8 @@ namespace Thingy {
 		void RefreshTokens();
 	private:
 		void FetchUser();
+		void UpdateFollowed();
+
 		NetworkManager& m_NetworkManager;
 		MessageManager& m_MessageManager;
 

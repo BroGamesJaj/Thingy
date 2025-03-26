@@ -101,9 +101,9 @@ namespace Thingy {
 		for (auto& playlist : playlistResults) {
 			if (!m_ImageManager.HasTextureAt(playlist.playlistID)) {
 				if (playlist.playlistCoverBuffer.empty()) {
-					m_ImageManager.AddTexture(playlist.playlistID, m_ImageManager.GetDefaultPlaylistImage());
+					m_ImageManager.AddPlaylistTexture(playlist.playlistID, m_ImageManager.GetDefaultPlaylistImage());
 				} else {
-					m_ImageManager.AddTexture(playlist.playlistID, m_ImageManager.GetTextureFromImage(Image(playlist.playlistCoverBuffer)));
+					m_ImageManager.AddPlaylistTexture(playlist.playlistID, m_ImageManager.GetTextureFromImage(Image(playlist.playlistCoverBuffer)));
 				}
 			}
 		}
@@ -229,7 +229,7 @@ namespace Thingy {
 			ImGui::BeginChild("playlists", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);
 			for (size_t i = 0; i < playlistResults.size(); i++) {
 				ImGui::BeginGroup();
-				ImGui::Image(m_ImageManager.GetImTexture(playlistResults[i].playlistID), { 200.0f, 200.0f });
+				ImGui::Image(m_ImageManager.GetPlaylistImTexture(playlistResults[i].playlistID), { 200.0f, 200.0f });
 				if (ImGui::IsItemClicked()) {
 				};
 				LimitedTextWrap(playlistResults[i].playlistName.c_str(), 180, 3);
@@ -438,7 +438,7 @@ namespace Thingy {
 						ImGui::TableNextRow();
 						ImGui::TableSetColumnIndex(0);
 						std::string label = "##" + std::to_string(i);
-						if (ImGui::ImageButton(label.c_str(), m_ImageManager.GetImTexture(playlistResults[i].playlistID), ImVec2(100.0f, 100.0f))) {
+						if (ImGui::ImageButton(label.c_str(), m_ImageManager.GetPlaylistImTexture(playlistResults[i].playlistID), ImVec2(100.0f, 100.0f))) {
 							m_MessageManager.Publish("openPlaylist", playlistResults[i].playlistID);
 							m_MessageManager.Publish("changeScene", std::string("PlaylistScene"));
 						};
