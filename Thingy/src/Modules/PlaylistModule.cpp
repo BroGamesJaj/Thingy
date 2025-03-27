@@ -159,15 +159,29 @@ namespace Thingy {
 				ImGui::OpenPopup("Delete playlist");
 			}
 		} else if(playlists[curr].ownerID != user.userID && loggedIn) {
-			if (ImGui::Button("Follow")) {
-				std::string url = "http://localhost:3000/followed";
-				std::string token;
-				m_AuthManager.RetrieveToken("accessToken", token);
-				char buffer[100];
-				snprintf(buffer, sizeof(buffer), R"({"FollowedID": %d, "Type": "Playlist"})", playlists[curr].playlistID);
-				std::string data = buffer;
-				m_NetworkManager.PostRequestAuth(url, data, token);
-				m_MessageManager.Publish("updateUser", "");
+			auto it = std::find_if(user.followed.begin(), user.followed.end(), [&](const std::tuple<int, FollowedType, int>& tuple) {
+				return std::get<0>(tuple) == playlists[curr].playlistID;
+				});
+			if (it != user.followed.end()) {
+				if (ImGui::Button("Unfollow")) {
+					std::string url = "http://localhost:3000/followed/" + std::to_string(std::get<2>(*it));
+					std::string token;
+					m_AuthManager.RetrieveToken("accessToken", token);
+
+					m_NetworkManager.DeleteRequest(url, token);
+					m_MessageManager.Publish("updateUser", "");
+				}
+			} else {
+				if (ImGui::Button("Follow")) {
+					std::string url = "http://localhost:3000/followed";
+					std::string token;
+					m_AuthManager.RetrieveToken("accessToken", token);
+					char buffer[100];
+					snprintf(buffer, sizeof(buffer), R"({"FollowedID": %d, "Type": "Playlist"})", playlists[curr].playlistID);
+					std::string data = buffer;
+					m_NetworkManager.PostRequestAuth(url, data, token);
+					m_MessageManager.Publish("updateUser", "");
+				}
 			}
 		}
 		ImGui::EndGroup();
@@ -296,7 +310,7 @@ namespace Thingy {
 				std::string url = "http://localhost:3000/playlists/" + std::to_string(playlists[curr].playlistID);
 				std::string token;
 				m_AuthManager.RetrieveToken("accessToken", token);
-				m_NetworkManager.DeletePlaylist(url, token);
+				m_NetworkManager.DeleteRequest(url, token);
 				m_MessageManager.Publish("updateUser", "");
 				playlists[curr] = Playlist();
 				ImGui::CloseCurrentPopup();

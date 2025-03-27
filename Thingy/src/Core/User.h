@@ -19,7 +19,7 @@ namespace Thingy {
 
 		std::vector<uint8_t> pfpBuffer;
 		std::vector<Playlist> playlists;
-		std::vector<std::pair<int, FollowedType>> followed;
+		std::vector<std::tuple<int, FollowedType, int>> followed;
 
 		inline std::string toString() const {
 			std::ostringstream oss;

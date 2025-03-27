@@ -65,7 +65,6 @@ namespace Thingy {
 	}
 
 	void ArtistModule::OnLoad(const std::variant<int, std::string> moduleState) {
-		T_INFO("1curr: {0}", curr);
 		if (std::holds_alternative<std::string>(moduleState)) {
 			std::string artistName = std::get<std::string>(moduleState);
 			for (size_t i = 0; i < artists.size(); i++) {
@@ -122,15 +121,30 @@ namespace Thingy {
 		ImGui::SameLine();
 		ImGui::Text("length");
 		if (loggedIn) {
-			if (ImGui::Button("Follow")) {
-				std::string url = "http://localhost:3000/followed";
-				std::string token;
-				m_AuthManager.RetrieveToken("accessToken", token);
-				char buffer[100];
-				snprintf(buffer, sizeof(buffer), R"({"FollowedID": %d, "Type": "Artist"})", artists[curr].id);
-				std::string data = buffer;
-				m_NetworkManager.PostRequestAuth(url, data, token);
-				m_MessageManager.Publish("updateUser", "");
+			const auto& user = m_AuthManager.GetUser();
+			auto it = std::find_if(user.followed.begin(), user.followed.end(), [&](const std::tuple<int, FollowedType, int>& tuple) {
+				return std::get<0>(tuple) == artists[curr].id;
+				});
+			if (it != user.followed.end()) {
+				if (ImGui::Button("Unfollow")) {
+					std::string url = "http://localhost:3000/followed/" + std::to_string(std::get<2>(*it));
+					std::string token;
+					m_AuthManager.RetrieveToken("accessToken", token);
+				
+					m_NetworkManager.DeleteRequest(url, token);
+					m_MessageManager.Publish("updateUser", "");
+				}
+			} else {
+				if (ImGui::Button("Follow")) {
+					std::string url = "http://localhost:3000/followed";
+					std::string token;
+					m_AuthManager.RetrieveToken("accessToken", token);
+					char buffer[100];
+					snprintf(buffer, sizeof(buffer), R"({"FollowedID": %d, "Type": "Artist"})", artists[curr].id);
+					std::string data = buffer;
+					m_NetworkManager.PostRequestAuth(url, data, token);
+					m_MessageManager.Publish("updateUser", "");
+				}
 			}
 		}
 		ImGui::EndGroup();

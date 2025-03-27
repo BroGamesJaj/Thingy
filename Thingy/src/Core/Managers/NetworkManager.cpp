@@ -491,7 +491,7 @@ namespace Thingy {
 		return response;
 	}
 
-	std::string NetworkManager::DeletePlaylist(std::string& url, const std::string& token) {
+	std::string NetworkManager::DeleteRequest(std::string& url, const std::string& token) {
 		URLSanitizer(url);
 		CURL* curl = curl_easy_init();
 		std::string response;
@@ -606,7 +606,6 @@ namespace Thingy {
 			}
 			artists.push_back(artist);
 		}
-		T_INFO("artist: {0}", artists[0].toString());
 		return artists;
 	}
 

@@ -68,9 +68,9 @@ namespace Thingy {
 			json followeds = json::parse(response);
 			for (size_t i = 0; i < followeds.size(); i++) {
 				json& current = followeds[i];
-				if (current["Type"] == "Playlist") user.followed.push_back(std::make_pair(current["PlaylistID"], PLAYLIST));
-				if (current["Type"] == "Artist") user.followed.push_back(std::make_pair(current["TypeID"], ARTIST));
-				if (current["Type"] == "Album") user.followed.push_back(std::make_pair(current["TypeID"], ALBUM));
+				if (current["Type"] == "Playlist") user.followed.push_back(std::make_tuple(current["PlaylistID"], PLAYLIST, current["FollowedID"]));
+				if (current["Type"] == "Artist") user.followed.push_back(std::make_tuple(current["TypeID"], ARTIST, current["FollowedID"]));
+				if (current["Type"] == "Album") user.followed.push_back(std::make_tuple(current["TypeID"], ALBUM, current["FollowedID"]));
 			}
 		}
 	}

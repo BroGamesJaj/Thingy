@@ -184,7 +184,10 @@ namespace Thingy {
 			ImGui::BeginChild("Tracks", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);
 			for (size_t i = 0; i < trackResults.size(); i++) {
 				ImGui::BeginGroup();
-				ImGui::Image(m_ImageManager.GetImTexture(trackResults[i].id), {200.0f, 200.0f});
+				std::string label =  "##track" + std::to_string(i);
+				if (ImGui::ImageButton(label.c_str(), m_ImageManager.GetImTexture(trackResults[i].id), ImVec2(200.0f, 200.0f))) {
+					m_MessageManager.Publish("startMusic", trackResults[i]);
+				};
 				if (ImGui::IsItemClicked()) {
 				};
 				LimitedTextWrap(trackResults[i].title.c_str(), 180, 3);
@@ -199,8 +202,10 @@ namespace Thingy {
 			ImGui::BeginChild("Albums", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);
 			for (size_t i = 0; i < albumResults.size(); i++) {
 				ImGui::BeginGroup();
-				ImGui::Image(m_ImageManager.GetImTexture(albumResults[i].id), {200.0f, 200.0f});
-				if (ImGui::IsItemClicked()) {
+				std::string label = "##album" + std::to_string(i);
+				if (ImGui::ImageButton(label.c_str(), m_ImageManager.GetImTexture(albumResults[i].id), ImVec2(200.0f, 200.0f))) {
+					m_MessageManager.Publish("openAlbum", albumResults[i]);
+					m_MessageManager.Publish("changeScene", std::string("AlbumScene"));
 				};
 				LimitedTextWrap(albumResults[i].name.c_str(), 180, 3);
 				ImGui::EndGroup();
@@ -214,8 +219,10 @@ namespace Thingy {
 			ImGui::BeginChild("artists", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);
 			for (size_t i = 0; i < artistResults.size(); i++) {
 				ImGui::BeginGroup();
-				ImGui::Image(m_ImageManager.GetImTexture(artistResults[i].id), { 200.0f, 200.0f });
-				if (ImGui::IsItemClicked()) {
+				std::string label = "##artist" + std::to_string(i);
+				if (ImGui::ImageButton(label.c_str(), m_ImageManager.GetImTexture(artistResults[i].id), ImVec2(200.0f, 200.0f))) {
+					m_MessageManager.Publish("openArtist", artistResults[i].id);
+					m_MessageManager.Publish("changeScene", std::string("ArtistScene"));
 				};
 				LimitedTextWrap(artistResults[i].artistName.c_str(), 180, 3);
 				ImGui::EndGroup();
@@ -229,8 +236,10 @@ namespace Thingy {
 			ImGui::BeginChild("playlists", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);
 			for (size_t i = 0; i < playlistResults.size(); i++) {
 				ImGui::BeginGroup();
-				ImGui::Image(m_ImageManager.GetPlaylistImTexture(playlistResults[i].playlistID), { 200.0f, 200.0f });
-				if (ImGui::IsItemClicked()) {
+				std::string label = "##playlist" + std::to_string(i);
+				if (ImGui::ImageButton(label.c_str(), m_ImageManager.GetPlaylistImTexture(playlistResults[i].playlistID), ImVec2(200.0f, 200.0f))) {
+					m_MessageManager.Publish("openPlaylist", playlistResults[i].playlistID);
+					m_MessageManager.Publish("changeScene", std::string("PlaylistScene"));
 				};
 				LimitedTextWrap(playlistResults[i].playlistName.c_str(), 180, 3);
 				ImGui::EndGroup();

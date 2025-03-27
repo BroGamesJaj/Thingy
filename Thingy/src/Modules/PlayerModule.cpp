@@ -175,8 +175,18 @@ namespace Thingy {
 			m_MessageManager.Publish("changeScene", std::string("ArtistScene"));
 		}
 		if (ImGui::Button("Like", ImVec2(30.0f, 30.0f))) {
-
+			if (std::find(user.playlists[0].trackIDs.begin(), user.playlists[0].trackIDs.end(), currentTrack.id) == user.playlists[0].trackIDs.end()) {
+				std::string url = "http://localhost:3000/playlists/add?playlistIds=" + std::to_string(user.playlists[0].playlistID);
+				url += "&trackId=" + std::to_string(currentTrack.id);
+				std::string token;
+				m_AuthManager.RetrieveToken("accessToken", token);
+				std::string json;
+				m_NetworkManager.PostRequestAuth(url, json, token);
+				m_MessageManager.Publish("updateUser", "");
+			}
+			
 		}
+		ImGui::SameLine();
 		if (ImGui::Button("back", { 30.0f, 30.0f })) {
 			m_AudioManager.PrevTrack();
 		}
