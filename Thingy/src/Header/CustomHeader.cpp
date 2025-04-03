@@ -44,18 +44,22 @@ namespace Thingy {
 		const float winW = ImGui::GetWindowWidth();
 		const float scale = std::clamp(winW / 1280, 1.0f, 2.0f);
 		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Horizontal;
-		if (ImGui::Button("Home", { 38.0f, 38.0f })) {
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+		ImGui::PushFont(Fonts::icons30);
+		if (ImGui::Button(ICON_FA_HOUSE, { 38.0f, 38.0f })) {
 			m_MessageManager.Publish("homeButton", std::string("FrontPage"));
 		}
-		if (ImGui::Button("back", { 38.0f, 38.0f })) {
+		if (ImGui::Button(ICON_FA_ARROW_LEFT, {38.0f, 38.0f})) {
 
 			T_INFO("back");
 			m_MessageManager.Publish("previousScene", "");
 		}
-		if (ImGui::Button("next", { 38.0f, 38.0f })) {
+		if (ImGui::Button(ICON_FA_ARROW_RIGHT, { 38.0f, 38.0f })) {
 			T_INFO("next");
 			m_MessageManager.Publish("nextScene", "");
 		}
+		ImGui::PopStyleColor();
+		ImGui::PopFont();
 		ImGui::SetCursorPosX(winW / 2 - std::clamp(200.0f * scale, 200.0f, 400.0f));
 		ImGui::SetNextItemWidth(400.0f * scale);
 		ImGui::PushFont(Fonts::size30);
@@ -66,10 +70,10 @@ namespace Thingy {
 		}
 		ImGui::PopFont();
 		ImGui::PopStyleVar();
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 		if (loggedIn) {
 			CircleImage(reinterpret_cast<ImTextureID>(pfpTexture.get()), 38.0f);
 			if (ImGui::IsItemClicked()) {
-				T_INFO("pressed");
 				ImGui::OpenPopup("profile");
 			};
 			
@@ -90,18 +94,20 @@ namespace Thingy {
 				m_MessageManager.Publish("changeScene", std::string("LoginScene"));
 			}
 		}
+		ImGui::PushFont(Fonts::icons20);
 		ImGui::SetCursorPosX(winW - 15 - 40 - 5 - 40 - 5 - 40);
-		if (ImGui::Button("_", { 40.0f, 30.0f }))
+		if (ImGui::Button(ICON_FA_WINDOW_MINIMIZE, { 38.0f, 38.0f }))
 			m_MessageManager.Publish("minimize", 0);
 
 		//ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 10 - 40 - 5 - 40); // 10 padding right, width of X button, padding between buttons, width of button
-		if (ImGui::Button("[]", { 40.0f, 30.0f })) {
+		if (ImGui::Button(ICON_FA_EXPAND, {38.0f, 38.0f})) {
 			m_MessageManager.Publish("changeFullscreen", 0);
 		}
 		//ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 10 - 40); // 10 padding right, width of button
-		if (ImGui::Button("X", { 40.0f, 30.0f }))
+		if (ImGui::Button(ICON_FA_XMARK, { 38.0f, 38.0f }))
 			m_MessageManager.Publish("closeWindow", 0);
-
+		ImGui::PopFont();
+		ImGui::PopStyleColor();
 		ImGui::GetCurrentWindow()->DC.LayoutType = ImGuiLayoutType_Vertical;
 		ImGui::End();
 		ImGui::PopStyleColor();

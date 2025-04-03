@@ -136,17 +136,19 @@ namespace Thingy {
 					m_AudioManager.RemoveFromQueue(lastClickedIndex);
 					ImGui::CloseCurrentPopup();
 				}
-				if (ImGui::Button("Add to Playlists")) {
-					selectedPlaylists.clear();
-					for (auto& playlist : user.playlists) {
-						if (std::find(playlist.trackIDs.begin(), playlist.trackIDs.end(), lastClickedTrack.id) != playlist.trackIDs.end()) {
-							selectedPlaylists[playlist.playlistID] = true;
-						} else {
-							selectedPlaylists[playlist.playlistID] = false;
+				if (loggedIn) {
+					if (ImGui::Button("Add to Playlists")) {
+						selectedPlaylists.clear();
+						for (auto& playlist : user.playlists) {
+							if (std::find(playlist.trackIDs.begin(), playlist.trackIDs.end(), lastClickedTrack.id) != playlist.trackIDs.end()) {
+								selectedPlaylists[playlist.playlistID] = true;
+							} else {
+								selectedPlaylists[playlist.playlistID] = false;
+							}
 						}
+						addTrackToPlaylist = true;
+						ImGui::CloseCurrentPopup();
 					}
-					addTrackToPlaylist = true;
-					ImGui::CloseCurrentPopup();
 				}
 				ImGui::EndPopup();
 			}
@@ -174,38 +176,43 @@ namespace Thingy {
 			m_MessageManager.Publish("openArtist", currentTrack.artistID);
 			m_MessageManager.Publish("changeScene", std::string("ArtistScene"));
 		}
-		if (ImGui::Button("Like", ImVec2(30.0f, 30.0f))) {
-			if (std::find(user.playlists[0].trackIDs.begin(), user.playlists[0].trackIDs.end(), currentTrack.id) == user.playlists[0].trackIDs.end()) {
-				std::string url = "http://localhost:3000/playlists/add?playlistIds=" + std::to_string(user.playlists[0].playlistID);
-				url += "&trackId=" + std::to_string(currentTrack.id);
-				std::string token;
-				m_AuthManager.RetrieveToken("accessToken", token);
-				std::string json;
-				m_NetworkManager.PostRequestAuth(url, json, token);
-				m_MessageManager.Publish("updateUser", "");
-			}
+
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+		ImGui::PushFont(Fonts::icons20);
+		if (loggedIn) {
+			if (ImGui::Button(ICON_FA_HEART, ImVec2(30.0f, 30.0f))) {
+				if (std::find(user.playlists[0].trackIDs.begin(), user.playlists[0].trackIDs.end(), currentTrack.id) == user.playlists[0].trackIDs.end()) {
+					std::string url = "http://localhost:3000/playlists/add?playlistIds=" + std::to_string(user.playlists[0].playlistID);
+					url += "&trackId=" + std::to_string(currentTrack.id);
+					std::string token;
+					m_AuthManager.RetrieveToken("accessToken", token);
+					std::string json;
+					m_NetworkManager.PostRequestAuth(url, json, token);
+					m_MessageManager.Publish("updateUser", "");
+				}
 			
+			}
 		}
 		ImGui::SameLine();
-		if (ImGui::Button("back", { 30.0f, 30.0f })) {
+		if (ImGui::Button(ICON_FA_BACKWARD, { 30.0f, 30.0f })) {
 			m_AudioManager.PrevTrack();
 		}
 		ImGui::SameLine();
 		if (m_AudioManager.IsMusicPaused()) {
-			if (ImGui::Button("Play", { 30.0f, 30.0f })) {
+			if (ImGui::Button(ICON_FA_PLAY, { 30.0f, 30.0f })) {
 				m_AudioManager.ResumeMusic();
 			}
 		} else {
-			if (ImGui::Button("Pause", { 30.0f, 30.0f })) {
+			if (ImGui::Button(ICON_FA_PAUSE, { 30.0f, 30.0f })) {
 				m_AudioManager.PauseMusic();
 			}
 		}
 		ImGui::SameLine();
-		if (ImGui::Button("Forward", { 30.0f, 30.0f })) {
+		if (ImGui::Button(ICON_FA_FORWARD, { 30.0f, 30.0f })) {
 			m_AudioManager.NextTrack();
 		};
 		ImGui::SameLine();
-		if (ImGui::Button("Shuffle", { 30.0f, 30.0f })) {
+		if (ImGui::Button(ICON_FA_SHUFFLE, { 30.0f, 30.0f })) {
 			m_AudioManager.ShuffleQueue();
 		};
 		if (loggedIn) {
@@ -222,6 +229,8 @@ namespace Thingy {
 				ImGui::OpenPopup("Add to playlists");
 			}
 		}
+		ImGui::PopFont();
+		ImGui::PopStyleColor();
 		ImGui::Text("Current");
 		ImGui::SameLine();
 		ImGui::SliderInt("time", &m_AudioManager.GetCurrentTrackPos(), 0, m_AudioManager.GetCurrentTrackDuration());

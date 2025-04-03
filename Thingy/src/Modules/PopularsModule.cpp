@@ -74,7 +74,7 @@ namespace Thingy {
 				ImGui::TableHeader("WeeklyTracks");
 				ImGui::TableNextColumn();
 				ImGui::Text("Weekly Tracks");
-				ImGui::TableNextRow(0, height * 2);
+				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
 					if(ImGui::ImageButton(std::string("##weeklyT" + i).c_str(), m_ImageManager.GetImTexture(weeklyTracks[i].id), imageSize)) {

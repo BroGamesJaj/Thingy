@@ -13,6 +13,8 @@ namespace Thingy {
 	ImFont* Fonts::size50 = nullptr;
 	ImFont* Fonts::size60 = nullptr;
 	ImFont* Fonts::size70 = nullptr;
+	ImFont* Fonts::icons20 = nullptr;
+	ImFont* Fonts::icons30 = nullptr;
 
 	static const ImWchar full_unicode_range[] = { 0x0020, 0xFFFF };
 
@@ -28,6 +30,10 @@ namespace Thingy {
 		size50 = io.Fonts->AddFontFromFileTTF("../assets/fonts/dejavu-sans/DejaVuSans.ttf", 50.0f, nullptr, full_unicode_range);
 		size60 = io.Fonts->AddFontFromFileTTF("../assets/fonts/dejavu-sans/DejaVuSans.ttf", 60.0f, nullptr, full_unicode_range);
 		size70 = io.Fonts->AddFontFromFileTTF("../assets/fonts/dejavu-sans/DejaVuSans.ttf", 70.0f, nullptr, full_unicode_range);
+		static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+		icons20 = io.Fonts->AddFontFromFileTTF("../assets/fonts/fa-solid-900.ttf", 20.0f, nullptr, icon_ranges);
+		icons30 = io.Fonts->AddFontFromFileTTF("../assets/fonts/fa-solid-900.ttf", 30.0f, nullptr, icon_ranges);
+
 		io.Fonts->Build();
 
 		io.FontDefault = base;

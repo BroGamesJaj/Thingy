@@ -1,6 +1,7 @@
 #pragma once
 #include "Core\Module.h"
 #include "Core\HelperFunctions.h"
+#include "Core/Fonts.h"
 
 #include "Core\Managers\AudioManager.h"
 #include "Core\Managers\NetworkManager.h"
