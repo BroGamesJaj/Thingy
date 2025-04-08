@@ -121,6 +121,7 @@ namespace Thingy {
 		ImGui::SameLine();
 		ImGui::Text("length");
 		if (loggedIn) {
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 			const auto& user = m_AuthManager.GetUser();
 			auto it = std::find_if(user.followed.begin(), user.followed.end(), [&](const std::tuple<int, FollowedType, int>& tuple) {
 				return std::get<0>(tuple) == artists[curr].id;
@@ -146,6 +147,7 @@ namespace Thingy {
 					m_MessageManager.Publish("updateUser", "");
 				}
 			}
+			ImGui::PopStyleColor();
 		}
 		ImGui::EndGroup();
 		ImGui::BeginChild("Albums", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);

@@ -114,6 +114,7 @@ namespace Thingy {
 		ImGui::SameLine();
 		ImGui::Text("Album length: %s", SecondsToTimeString(length).c_str());
 		if (loggedIn) {
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 			if (ImGui::Button("Add to Playlist")) {
 				selectedPlaylists.clear();
 				ImGui::OpenPopup("Add to playlists");
@@ -142,6 +143,7 @@ namespace Thingy {
 					m_MessageManager.Publish("updateUser", "");
 				}
 			}
+			ImGui::PopStyleColor();
 		}
 		ImGui::EndGroup();
 		ImGui::BeginChild("Tracks", ImVec2(0,300), false, ImGuiWindowFlags_HorizontalScrollbar);
@@ -214,6 +216,7 @@ namespace Thingy {
 				}
 
 				ImGui::EndTable();
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 				if (ImGui::Button("done")) {
 					std::string url = "http://localhost:3000/playlists/add?playlistIds=";
 					bool hasSelected = false;
@@ -239,6 +242,7 @@ namespace Thingy {
 					}
 					ImGui::CloseCurrentPopup();
 				}
+				ImGui::PopStyleColor();
 			}
 			ImGui::EndPopup();
 		}

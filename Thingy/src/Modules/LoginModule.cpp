@@ -27,7 +27,7 @@ namespace Thingy{
 			ImGui::Text("Password:");
 			ImGui::SameLine();
 			ImGui::InputText("##password", &password, ImGuiInputTextFlags_Password, ResizeCallback, (void*)&password);
-
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 			if (ImGui::Button("Sign-up")) {
 				std::regex pattern(R"(^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$)");
 				if (email == "") {
@@ -56,6 +56,7 @@ namespace Thingy{
 					}
 				}
 			}
+			ImGui::PopStyleColor();
 			ImGui::Text("You already have an account?");
 			ImGui::SameLine();
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.231f, 0.51f, 0.965f, 1.0f));
@@ -78,7 +79,7 @@ namespace Thingy{
 			ImGui::Text("Password:");
 			ImGui::SameLine();
 			ImGui::InputText("##password", &password, ImGuiInputTextFlags_Password, ResizeCallback, (void*)&password);
-
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 			if (ImGui::Button("Login")) {
 				std::string url = "http://localhost:3000/auth/login";
 				json payload = {{ "Email", email}, { "Password", password}};
@@ -107,7 +108,7 @@ namespace Thingy{
 					m_MessageManager.Publish("changeScene", std::string("FrontPage"));
 				}
 			}
-		
+			ImGui::PopStyleColor();
 
 			ImGui::Text("Don't have an account?");
 			ImGui::SameLine();

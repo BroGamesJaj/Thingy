@@ -30,9 +30,11 @@ namespace Thingy {
 		size50 = io.Fonts->AddFontFromFileTTF("../assets/fonts/dejavu-sans/DejaVuSans.ttf", 50.0f, nullptr, full_unicode_range);
 		size60 = io.Fonts->AddFontFromFileTTF("../assets/fonts/dejavu-sans/DejaVuSans.ttf", 60.0f, nullptr, full_unicode_range);
 		size70 = io.Fonts->AddFontFromFileTTF("../assets/fonts/dejavu-sans/DejaVuSans.ttf", 70.0f, nullptr, full_unicode_range);
-		static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-		icons20 = io.Fonts->AddFontFromFileTTF("../assets/fonts/fa-solid-900.ttf", 20.0f, nullptr, icon_ranges);
-		icons30 = io.Fonts->AddFontFromFileTTF("../assets/fonts/fa-solid-900.ttf", 30.0f, nullptr, icon_ranges);
+		static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA };
+		ImFontConfig config;
+		config.PixelSnapH = true;
+		icons20 = io.Fonts->AddFontFromFileTTF("../assets/fonts/fa-solid-900.ttf", 20.0f, &config, icon_ranges);
+		icons30 = io.Fonts->AddFontFromFileTTF("../assets/fonts/fa-solid-900.ttf", 30.0f, &config, icon_ranges);
 
 		io.Fonts->Build();
 

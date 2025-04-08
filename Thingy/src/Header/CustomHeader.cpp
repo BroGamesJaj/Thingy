@@ -116,7 +116,7 @@ namespace Thingy {
 
 	void CustomHeader::AutoComplete() {
 		const ImVec4 onColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-		const ImVec4 offColor = ImVec4(0.8f, 0.2f, 0.2f, 1.0f);
+		const ImVec4 offColor = ImVec4(1.0f, 0.8f, 0.0f, 1.0f);
 		if (autoCompleteOn) {
 			int w;
 			SDL_GetWindowSizeInPixels(m_Window, &w, NULL);
@@ -130,10 +130,10 @@ namespace Thingy {
 			for (size_t i = 0; i < buttons.size(); i++) {
 				if (whichToggled == i) {
 					ImGui::PushStyleColor(ImGuiCol_Button, onColor);
-					ImGui::PushStyleColor(ImGuiCol_Text, offColor);
+					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 				} else {
 					ImGui::PushStyleColor(ImGuiCol_Button, offColor);
-					ImGui::PushStyleColor(ImGuiCol_Text, onColor);
+					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 				}
 				if(ImGui::Button(buttons[i].c_str())) {
 					whichToggled = i;
@@ -210,21 +210,15 @@ namespace Thingy {
 
 	std::vector<std::string> CustomHeader::AllTermResults() {
 
-		//Its not sorted
-		std::vector<std::string> sorted;
+		std::vector<std::string> allResults;
 		for (auto& termResults : autoCompleteResults) {
 			for (auto& result : termResults.second) {
-				if(std::find(sorted.begin(), sorted.end(), result) == sorted.end())
-					sorted.push_back(result);
+				if(std::find(allResults.begin(), allResults.end(), result) == allResults.end())
+					allResults.push_back(result);
 			}
 		}
-		/*
-		std::sort(sorted.begin(), sorted.end(), [](const auto& a, const auto& b) {
-			return a.second < b.second;
-			});
-		*/
 
-		return sorted;
+		return allResults;
 	}
 
 }

@@ -132,6 +132,7 @@ namespace Thingy {
 				i++;
 			}
 			if (ImGui::BeginPopup("QueueOptions")) {
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 				if (ImGui::Button("Remove from Queue")){
 					m_AudioManager.RemoveFromQueue(lastClickedIndex);
 					ImGui::CloseCurrentPopup();
@@ -150,24 +151,32 @@ namespace Thingy {
 						ImGui::CloseCurrentPopup();
 					}
 				}
+				ImGui::PopStyleColor();
 				ImGui::EndPopup();
 			}
 			ImGui::EndTable();
 		}
 		ImVec2 wSize = ImGui::GetWindowSize();
-		ImGui::SetCursorPos(ImVec2(wSize.x / 2 - 50, wSize.y - 50));
+		ImGui::SetCursorPosY(wSize.y - 50);
+		CenterNextItem(ImGui::CalcTextSize("Player").x, wSize);
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 		if (ImGui::Button("Player")) {
 			isQueueOpen = !isQueueOpen;
 		}
+		ImGui::PopStyleColor();
 	}
 
 	void PlayerModule::PlayerView() {
+		ImVec2 winSize = ImGui::GetWindowSize();
+		CenterNextItem(300.0f, winSize);
 		if (m_AudioManager.GetQueue().size() == 0) {
 			ImGui::Button("image", { 300.0f, 300.0f });
 		} else {
 			ImGui::Image(m_ImageManager.GetImTexture(currentTrack.albumID), {300.0f, 300.0f});
 		}
+		CenterNextItem(300.0f, winSize);
 		ImGui::Text(U8(currentTrack.title.c_str()));
+		CenterNextItem(300.0f, winSize);
 		ImGui::Text(U8(currentTrack.artistName.c_str()));
 		if (ImGui::IsItemHovered()) {
 			upProps |= BIT(3);
@@ -179,44 +188,65 @@ namespace Thingy {
 
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 		ImGui::PushFont(Fonts::icons20);
+		CenterNextItem(200.0f, winSize);
+		ImGui::BeginGroup();
 		if (loggedIn) {
-			if (ImGui::Button(ICON_FA_HEART, ImVec2(30.0f, 30.0f))) {
-				if (std::find(user.playlists[0].trackIDs.begin(), user.playlists[0].trackIDs.end(), currentTrack.id) == user.playlists[0].trackIDs.end()) {
-					std::string url = "http://localhost:3000/playlists/add?playlistIds=" + std::to_string(user.playlists[0].playlistID);
-					url += "&trackId=" + std::to_string(currentTrack.id);
-					std::string token;
-					m_AuthManager.RetrieveToken("accessToken", token);
-					std::string json;
-					m_NetworkManager.PostRequestAuth(url, json, token);
-					m_MessageManager.Publish("updateUser", "");
+			if (std::find(user.playlists[0].trackIDs.begin(), user.playlists[0].trackIDs.end(), currentTrack.id) != user.playlists[0].trackIDs.end()) {
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.4f, 0.6f, 1.0f));
+				if (ImGui::Button(ICON_FA_HEART, ImVec2(30.0f, 30.0f))) {
+					if (std::find(user.playlists[0].trackIDs.begin(), user.playlists[0].trackIDs.end(), currentTrack.id) == user.playlists[0].trackIDs.end()) {
+						std::string url = "http://localhost:3000/playlists/add?playlistIds=" + std::to_string(user.playlists[0].playlistID);
+						url += "&trackId=" + std::to_string(currentTrack.id);
+						std::string token;
+						m_AuthManager.RetrieveToken("accessToken", token);
+						std::string json;
+						m_NetworkManager.PostRequestAuth(url, json, token);
+						m_MessageManager.Publish("updateUser", "");
+					}
 				}
-			
+				ImGui::PopStyleColor();
+			} else {
+				if (ImGui::Button(ICON_FA_HEART, ImVec2(30.0f, 30.0f))) {
+					if (std::find(user.playlists[0].trackIDs.begin(), user.playlists[0].trackIDs.end(), currentTrack.id) == user.playlists[0].trackIDs.end()) {
+						std::string url = "http://localhost:3000/playlists/add?playlistIds=" + std::to_string(user.playlists[0].playlistID);
+						url += "&trackId=" + std::to_string(currentTrack.id);
+						std::string token;
+						m_AuthManager.RetrieveToken("accessToken", token);
+						std::string json;
+						m_NetworkManager.PostRequestAuth(url, json, token);
+						m_MessageManager.Publish("updateUser", "");
+					}
+				}
 			}
 		}
 		ImGui::SameLine();
-		if (ImGui::Button(ICON_FA_BACKWARD, { 30.0f, 30.0f })) {
+		if (ImGui::Button(ICON_FA_BACKWARD, ImVec2(30.0f, 30.0f))) {
 			m_AudioManager.PrevTrack();
 		}
 		ImGui::SameLine();
 		if (m_AudioManager.IsMusicPaused()) {
-			if (ImGui::Button(ICON_FA_PLAY, { 30.0f, 30.0f })) {
+			if (ImGui::Button(ICON_FA_PLAY, ImVec2(30.0f, 30.0f))) {
 				m_AudioManager.ResumeMusic();
 			}
 		} else {
-			if (ImGui::Button(ICON_FA_PAUSE, { 30.0f, 30.0f })) {
+			if (ImGui::Button(ICON_FA_PAUSE, ImVec2(30.0f, 30.0f))) {
 				m_AudioManager.PauseMusic();
 			}
 		}
 		ImGui::SameLine();
-		if (ImGui::Button(ICON_FA_FORWARD, { 30.0f, 30.0f })) {
+		if (ImGui::Button(ICON_FA_FORWARD, ImVec2(30.0f, 30.0f))) {
 			m_AudioManager.NextTrack();
 		};
 		ImGui::SameLine();
-		if (ImGui::Button(ICON_FA_SHUFFLE, { 30.0f, 30.0f })) {
+		if (ImGui::Button(ICON_FA_SHUFFLE, ImVec2(30.0f, 30.0f))) {
 			m_AudioManager.ShuffleQueue();
 		};
+		ImGui::PopFont();
 		if (loggedIn) {
-			if (ImGui::Button("Add to playlists")) {
+
+			ImGui::PushFont(Fonts::size25);
+			ImGui::SameLine();
+			if (ImGui::Button("+", ImVec2(30.0f, 30.0f))) {
 				selectedPlaylists.clear();
 				for (auto& playlist : user.playlists) {
 					if (std::find(playlist.trackIDs.begin(), playlist.trackIDs.end(), currentTrack.id) != playlist.trackIDs.end()) {
@@ -228,25 +258,45 @@ namespace Thingy {
 				lastClickedTrack = currentTrack;
 				ImGui::OpenPopup("Add to playlists");
 			}
+			ImGui::PopFont();
 		}
-		ImGui::PopFont();
+		ImGui::EndGroup();
 		ImGui::PopStyleColor();
-		ImGui::Text("Current");
+		CenterNextItem(300.0f, winSize);
+		ImGui::BeginGroup();
+		ImGui::Text(SecondsToTimeStringNoText(m_AudioManager.GetCurrentTrackPos()).c_str());
 		ImGui::SameLine();
-		ImGui::SliderInt("time", &m_AudioManager.GetCurrentTrackPos(), 0, m_AudioManager.GetCurrentTrackDuration());
+		ImGui::SetNextItemWidth(300.0f - (ImGui::CalcTextSize(SecondsToTimeStringNoText(m_AudioManager.GetCurrentTrackPos()).c_str()).x + ImGui::CalcTextSize(SecondsToTimeStringNoText(m_AudioManager.GetCurrentTrackDuration()).c_str()).x));
+		ImGui::SliderInt("##duration", &m_AudioManager.GetCurrentTrackPos(), 0, m_AudioManager.GetCurrentTrackDuration());
 		if (ImGui::IsItemEdited()) {
 			m_AudioManager.ChangeMusicPos();
 		}
-		ImGui::SliderInt("Volume", &m_AudioVolume, 0, MIX_MAX_VOLUME);
+		ImGui::SameLine();
+		ImGui::Text(SecondsToTimeStringNoText(m_AudioManager.GetCurrentTrackDuration()).c_str());
+		ImGui::EndGroup();
+		CenterNextItem(300.0f - (ImGui::CalcTextSize(SecondsToTimeStringNoText(m_AudioManager.GetCurrentTrackPos()).c_str()).x + 8.0f) * 2, winSize);
+		ImGui::BeginGroup();
+		ImGui::SetNextItemWidth(300.0f - (ImGui::CalcTextSize(SecondsToTimeStringNoText(m_AudioManager.GetCurrentTrackPos()).c_str()).x + ImGui::CalcTextSize(SecondsToTimeStringNoText(m_AudioManager.GetCurrentTrackDuration()).c_str()).x));
+		ImGui::SliderInt("##volume", &m_AudioVolume, 0, 100);
 		if (ImGui::IsItemEdited()) {
 			m_AudioManager.ChangeVolume();
 		}
-		ImVec2 wSize = ImGui::GetWindowSize();
-		ImGui::SetCursorPos(ImVec2(wSize.x / 2 - 50, wSize.y - 50));
+		ImGui::SameLine();
+		std::string label = ICON_FA_VOLUME_HIGH;
+		if (m_AudioVolume < 40) label = ICON_FA_VOLUME_LOW;
+		if (m_AudioVolume < 10) label = ICON_FA_VOLUME_OFF;
+		if (m_AudioVolume == 0) label = ICON_FA_VOLUME_XMARK;
+		ImGui::PushFont(Fonts::icons20);
+		ImGui::Text(label.c_str());
+		ImGui::EndGroup();
+		ImGui::PopFont();
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+		CenterNextItem(ImGui::CalcTextSize("Queue").x, winSize);
+		ImGui::SetCursorPosY(winSize.y - 50);
 		if (ImGui::Button("Queue")) {
 			isQueueOpen = !isQueueOpen;
 		}
-
+		ImGui::PopStyleColor();
 	}
 
 	void PlayerModule::PlaylistModal() {

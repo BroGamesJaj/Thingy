@@ -36,6 +36,6 @@ namespace Thingy {
 		std::string newDescription = "";
 
 		const User& user;
-
+		std::unique_ptr<SDL_Texture, SDL_TDeleter> pfpTexture;
 	};
 }

@@ -21,10 +21,6 @@ namespace Thingy {
 		void OnRender();
 
 		void AutoComplete();
-
-
-
-
 	private:
 		std::vector<std::string> AllTermResults();
 

@@ -260,10 +260,10 @@ namespace Thingy {
 	}
 
 	void PopularsModule::GetPopulars() {
-		std::string weeklyTrack = "https://api.jamendo.com/v3.0/tracks/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&order=popularity_week&limit=5";
+		std::string weeklyTrack = "https://api.jamendo.com/v3.0/tracks/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&order=popularity_week&offset=1&limit=5";
 		std::string weeklyAlbum = "https://api.jamendo.com/v3.0/albums/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&order=popularity_week&limit=5";
 		std::string weeklyArtist = "https://api.jamendo.com/v3.0/artists/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&order=popularity_week&limit=5";
-		std::string monthlyTrack = "https://api.jamendo.com/v3.0/tracks/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&order=popularity_month&limit=5";
+		std::string monthlyTrack = "https://api.jamendo.com/v3.0/tracks/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&order=popularity_month&offset=1&limit=5";
 		std::string monthlyAlbum = "https://api.jamendo.com/v3.0/albums/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&order=popularity_month&limit=5";
 		std::string monthlyArtist = "https://api.jamendo.com/v3.0/artists/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&order=popularity_month&limit=5";
 

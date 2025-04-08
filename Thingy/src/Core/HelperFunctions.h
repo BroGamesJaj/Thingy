@@ -15,7 +15,10 @@ namespace Thingy {
 		return 0;
 	}
 
+	void CenterNextItem(float itemWidth, ImVec2 winSize);
+
 	std::string SecondsToTimeString(int seconds);
+	std::string SecondsToTimeStringNoText(int seconds);
 
 	bool OpenFileExplorer(std::string& filePath);
 

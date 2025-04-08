@@ -29,7 +29,7 @@ namespace Thingy {
 
 	void ProfileModule::Window() {
 		ImGui::BeginGroup();
-		CircleImage(m_ImageManager.GetImTexture(user.userID), 300.0f);
+		CircleImage(reinterpret_cast<ImTextureID>(pfpTexture.get()), 300.0f);
 		if (ImGui::IsItemHovered()) {
 			upProps |= BIT(3);
 		}
@@ -68,6 +68,7 @@ namespace Thingy {
 					ImGui::OpenPopup("Save Changes?");
 				}
 				if (ImGui::BeginPopupModal("Save Changes?", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove)) {
+					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 					ImGui::Button("Yes", ImVec2(50.0f, 30.0f));
 					if (ImGui::IsItemClicked()) {
 						m_MessageManager.Publish("changeDescription", newDescription);
@@ -82,15 +83,17 @@ namespace Thingy {
 						showDescChangePopup = false;
 						ImGui::CloseCurrentPopup();
 					}
+					ImGui::PopStyleColor();
 					ImGui::EndPopup();
 				}
 			}
 		} else {
-
-			if(ImGui::Button("descChange", ImVec2(50.0f, 50.0f))){
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+			if(ImGui::Button("Change Description", ImVec2(ImGui::CalcTextSize("Change Description").x + 5.0f, 50.0f))) {
 				editingDesc = true;
 				newDescription = user.description;
 			};
+			ImGui::PopStyleColor();
 			ImGui::SameLine();
 			LimitedTextWrap(user.description.c_str(), 500.0f, 3);
 		}
@@ -122,9 +125,10 @@ namespace Thingy {
 
 	void ProfileModule::UserInfoChanged() {
 		if (user.pfpBuffer.empty()) {
-			m_ImageManager.AddTexture(user.userID, m_ImageManager.GetDefaultArtistImage());
-		} else {
-			m_ImageManager.AddTexture(user.userID, m_ImageManager.GetTextureFromImage(Image(user.pfpBuffer)));
+			pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultArtistImage());
+		}
+		else {
+			pfpTexture = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetTextureFromImage(Image(user.pfpBuffer)));
 		}
 		for (size_t i = 0; i < user.playlists.size(); i++) {
 			const Playlist& currP = user.playlists[i];

@@ -96,11 +96,17 @@ namespace Thingy {
 	}
 
 	void AudioManager::ChangeVolume() {
-		Mix_VolumeMusic(volume);
+		double vol = (expf(volume/100.0f) - 1.0f) / (2.7182 - 1.0f);
+		Mix_VolumeMusic(vol * 100);
 	}
 
 	void AudioManager::ChangeMusicPos() {
+		if (!IsMusicPlaying()) {
+			ChangeMusic();
+			ResumeMusic();
+		}
 		Mix_SetMusicPosition(currentTrackPos);
+		
 	}
 
 	void AudioManager::ChangeMusic() {
@@ -130,7 +136,6 @@ namespace Thingy {
 				--current;
 				Mix_PlayMusic(music, 0);
 				PauseMusic();
-				
 			} else {
 				queue.pop_front();
 				LoadMusicFromQueue();
@@ -204,8 +209,23 @@ namespace Thingy {
 	}
 
 	void AudioManager::RemoveFromQueue(const int& index) {
+		
 		if (index != 0 || index < queue.size()) {
-			queue.erase(std::next(queue.begin(), index));
+			if (current == std::next(queue.begin(), index)) {
+				queue.erase(std::next(queue.begin(), index));
+				if (!queue.empty()) {
+					current = queue.begin();
+					LoadMusicFromQueue();
+					ChangeMusic();
+					ResumeMusic();
+				} else {
+					current = queue.end();
+					Mix_HaltMusic();
+				}
+			} else {
+				queue.erase(std::next(queue.begin(), index));
+			}
+			
 		}
 	}
 

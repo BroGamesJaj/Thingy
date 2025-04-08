@@ -77,6 +77,7 @@ namespace Thingy {
 
 			ImGui::EndTable();
 		}
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 		if (ImGui::Button("Create New Playlist")) {
 			error = "";
 			newDescription = "";
@@ -86,7 +87,7 @@ namespace Thingy {
 			newPlaylistCover = std::unique_ptr<SDL_Texture, SDL_TDeleter>(m_ImageManager.GetDefaultPlaylistImage());
 			ImGui::OpenPopup("New playlist");
 		}
-
+		ImGui::PopStyleColor();
 		NewPlaylistModal();
 
 	}
@@ -175,8 +176,9 @@ namespace Thingy {
 
 		if (ImGui::BeginPopupModal("New playlist", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
 			ImGui::SameLine(ImGui::GetWindowWidth() - 20);
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 			if (ImGui::Button("X")) ImGui::CloseCurrentPopup();
-
+			ImGui::PopStyleColor();
 			ImGui::Image((ImTextureID)(intptr_t)newPlaylistCover.get(), ImVec2(100.0f, 100.0f));
 			if (ImGui::IsItemHovered()) {
 				upProps |= BIT(3);
@@ -199,6 +201,7 @@ namespace Thingy {
 			ImGui::InputText("Playlist Name", &newPlaylistName, 0, ResizeCallback, (void*)&newPlaylistName);
 			ImGui::InputText("Description", &newDescription, 0, ResizeCallback, (void*)&newDescription);
 			ImGui::Checkbox("Private?", &isPrivate);
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 			if (ImGui::Button("Save Playlist")) {
 				if (newPlaylistName.size() < 3) {
 					error = "Playlist name cannot be shorter than 3 characters!";
@@ -216,6 +219,7 @@ namespace Thingy {
 				ImGui::Text(error.c_str());
 				ImGui::PopStyleColor();
 			}
+			ImGui::PopStyleColor();
 			ImGui::EndPopup();
 		}
 	}

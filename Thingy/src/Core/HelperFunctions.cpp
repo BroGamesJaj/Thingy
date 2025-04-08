@@ -25,6 +25,10 @@ namespace Thingy {
 		ImGui::SetCursorPos(ImVec2(cursorLocalPos.x, cursorLocalPos.y + maxHeight));
 	}
 
+	void CenterNextItem(float itemWidth, ImVec2 winSize) {
+		ImGui::SetCursorPosX(winSize.x / 2 - itemWidth / 2);
+	}
+
 	std::string SecondsToTimeString(int seconds) {
 		if (seconds <= 0) return "0s";
 
@@ -35,17 +39,34 @@ namespace Thingy {
 
 		std::string result;
 
-		if (hours > 0) {
-			result += std::to_string(hours) + "hr ";
-		}
-		if (minutes > 0 || hours > 0) {
-			result += std::to_string(minutes) + "min ";
-		}
+		if (hours > 0) result += std::to_string(hours) + "hr ";
+		if (minutes > 0 || hours > 0) result += std::to_string(minutes) + "min ";
+
 		result += std::to_string(seconds) + "sec";
 
 		return result;
 	}
 
+	std::string SecondsToTimeStringNoText(int seconds) {
+		if (seconds <= 0) return "0:00";
+
+		int hours = seconds / 3600;
+		seconds %= 3600;
+		int minutes = seconds / 60;
+		seconds %= 60;
+
+		std::string result;
+		if (hours > 0) result += std::to_string(hours) + ":";
+
+		if (minutes > 0 || hours > 0) result += std::to_string(minutes) + ":";
+		else result += "0:";
+
+		if (seconds < 10) result += "0" + std::to_string(seconds);
+		else result += std::to_string(seconds);
+		
+
+		return result;
+	}
 	bool OpenFileExplorer(std::string& filePath) {
 		bool success = true;
 		HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);

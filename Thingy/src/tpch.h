@@ -20,6 +20,7 @@
 #include <fstream>
 #include <chrono>
 #include <random>
+#include <cmath>
 
 #include <cstdint>
 #include <string>

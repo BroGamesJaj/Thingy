@@ -143,8 +143,8 @@ namespace Thingy {
 		ImGui::Text("Track count: %zu", playlists[curr].trackIDs.size());
 		ImGui::SameLine();
 		ImGui::Text("Playlist length: %s", SecondsToTimeString(length[curr]).c_str());
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 		if (loggedIn && playlists[curr].ownerID == user.userID && playlists[curr].playlistName != "Liked") {
-			
 			if (ImGui::Button("Edit playlist")) {
 				error = "";
 				editedDescription = playlists[curr].description;
@@ -184,6 +184,7 @@ namespace Thingy {
 				}
 			}
 		}
+		ImGui::PopStyleColor();
 		ImGui::EndGroup();
 		ImGui::BeginChild("Tracks", ImVec2(0, 300), false, ImGuiWindowFlags_HorizontalScrollbar);
 		
@@ -243,8 +244,9 @@ namespace Thingy {
 
 		if (ImGui::BeginPopupModal("Edit playlist", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
 			ImGui::SameLine(ImGui::GetWindowWidth() - 20);
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 			if (ImGui::Button("X")) ImGui::CloseCurrentPopup();
-
+			ImGui::PopStyleColor();
 			ImGui::Image((editedPlaylistCover == nullptr ? m_ImageManager.GetImTexture(playlists[curr].playlistID) : reinterpret_cast<ImTextureID>(editedPlaylistCover.get())), ImVec2(100.0f, 100.0f));
 			if (ImGui::IsItemHovered()) {
 				upProps |= BIT(3);
@@ -267,6 +269,7 @@ namespace Thingy {
 			ImGui::InputText("Playlist Name", &editedPlaylistName, 0, ResizeCallback, (void*)&editedPlaylistName);
 			ImGui::InputText("Description", &editedDescription, 0, ResizeCallback, (void*)&editedDescription);
 			ImGui::Checkbox("Private?", &editedIsPrivate);
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 			if (ImGui::Button("Save Changes")) {
 				if (editedPlaylistName.size() < 3) {
 					error = "Playlist name cannot be shorter than 3 characters!";
@@ -289,6 +292,7 @@ namespace Thingy {
 					ImGui::CloseCurrentPopup();
 				}
 			}
+			ImGui::PopStyleColor();
 			if (!error.empty()) {
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
 				ImGui::Text(error.c_str());
@@ -306,6 +310,7 @@ namespace Thingy {
 		ImGui::SetNextWindowSize(modalSize);
 
 		if (ImGui::BeginPopupModal("Delete playlist", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 			if (ImGui::Button("Yes")) {
 				std::string url = "http://localhost:3000/playlists/" + std::to_string(playlists[curr].playlistID);
 				std::string token;
@@ -320,7 +325,7 @@ namespace Thingy {
 			if (ImGui::Button("No")) {
 				ImGui::CloseCurrentPopup();
 			}
-
+			ImGui::PopStyleColor();
 			ImGui::EndPopup();
 		}
 	}
