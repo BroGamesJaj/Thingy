@@ -34,8 +34,10 @@ file(GLOB_RECURSE PROJECT_FILES
     "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/src/*.cpp"
 )
 
+set(APP_ICON_RESOURCE_WINDOWS "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/Resource.rc")
+
 # Create executable
-add_executable(Thingy ${PROJECT_FILES})
+add_executable(Thingy ${PROJECT_FILES} ${APP_ICON_RESOURCE_WINDOWS})
 
 # Set target properties
 set_target_properties(Thingy PROPERTIES

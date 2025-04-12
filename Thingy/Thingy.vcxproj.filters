@@ -50,6 +50,7 @@
     <ClInclude Include="src\Scenes\PlaylistScene.h" />
     <ClInclude Include="src\Scenes\SearchScene.h" />
     <ClInclude Include="src\Core\Style.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -91,5 +92,12 @@
     <ClCompile Include="src\Modules\PlaylistModule.cpp" />
     <ClCompile Include="src\Scenes\PlaylistScene.cpp" />
     <ClCompile Include="src\Scenes\SearchScene.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico" />
+    <Image Include="assets\images\ThingyIcon.ico" />
   </ItemGroup>
 </Project>
