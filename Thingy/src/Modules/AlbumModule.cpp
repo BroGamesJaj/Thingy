@@ -236,7 +236,7 @@ namespace Thingy {
 						std::string token;
 						m_AuthManager.RetrieveToken("accessToken", token);
 						std::string json;
-						T_INFO("{0}", m_NetworkManager.PostRequestAuth(url, json, token));
+						m_NetworkManager.PostRequestAuth(url, json, token);
 						m_MessageManager.Publish("updateUser", "");
 					}
 					ImGui::CloseCurrentPopup();
