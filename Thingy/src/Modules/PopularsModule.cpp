@@ -71,9 +71,12 @@ namespace Thingy {
 		if (!collapse) {
 			ImGui::SetCursorPosX(20);
 			if (ImGui::BeginTable("Weeklys", 5, ImGuiTableFlags_ScrollY, {winSize.x / 2 - 20, 0.0f})) {
-				ImGui::TableHeader("WeeklyTracks");
+				ImGui::TableSetupColumn("WeeklyTracks", ImGuiTableColumnFlags_WidthStretch);
 				ImGui::TableNextColumn();
-				ImGui::Text("Weekly Tracks");
+				ImGui::Text("Weekly");
+				ImGui::TableNextRow();
+				ImGui::TableNextColumn();
+				ImGui::Text("Tracks");
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
@@ -85,7 +88,7 @@ namespace Thingy {
 
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
-				ImGui::Text("Weekly Albums");
+				ImGui::Text("Albums");
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
@@ -98,7 +101,7 @@ namespace Thingy {
 
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
-				ImGui::Text("Weekly Artists");
+				ImGui::Text("Artists");
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
@@ -113,9 +116,11 @@ namespace Thingy {
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(winSize.x / 2 + 15);
 			if (ImGui::BeginTable("Monthlys", 5, ImGuiTableFlags_ScrollY, { winSize.x / 2 - 20, 0.0f })) {
-				ImGui::TableHeader("MonthlyTracks");
 				ImGui::TableNextColumn();
-				ImGui::Text("Monthly Tracks");
+				ImGui::Text("Monthly");
+				ImGui::TableNextRow();
+				ImGui::TableNextColumn();
+				ImGui::Text("Tracks");
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
@@ -127,7 +132,7 @@ namespace Thingy {
 				
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
-				ImGui::Text("Monthly Albums");
+				ImGui::Text("Albums");
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
@@ -140,7 +145,7 @@ namespace Thingy {
 
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
-				ImGui::Text("Monthly Artists");
+				ImGui::Text("Artists");
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
@@ -158,9 +163,11 @@ namespace Thingy {
 			ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(10, 10));
 			
 			if (ImGui::BeginTable("WeeklysAndMonthlys", 5, ImGuiTableFlags_ScrollY, { winSize.x / (5.0f/4.2f), 0.0f})) {
-				ImGui::TableNextRow();	
 				ImGui::TableNextColumn();
-				ImGui::Text("Weekly Tracks");
+				ImGui::Text("Weekly");
+				ImGui::TableNextRow();
+				ImGui::TableNextColumn();
+				ImGui::Text("Tracks");
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
@@ -172,7 +179,7 @@ namespace Thingy {
 
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
-				ImGui::Text("Weekly Albums");
+				ImGui::Text("Albums");
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
@@ -185,7 +192,7 @@ namespace Thingy {
 
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
-				ImGui::Text("Weekly Artists");
+				ImGui::Text("Artists");
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
@@ -198,7 +205,10 @@ namespace Thingy {
 
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
-				ImGui::Text("Monthly Tracks");
+				ImGui::Text("Monthly");
+				ImGui::TableNextRow();
+				ImGui::TableNextColumn();
+				ImGui::Text("Tracks");
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
@@ -210,7 +220,7 @@ namespace Thingy {
 
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
-				ImGui::Text("Monthly Albums");
+				ImGui::Text("Albums");
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();
@@ -223,7 +233,7 @@ namespace Thingy {
 
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
-				ImGui::Text("Monthly Artists");
+				ImGui::Text("Artists");
 				ImGui::TableNextRow();
 				for (size_t i = 0; i < 5; i++) {
 					ImGui::TableNextColumn();

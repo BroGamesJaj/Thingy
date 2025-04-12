@@ -232,7 +232,6 @@ namespace Thingy {
 					for (auto& track : album[curr].tracks) {
 						url += "&trackId=" + std::to_string(track.id);
 					}
-					T_INFO("{0}", url);
 					if (hasSelected) {
 						std::string token;
 						m_AuthManager.RetrieveToken("accessToken", token);

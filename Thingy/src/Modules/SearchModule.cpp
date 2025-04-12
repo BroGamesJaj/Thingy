@@ -421,8 +421,7 @@ namespace Thingy {
 		if (playlistResults.empty()) {
 			ImGui::Text("No results :c");
 		} else {
-
-			if (ImGui::ImageButton("##highlighted", m_ImageManager.GetImTexture(playlistResults[0].playlistID), ImVec2(200.0f, 200.0f))) {
+			if (ImGui::ImageButton("##highlighted", m_ImageManager.GetPlaylistImTexture(playlistResults[0].playlistID), ImVec2(200.0f, 200.0f))) {
 				m_MessageManager.Publish("openPlaylist", playlistResults[0]);
 				m_MessageManager.Publish("changeScene", std::string("PlaylistScene"));
 			};

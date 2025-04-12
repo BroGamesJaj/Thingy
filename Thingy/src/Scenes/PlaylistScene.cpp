@@ -18,7 +18,7 @@ namespace Thingy {
 				std::cout << m.first << " " << std::get<std::string>(m.second) << std::endl;
 		}
 		m_MessageManager.Subscribe("saveModuleState", GetSceneName(), [this](const MessageData data) {
-			T_ERROR("saveModuleState");
+			T_INFO("saveModuleState");
 			if (data.type() == typeid(std::pair<std::string, std::variant<int, std::string>>)) {
 				std::pair<std::string, std::variant<int, std::string>> pair = std::any_cast<std::pair<std::string, std::variant<int, std::string>>>(data);
 				moduleStates.emplace(pair.first, pair.second);

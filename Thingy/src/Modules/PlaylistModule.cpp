@@ -15,6 +15,21 @@ namespace Thingy {
 							m_ImageManager.AddPlaylistTexture(playlists[curr].playlistID, m_ImageManager.GetDefaultPlaylistImage());
 						else m_ImageManager.AddPlaylistTexture(playlists[curr].playlistID, m_ImageManager.GetTextureFromImage(Image(playlists[curr].playlistCoverBuffer)));
 						playlists[curr] = playlist;
+						
+						std::string url = "https://api.jamendo.com/v3.0/tracks/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&limit=200";
+						bool needsUpdate = false;
+						for (auto& trackId : playlist.trackIDs) {
+							if (tracks.find(trackId) == tracks.end()) {
+								url += "&id[]=" + std::to_string(trackId);
+								needsUpdate = true;
+							}
+						}
+						if (needsUpdate) {
+							std::vector<Track> newTracks = m_NetworkManager.GetTrack(url);
+							for (auto& newTrack : newTracks) {
+								tracks[newTrack.id] = newTrack;
+							}
+						}
 						std::unordered_map<uint32_t, std::future<Image>> images;
 						length[curr] = 0;
 						for (auto& trackId : playlists[curr].trackIDs) {
@@ -30,23 +45,10 @@ namespace Thingy {
 								if (image.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
 									m_ImageManager.AddTexture(it->first, m_ImageManager.GetTextureFromImage(image.get()));
 									it = images.erase(it);
-								} else {
+								}
+								else {
 									++it;
 								}
-							}
-						}
-						std::string url = "https://api.jamendo.com/v3.0/tracks/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&limit=200";
-						bool needsUpdate = false;
-						for (auto& trackId : playlist.trackIDs) {
-							if (tracks.find(trackId) == tracks.end()) {
-								url += "&id[]=" + std::to_string(trackId);
-								needsUpdate = true;
-							}
-						}
-						if (needsUpdate) {
-							std::vector<Track> newTracks = m_NetworkManager.GetTrack(url);
-							for (auto& newTrack : newTracks) {
-								tracks[newTrack.id] = newTrack;
 							}
 						}
 						T_INFO("returned");

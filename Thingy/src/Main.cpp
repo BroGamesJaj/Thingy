@@ -26,7 +26,7 @@
 using json = nlohmann::json;
 
 #ifdef T_PLATFORM_WINDOWS
-
+#ifndef NDEBUG
 int main(int argc, char* argv[]) {
 
 	Thingy::Log::Init();
@@ -35,7 +35,15 @@ int main(int argc, char* argv[]) {
 	app.Run();
 	return 0;
 }
-
+#else
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+	Thingy::Log::Init();
+	Thingy::Application app{};
+	T_INFO("Thingy started");
+	app.Run();
+	return 0;
+}
+#endif
 #else
 #error Windows support only!
 #endif

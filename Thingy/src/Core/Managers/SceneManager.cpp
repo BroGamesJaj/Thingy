@@ -106,7 +106,7 @@ namespace Thingy {
 			if (!history.empty()) {
 				if (type == BACK) activeScene->OnSwitch(history[currentSceneIndex - 1].moduleState);
 				else if (type == NEXT) activeScene->OnSwitch(history[currentSceneIndex + 1].moduleState);
-				else if (type == OPEN) activeScene->OnSwitch(history[currentSceneIndex].moduleState);
+				else if (type == OPEN) activeScene->OnSwitch({});
 			} else {
 				activeScene->OnSwitch({});
 			}
