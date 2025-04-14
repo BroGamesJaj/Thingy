@@ -55,16 +55,16 @@ namespace Thingy {
 						return;
 					}
 				}
-				std::string url = "https://api.jamendo.com/v3.0/tracks/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&limit=200";
+				std::string url = "https://api.jamendo.com/v3.0/artists/tracks/?client_id=" + std::string(CLIENTID) + "&format=jsonpretty&limit=200";
 				bool needsUpdate = false;
 				for (auto& trackId : playlist.trackIDs) {
 					if (tracks.find(trackId) == tracks.end()) {
-						url += "&id[]=" + std::to_string(trackId);
+						url += "&track_id[]=" + std::to_string(trackId);
 						needsUpdate = true;
 					}
 				}
 				if (needsUpdate) {
-					std::vector<Track> newTracks = m_NetworkManager.GetTrack(url);
+					std::vector<Track> newTracks = m_NetworkManager.GetTracksFromArtist(url);
 					for (auto& newTrack : newTracks) {
 						tracks[newTrack.id] = newTrack;
 					}

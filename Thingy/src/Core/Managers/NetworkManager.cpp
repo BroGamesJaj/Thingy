@@ -28,7 +28,7 @@ namespace Thingy {
 			curl_slist_free_all(headers);
 	}
 
-	
+
 
 	bool NetworkManager::DownloadAudio(std::string& url, std::vector<uint8_t>& buffer) {
 		buffer.clear();
@@ -68,7 +68,7 @@ namespace Thingy {
 			curl_easy_cleanup(curl);
 			throw std::runtime_error("cURL request failed: " + std::string(curl_easy_strerror(res)));
 		}
-		
+
 		curl_easy_cleanup(curl);
 		imageData = std::move(chunk.data);
 	}
@@ -110,7 +110,8 @@ namespace Thingy {
 			std::cout << "Error Code: " << status << " Error Detail : " << curl_easy_strerror(status) << std::endl;
 			CleanupGet(curl, headers);
 			return "curl error";
-		} else {
+		}
+		else {
 			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &responseCode);
 			if (responseCode == 403) {
 				std::cout << "Received 403 Forbidden" << std::endl;
@@ -131,7 +132,7 @@ namespace Thingy {
 		CURL* curl = curl_easy_init();
 		std::string responseString;
 		long responseCode;
-		
+
 		struct curl_slist* headers = NULL;
 		if (!curl) {
 			std::cout << "ERROR : Curl initialization\n" << std::endl;
@@ -162,7 +163,8 @@ namespace Thingy {
 			std::cout << "Error Code: " << status << " Error Detail : " << curl_easy_strerror(status) << std::endl;
 			CleanupGet(curl, headers);
 			return "curl error";
-		} else {
+		}
+		else {
 			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &responseCode);
 
 			if (responseCode == 403) {
@@ -171,9 +173,10 @@ namespace Thingy {
 			}
 			if (responseCode == 401) {
 				T_ERROR("Received 401 Unauthorized.");
-				if (url.find("auth/refresh") != std::string::npos){
+				if (url.find("auth/refresh") != std::string::npos) {
 					m_MessageManager.Publish("changeScene", std::string("LoginScene"));
-				} else {
+				}
+				else {
 					T_INFO("Token was expired.");
 					m_MessageManager.Publish("expiredToken", "");
 				};
@@ -215,7 +218,8 @@ namespace Thingy {
 		CURLcode res = curl_easy_perform(curl);
 		if (res != CURLE_OK) {
 			response = "Curl error: " + std::string(curl_easy_strerror(res));
-		} else {
+		}
+		else {
 			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &responseCode);
 			if (responseCode == 401) {
 				return "Received 401 Unauthorized";
@@ -241,7 +245,7 @@ namespace Thingy {
 			CleanupGet(curl, headers);
 			return "";
 		}
-		
+
 		headers = curl_slist_append(headers, "Content-Type: application/json");
 		headers = curl_slist_append(headers, ("Authorization: Bearer " + token).c_str());
 
@@ -249,13 +253,14 @@ namespace Thingy {
 		curl_easy_setopt(curl, CURLOPT_POST, 1L);
 		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L);
 		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L);
-		
+
 		if (!data.empty()) {
 			curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.c_str());
-		} else {
+		}
+		else {
 			curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "{}");
 		}
-		
+
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallbackPost);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
@@ -263,7 +268,8 @@ namespace Thingy {
 		CURLcode res = curl_easy_perform(curl);
 		if (res != CURLE_OK) {
 			response = "Curl error: " + std::string(curl_easy_strerror(res));
-		} else {
+		}
+		else {
 			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &responseCode);
 			if (responseCode == 401) {
 				return "Received 401 Unauthorized";
@@ -309,7 +315,8 @@ namespace Thingy {
 		CURLcode res = curl_easy_perform(curl);
 		if (res != CURLE_OK) {
 			response = "Curl error: " + std::string(curl_easy_strerror(res));
-		} else {
+		}
+		else {
 			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &responseCode);
 			if (responseCode == 401) {
 				return "Received 401 Unauthorized";
@@ -324,7 +331,7 @@ namespace Thingy {
 		return response;
 	}
 
-	std::string NetworkManager::UploadImage(std::string& url, const std::string& filePath, const std::string& token){
+	std::string NetworkManager::UploadImage(std::string& url, const std::string& filePath, const std::string& token) {
 		URLSanitizer(url);
 		CURL* curl = curl_easy_init();
 		std::string response;
@@ -343,8 +350,8 @@ namespace Thingy {
 			CURLFORM_COPYNAME, "file",
 			CURLFORM_FILE, filePath.c_str(),
 			CURLFORM_END);
-		
-		headers = curl_slist_append(headers, ("Authorization: Bearer " + token).c_str());	
+
+		headers = curl_slist_append(headers, ("Authorization: Bearer " + token).c_str());
 
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
@@ -356,7 +363,8 @@ namespace Thingy {
 		CURLcode res = curl_easy_perform(curl);
 		if (res != CURLE_OK) {
 			std::cout << "Curl error: " << curl_easy_strerror(res) << std::endl;
-		} else {
+		}
+		else {
 			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &responseCode);
 			if (responseCode == 401) {
 				return "Received 401 Unauthorized";
@@ -402,7 +410,7 @@ namespace Thingy {
 			curl_mime_name(part, "PlaylistCover");
 			curl_mime_filedata(part, filePath.c_str());
 		}
-		
+
 		headers = curl_slist_append(headers, "Content-Type: multipart/form-data");
 		headers = curl_slist_append(headers, ("Authorization: Bearer " + token).c_str());
 
@@ -415,7 +423,8 @@ namespace Thingy {
 		CURLcode res = curl_easy_perform(curl);
 		if (res != CURLE_OK) {
 			std::cout << "Curl error: " << curl_easy_strerror(res) << std::endl;
-		} else {
+		}
+		else {
 			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &responseCode);
 			if (responseCode == 401) {
 				return "Received 401 Unauthorized";
@@ -448,7 +457,7 @@ namespace Thingy {
 			curl_mime_name(part, "PlaylistName");
 			curl_mime_data(part, playlistName.c_str(), CURL_ZERO_TERMINATED);
 		}
-		
+
 		if (!desc.empty()) {
 			part = curl_mime_addpart(mime);
 			curl_mime_name(part, "Description");
@@ -478,7 +487,8 @@ namespace Thingy {
 		CURLcode res = curl_easy_perform(curl);
 		if (res != CURLE_OK) {
 			std::cout << "Curl error: " << curl_easy_strerror(res) << std::endl;
-		} else {
+		}
+		else {
 			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &responseCode);
 			if (responseCode == 401) {
 				return "Received 401 Unauthorized";
@@ -515,7 +525,8 @@ namespace Thingy {
 		CURLcode res = curl_easy_perform(curl);
 		if (res != CURLE_OK) {
 			std::cout << "Curl error: " << curl_easy_strerror(res) << std::endl;
-		} else {
+		}
+		else {
 			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &responseCode);
 			if (responseCode == 401) {
 				return "Received 401 Unauthorized";
@@ -526,7 +537,7 @@ namespace Thingy {
 
 		return response;
 	}
-	
+
 	std::vector<Track> NetworkManager::GetTrack(std::string url) {
 		std::string jsonData = GetRequest(url);
 		if (jsonData == "curl error" || jsonData.find("error code:") != std::string::npos) {
@@ -536,13 +547,46 @@ namespace Thingy {
 		json parsedJsonData;
 		try {
 			parsedJsonData = json::parse(jsonData);
-		} catch (const nlohmann::json::parse_error& e) {
+		}
+		catch (const nlohmann::json::parse_error& e) {
 			T_ERROR("JSON parse error: {0}", e.what());
 		}
 		std::vector<Track> tracks;
 		for (size_t i = 0; i < parsedJsonData["headers"]["results_count"]; i++) {
 			Track track = parsedJsonData["results"][i];
 			tracks.push_back(track);
+		}
+		return tracks;
+	}
+
+	std::vector<Track> NetworkManager::GetTracksFromArtist(std::string url) {
+		std::string jsonData = GetRequest(url);
+		if (jsonData == "curl error" || jsonData.find("error code:") != std::string::npos) {
+			T_ERROR("{0}", jsonData);
+			return std::vector<Track>();
+		}
+		json parsedJsonData;
+		try {
+			parsedJsonData = json::parse(jsonData);
+		}
+		catch (const nlohmann::json::parse_error& e) {
+			T_ERROR("JSON parse error: {0}", e.what());
+		}
+		std::vector<Track> tracks;
+		json& headers = parsedJsonData["headers"];
+		if (headers["status"] != "success") {
+			T_ERROR("{0}", jsonData);
+			T_ERROR("code: {0}", headers["code"].get<int>());
+			return std::vector<Track>();
+		}
+		json& results = parsedJsonData["results"];
+		for (size_t i = 0; i < headers["results_count"]; i++) {
+			json& currArtist = results[i];
+			for (size_t j = 0; j < currArtist["tracks"].size(); j++) {
+				json& currTrack = currArtist["tracks"][j];
+				Track track = currTrack;
+				tracks.push_back(track);
+			}
 		}
 		return tracks;
 	}

@@ -76,6 +76,7 @@ namespace Thingy {
 		std::string DeleteRequest(std::string& url, const std::string& token);
 
 		std::vector<Track> GetTrack(std::string url);
+		std::vector<Track> GetTracksFromArtist(std::string url);
 		std::vector<Album> GetAlbum(std::string url);
 		std::vector<Artist> GetArtist(std::string url);
 		std::vector<Artist> GetArtistsWithTracks(std::string url);

@@ -22,12 +22,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(SDL3_DIR "${CMAKE_SOURCE_DIR}/Thingy/vendor/SDL_mixer/external/SDL/sdl_build")
 set(SDL3_mixer_DIR "${CMAKE_SOURCE_DIR}/Thingy/vendor/SDL_mixer/build")
 
-
-
-if(WIN32 AND NOT (CMAKE_SYSTEM_VERSION MATCHES "10\\." OR CMAKE_SYSTEM_VERSION MATCHES "11\\."))
-    message(FATAL_ERROR "Only Windows 10 or 11 supported.")
-endif()
-
 # Collect project files
 file(GLOB_RECURSE PROJECT_FILES
     "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/src/*.h"
@@ -58,6 +52,8 @@ target_link_libraries(Thingy PRIVATE "${CMAKE_SOURCE_DIR}/Thingy/vendor/spdlog/b
 
 # Precompiled header setup
 if (MSVC)
+    target_compile_options(Thingy PRIVATE "$<$<CONFIG:Debug>:/Zi>")
+    target_link_options(Thingy PRIVATE "$<$<CONFIG:Debug>:/DEBUG>")
     target_precompile_headers(Thingy PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/src/tpch.h")
 endif()
 
