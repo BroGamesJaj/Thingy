@@ -1,4 +1,4 @@
-REM @echo off
+@echo off
 
 for /f "delims=" %%A in ('"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -find **\vcvars64.bat') do set "VSCMD=%%A"
 
@@ -40,9 +40,6 @@ if not exist build (
 cd build
 
 REM Build SDL_mixer shared library
-echo "%~dp0Thingy\vendor\SDL_mixer\external\SDL\sdl_build"
-echo paused
-pause
 cmake .. -DBUILD_SHARED_LIBS=ON -DSDL3_DIR="%~dp0Thingy\vendor\SDL_mixer\external\SDL\sdl_build"
 cmake --build . --config RelWithDebInfo
 
