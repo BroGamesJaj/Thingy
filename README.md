@@ -1,5 +1,17 @@
 # Thingy
 
+**Thingy** is a user experience–driven music player with a customizable UI to make your listening experience unique and comfortable, all made available in a desktop application.
+
+---
+
+## Features
+
+- Customizable themes
+- User management
+- Playlist creation and management (registration required)
+- Integration with a third-party music API
+- Responsive design for mobile and desktop
+
 ## Installation Guide
 
 ### Requirements
