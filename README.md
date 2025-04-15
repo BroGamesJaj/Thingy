@@ -6,11 +6,10 @@
 
 ## Features
 
-- Customizable themes
+- Customizable layouts
 - User management
 - Playlist creation and management (registration required)
 - Integration with a third-party music API
-- Responsive design for mobile and desktop
 
 ## Installation Guide
 
