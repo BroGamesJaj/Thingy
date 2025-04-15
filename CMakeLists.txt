@@ -48,7 +48,7 @@ target_include_directories(Thingy PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL/include"
 )
 
-target_link_libraries(Thingy PRIVATE "${CMAKE_SOURCE_DIR}/Thingy/vendor/spdlog/build/Debug/spdlogd.lib")
+target_link_libraries(Thingy PRIVATE "${CMAKE_SOURCE_DIR}/Thingy/vendor/spdlog/build/spdlogd.lib")
 
 # Precompiled header setup
 if (MSVC)
@@ -76,44 +76,22 @@ target_include_directories(Thingy PRIVATE
 target_compile_definitions(Thingy PRIVATE SDL_MAIN_HANDLED)
 
 # Link SDL_mixer
-if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_CONFIGURATION_TYPES MATCHES "Release")
-    target_link_libraries(Thingy PRIVATE SDL3::SDL3 "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL_mixer/build/Release/SDL3_mixer.lib")
-else()
-    target_link_libraries(Thingy PRIVATE SDL3::SDL3 "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL_mixer/build/Debug/SDL3_mixer.lib")
-endif()
+target_link_libraries(Thingy PRIVATE SDL3::SDL3 "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL_mixer/build/SDL3_mixer.lib")
 
 # Link SDL3
-if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_CONFIGURATION_TYPES MATCHES "Release")
-    target_link_directories(Thingy PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL_mixer/external/SDL/sdl_build/Release")
-else()
-    target_link_directories(Thingy PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL_mixer/external/SDL/sdl_build/Debug")
-endif()
+target_link_directories(Thingy PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL_mixer/external/SDL/sdl_build")
 
-if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_CONFIGURATION_TYPES MATCHES "Release")
-    add_custom_command(TARGET Thingy POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL_mixer/external/SDL/sdl_build/Release/SDL3.dll"
-        $<TARGET_FILE_DIR:Thingy>
-    )
+add_custom_command(TARGET Thingy POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL_mixer/external/SDL/sdl_build/RelWithDebInfo/SDL3.dll"
+    $<TARGET_FILE_DIR:Thingy>
+)
 
-    add_custom_command(TARGET Thingy POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL_mixer/build/Release/SDL3_mixer.dll"
-        $<TARGET_FILE_DIR:Thingy>
-    )
-else()
-    add_custom_command(TARGET Thingy POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL_mixer/external/SDL/sdl_build/Debug/SDL3.dll"
-        $<TARGET_FILE_DIR:Thingy>
-    )
-
-    add_custom_command(TARGET Thingy POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL_mixer/build/Debug/SDL3_mixer.dll"
-        $<TARGET_FILE_DIR:Thingy>
-    )
-endif()
+add_custom_command(TARGET Thingy POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_CURRENT_SOURCE_DIR}/Thingy/vendor/SDL_mixer/build/SDL3_mixer.dll"
+    $<TARGET_FILE_DIR:Thingy>
+)
 
 # CURL library setup
 add_definitions(-DHAVE_CONFIG_H)
