@@ -30,6 +30,8 @@ cd sdl_build
 
 REM Build SDL shared library
 cmake .. -G "Visual Studio 17 2022" -A "x64" -DBUILD_SHARED_LIBS=ON
+cmake --build . --config Debug
+cmake --build . --config Release
 cmake --build . --config RelWithDebInfo
 
 REM Path to SDL_mixer
