@@ -31,3 +31,7 @@ Clone or download the backend and follow its setup instructions in the [README](
 3. Run the program using the desktop shortcut or from the install location (Path_to_install_location/Thingy/bin/Thingy.exe)
 
 For details on how to use the app, see the [User Manual](https://github.com/BroGamesJaj/Thingy/wiki/User-Manual).
+
+## Author
+
+### [Pásztor Botond](https://github.com/BroGamesJaj)
