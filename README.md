@@ -16,7 +16,7 @@
 ### Requirements
 
 OS: Windows 10/11 (untested on older Windows operating systems)
-Internet Connection nened
+
 ### Prerequisites
 Internet connection is required for using the app.<br>
 
